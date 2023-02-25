@@ -1,34 +1,31 @@
 package frc.robot.implementation;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 public class LiftSubsystem {
-    private final CANSparkMax m_leftDrive1 = new CANSparkMax(6, MotorType.kBrushless);
-    private final CANSparkMax m_rightDrive1 = new CANSparkMax(7, MotorType.kBrushless);
+    private final CANSparkMax pulley = new CANSparkMax(5, MotorType.kBrushless);
 
-    private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1);
-    private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1);
-
-    private final DifferentialDrive lift = new DifferentialDrive(m_leftMotors, m_rightMotors);
+    LiftSubsystem() {
+        pulley.setIdleMode(IdleMode.kBrake);
+    }
 
     public void raiseArm(double magnitude) {
         System.out.println("raiseArm:"+magnitude);
-        lift.arcadeDrive(magnitude, 0);
+        double intakePower = 1.0;
+        int intakeAmps = 25;
+
+        pulley.set(intakePower);
+        pulley.setSmartCurrentLimit(intakeAmps);
     }
 
     public void lowerArm(double magnitude) {
         System.out.println("lowerArm:"+magnitude);
-        lift.arcadeDrive(magnitude, 0);
-    }
+        double intakePower = -1.0;
+        int intakeAmps = 25;
 
-    public void extendArm(double magnitude) {
-        System.out.println("extendArm:"+magnitude);
-    }
-
-    public void retractArm(double magnitude) {
-        System.out.println("retractArm:"+magnitude);
+        pulley.set(intakePower);
+        pulley.setSmartCurrentLimit(intakeAmps);
     }
 }
