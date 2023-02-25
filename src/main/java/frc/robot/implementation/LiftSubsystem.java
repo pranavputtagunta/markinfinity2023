@@ -28,4 +28,8 @@ public class LiftSubsystem {
         pulley.set(intakePower);
         pulley.setSmartCurrentLimit(intakeAmps);
     }
+
+    public void stop() {
+        pulley.stopMotor();
+    }
 }

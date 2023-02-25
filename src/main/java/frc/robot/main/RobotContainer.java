@@ -1,15 +1,17 @@
 package frc.robot.main;
 
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.implementation.ArmControllerImpl;
-import frc.robot.implementation.ClawControllerImpl;
+import frc.robot.implementation.IntakeControllerImpl;
 import frc.robot.implementation.AutonomousControllerImpl;
 import frc.robot.implementation.DriveControllerImpl;
 import frc.robot.implementation.PSTeleController;
 import frc.robot.implementation.XboxTeleController;
 
 import frc.robot.interfaces.ArmController;
-import frc.robot.interfaces.ClawController;
+import frc.robot.interfaces.IntakeController;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
@@ -29,7 +31,7 @@ public class RobotContainer {
   private TeleController teleController;
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
-  private ClawController clawController = new ClawControllerImpl();
+  private IntakeController clawController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonomousControllerImpl();
   Pair lastAction = null;
   int calibrationCycle = 0;
@@ -146,27 +148,42 @@ public class RobotContainer {
     if (teleController.shouldArmMove()) {
       double extendMagnitude = teleController.getArmExtensionMagnitude();
       double liftMagnitude = teleController.getArmLiftMagnitude();
+      if (extendMagnitude>0.7) extendMagnitude = 0.7;
+      if (liftMagnitude>0.7) liftMagnitude = 0.7;
+
       if (extendMagnitude > 0.05)
         armController.extendArm(extendMagnitude);
       else if (extendMagnitude < -0.05)
         armController.retractArm(-extendMagnitude);
+      else {
+        armController.stop();
+      }
 
       if (liftMagnitude > 0.05)
         armController.raiseArm(liftMagnitude);
       else if (liftMagnitude < -0.05) {
         armController.lowerArm(-liftMagnitude);
       }
+      else {
+        armController.stop();
+      }
+    } else {
+      armController.stop();
     }
 
+    double grabMagnitude = 0.3;
     if (teleController.shouldGrabCone()) {
-      clawController.grabCone(0);
+      clawController.grabCone(grabMagnitude);
     } else if (teleController.shouldGrabCube()) {
-      clawController.grabCube(0);
+      clawController.grabCube(grabMagnitude);
     } else if (teleController.shouldReleaseCone()) {
-      clawController.releaseCube(0);
+      clawController.releaseCone(grabMagnitude);
     } else if (teleController.shouldReleaseCube()) {
-      clawController.releaseCube(0);
-    }
+      clawController.releaseCube(grabMagnitude);
+    } else {
+      clawController.stop();
+    } 
+
   }
 
 

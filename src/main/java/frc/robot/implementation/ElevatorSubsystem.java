@@ -30,4 +30,8 @@ public class ElevatorSubsystem {
         System.out.println("retractArm:"+magnitude);
         elev.arcadeDrive(-magnitude, 0);
     }
+
+    public void stop() {
+        elev.arcadeDrive(0, 0);
+    }
 }

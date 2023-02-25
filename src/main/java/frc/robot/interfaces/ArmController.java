@@ -5,4 +5,5 @@ public interface ArmController {
     public void lowerArm(double magnitude);
     public void extendArm(double magnitude);
     public void retractArm(double magnitude);
+    public void stop();
 }
