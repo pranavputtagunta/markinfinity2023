@@ -50,36 +50,22 @@ public class PSTeleController implements TeleController {
     double lift = ps4c.getRawAxis(2);
     return -lift;
   }
- 
 
   @Override
-  // to be deleted
-  public boolean shouldGrab() {
-    return ps4c.getCircleButton();
-  }
-
-  // to be moved to xbox
   public boolean shouldGrabCone() {
     return ps4c.getTriangleButton();
   }
 
-   // to be moved to xbox
+  @Override
   public boolean shouldGrabCube() {
     return ps4c.getSquareButton();
   }
 
-  @Override
-  //to be deleted
-  public boolean shouldRelease() {
-    return ps4c.getCrossButton();
-  }
-
-   // to be moved to xbox
   public boolean shouldReleaseCone() {
     return ps4c.getCrossButton();
   }
 
-   // to be moved to xbox
+  @Override
   public boolean shouldReleaseCube() {
     return ps4c.getCircleButton();
   }

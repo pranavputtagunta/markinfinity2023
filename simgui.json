@@ -1,7 +1,11 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
+      "/LiveWindow/Ungrouped/DifferentialDrive[2]": "DifferentialDrive",
+      "/LiveWindow/Ungrouped/DifferentialDrive[3]": "DifferentialDrive",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler"
     }
   },
   "NetworkTables": {

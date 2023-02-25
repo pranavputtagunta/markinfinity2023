@@ -48,10 +48,24 @@ public final class Constants {
     public static final double kPDriveVel = 8.5;
   }
 
+  public enum DashboardItem {
+    Calibrate_Cycle(0),
+    DistOn_100(20), DistOn_50(10), DistOn_25(5), DistOn_10(1), 
+    RotaOn_100(30), RotaOn_50(15), RotaOn_25(7), RotaOn_10(2),
+    Auto_Sequence(0);
+
+    private int defaultValue;
+    DashboardItem(int defaultValue) {
+      this.defaultValue = defaultValue;
+    }
+
+    public int getDefaultValue() { return defaultValue; }
+  }
+
   public static final class IOConstants {
     public static final int psDriverControllerPort = 0;
     public static final int xbDriverControllerPort = 0;
-    public static String teleControllerType = "Xbox"; // "PS4"; 
+    public static String teleControllerType = "Xbox"; // "PS4";
   }
 
   public static final class AutoConstants {

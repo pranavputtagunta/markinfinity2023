@@ -53,36 +53,23 @@ public class XboxTeleController implements TeleController {
   }
 
   @Override
-  public boolean shouldGrab() {
-    return xbc.getBButton();
-  }
-
-  @Override
-  public boolean shouldRelease() {
-    return false;
-  }
-
-  @Override
   public boolean shouldGrabCone() {
-    // TODO Auto-generated method stub
-    return false;
+     return xbc.getXButton();
+    
   }
 
   @Override
   public boolean shouldGrabCube() {
-    // TODO Auto-generated method stub
-    return false;
+    return xbc.getYButton();
   }
 
   @Override
   public boolean shouldReleaseCone() {
-    // TODO Auto-generated method stub
-    return false;
+    return xbc.getBButton();
   }
 
   @Override
   public boolean shouldReleaseCube() {
-    // TODO Auto-generated method stub
-    return false;
+    return xbc.getAButton();
   }
 }

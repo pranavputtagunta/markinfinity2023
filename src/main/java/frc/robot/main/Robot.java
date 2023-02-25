@@ -7,7 +7,6 @@ package frc.robot.main;
 import java.util.Date;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
@@ -21,7 +20,6 @@ public class Robot extends TimedRobot {
   boolean autonomousComplete;
   boolean calibrateInProgress;
   Date testStartTime = null;
-  int calibrationCycle = 0;
   boolean moving = false;
   boolean rotating = false;
 
@@ -32,11 +30,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     robotContainer = new RobotContainer();
-    SmartDashboard.putNumber("Calibrate", calibrationCycle);
-    SmartDashboard.putNumber("DistOn10", 0);
-    SmartDashboard.putNumber("DistOn50", 0);
-    SmartDashboard.putNumber("DistOn25", 0);
-    SmartDashboard.putNumber("DistOn05", 0);
   }
 
   /**
@@ -104,9 +97,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    calibrationCycle = (int) SmartDashboard.getNumber("Calibrate Cycle", calibrationCycle);
-    calibrationCycle++;
-    System.out.println("Calibrate Cycle:"+calibrationCycle);
     robotContainer.calibrationInit();
     testStartTime = null;
     calibrateInProgress = true;
@@ -123,8 +113,7 @@ public class Robot extends TimedRobot {
     } else
       difference = currentTime.getTime()-testStartTime.getTime();
     //System.out.println("Elapsed time in test: "+difference);
-    if (!robotContainer.calibrate(calibrationCycle, difference)) {
-      System.out.println("Calibrate complete for:"+calibrationCycle);
+    if (!robotContainer.calibrate(difference)) {
       testStartTime = null;
       calibrateInProgress = false;
     }

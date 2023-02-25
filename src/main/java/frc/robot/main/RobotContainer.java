@@ -1,5 +1,6 @@
 package frc.robot.main;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.implementation.ArmControllerImpl;
 import frc.robot.implementation.ClawControllerImpl;
 import frc.robot.implementation.AutonomousControllerImpl;
@@ -12,6 +13,7 @@ import frc.robot.interfaces.ClawController;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
+import frc.robot.main.Constants.DashboardItem;
 import frc.robot.main.Constants.IOConstants;
 
 /**
@@ -30,10 +32,12 @@ public class RobotContainer {
   private ClawController clawController = new ClawControllerImpl();
   private AutonomousController autonomousController = new AutonomousControllerImpl();
   Pair lastAction = null;
+  int calibrationCycle = 0;
 
-  String[] autoOp = { "Move -48", "Lift -24", "Turn 90" };
-  String[] autoOp2 = { "Move 48", "Lift 24", "Xtnd 6", "Grab 100", "Grab -100", "Xtnd -6", "Lift -24", "Turn 90",
-      "Move -6", "Turn -90", "Move -6" }; // Move 4ft
+  String[][] autoOp = { { "Move 48", "Lift -24", "Turn 90" },  // Move 4ft, then lower arm, then turn 90 deg
+                        { "Move 48", "Lift 24", "Xtnd 6", "Grab 100", "Grab -100", "Xtnd -6", "Lift -24", "Turn 90",
+                          "Move -6", "Turn -90", "Move -6"}
+                      };
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,10 +48,13 @@ public class RobotContainer {
     else
       teleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
     System.out.println("Using " + teleController.getControllerType() + " telecontroller");
+    initDashboard();
   }
 
   public void autonomousInit() {
-    autonomousController.autonomousInit(autoOp);
+    int autoSeq = (int) SmartDashboard.getNumber(DashboardItem.Auto_Sequence.name(), 0);
+    if (autoSeq>=autoOp.length) autoSeq = 0;
+    autonomousController.autonomousInit(autoOp[autoSeq]);
   }
 
   private void performAction(Pair chosenAction) {
@@ -105,17 +112,23 @@ public class RobotContainer {
   }
 
   public void calibrationInit() {
-    autonomousController.calibrationInit();
+    calibrationCycle = (int) SmartDashboard.getNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
+    calibrationCycle++;
+    SmartDashboard.putNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
+    System.out.println("Calibrate Cycle:"+calibrationCycle);
+    autonomousController.calibrationInit(calibrationCycle);
   }
 
-  public boolean calibrate(int testCount, long timeInTest) {
-    Pair chosenAction = autonomousController.calibrate(testCount, timeInTest);
+  public boolean calibrate(long timeInTest) {
+    Pair chosenAction = autonomousController.calibrate(calibrationCycle, timeInTest);
     if (chosenAction != null) {
       if (chosenAction.type != null)
         performAction(chosenAction);
       return true;
-    } else
+    } else {
+      System.out.println("Calibrate complete for:"+calibrationCycle);
       return false;
+    }
   }
 
   public void teleOp() {
@@ -154,5 +167,16 @@ public class RobotContainer {
     } else if (teleController.shouldReleaseCube()) {
       clawController.releaseCube(0);
     }
+  }
+
+
+  private void initDashboard() {
+    System.out.println("Processing dashboard items");
+    SmartDashboard.putNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
+    for(DashboardItem m : DashboardItem.values()) { 
+      System.out.println("Adding "+m + " with "+m.getDefaultValue());
+      SmartDashboard.putNumber(m.name(), m.getDefaultValue());
+   }
+   SmartDashboard.putNumber(DashboardItem.Auto_Sequence.name(), 0);
   }
 }

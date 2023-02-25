@@ -44,6 +44,8 @@ public class DriveSubsystem extends SubsystemBase {
         m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
         m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
 
+        //robotDrive.setExpiration(1.0);
+
         resetEncoders();
     }
 

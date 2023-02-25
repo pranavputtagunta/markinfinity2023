@@ -13,10 +13,6 @@ public interface TeleController {
     */
     public double getArmExtensionMagnitude();
 
-    public boolean shouldGrab();
-
-    public boolean shouldRelease();
-
     public double getArmLiftMagnitude();
 
     public boolean shouldGrabCone();

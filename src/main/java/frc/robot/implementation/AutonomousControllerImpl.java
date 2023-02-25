@@ -7,15 +7,16 @@ import java.util.List;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.main.Pair;
+import frc.robot.main.Constants.DashboardItem;
 
 public class AutonomousControllerImpl implements AutonomousController {
     ArrayList<Pair> speedMap = new ArrayList<Pair>(5);
     ArrayList<Pair> rotateMap = new ArrayList<Pair>(5);
     ArrayList<Pair> actionMap = new ArrayList<Pair>(25);
     int calibrationsCount;
-    Pair[] calibrateSequence = new Pair[5];
+    Pair[] calibrateSequence = new Pair[10];
     final int CALIBRATION_TIME = 5000; // in milli sec
-
+    
     @Override
     public void autonomousInit(String[] autoOp) {
         initMagnitudeToPhysicalMap();
@@ -89,19 +90,19 @@ public class AutonomousControllerImpl implements AutonomousController {
     
     // Update these values after calibration in code or smart dashboard
     void initMagnitudeToPhysicalMap() {
-        speedMap.add(new Pair(1.0, (int)SmartDashboard.getNumber("DistOn_100", 20))); // Speed value of 1.0 results in 20 inches/sec
-        speedMap.add(new Pair(0.5, (int)SmartDashboard.getNumber("DistOn_50", 10)));
-        speedMap.add(new Pair(0.25,(int)SmartDashboard.getNumber("DistOn_25", 5)));
-        speedMap.add(new Pair(0.05,(int)SmartDashboard.getNumber("DistOn_05", 1)));
+        speedMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.DistOn_100.name(), DashboardItem.DistOn_100.getDefaultValue()))); // Speed value of 1.0 results in 20 inches/sec
+        speedMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.DistOn_50.name(), DashboardItem.DistOn_50.getDefaultValue()))); 
+        speedMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.DistOn_25.name(), DashboardItem.DistOn_25.getDefaultValue()))); 
+        speedMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.DistOn_10.name(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToDistance Map");
         for (Pair p: speedMap) {
             System.out.println(p);
         }
 
-        rotateMap.add(new Pair(1.0, (int)SmartDashboard.getNumber("RotaOn_100", 45))); // Rotation value of 1.0 results in 45 deg/sec
-        rotateMap.add(new Pair(0.5, (int)SmartDashboard.getNumber("RotaOn_50", 22)));
-        rotateMap.add(new Pair(0.25,(int)SmartDashboard.getNumber("RotaOn_25", 11)));
-        rotateMap.add(new Pair(0.05,(int)SmartDashboard.getNumber("RotaOn_05", 1)));
+        rotateMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_100.name(), DashboardItem.RotaOn_100.getDefaultValue())));  // Rotation value of 1.0 results in 45 deg/sec
+        rotateMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_50.name(), DashboardItem.RotaOn_50.getDefaultValue()))); 
+        rotateMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_25.name(), DashboardItem.RotaOn_25.getDefaultValue()))); 
+        rotateMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_10.name(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToAngle Map");
         for (Pair p: rotateMap) {
             System.out.println(p);
@@ -109,7 +110,7 @@ public class AutonomousControllerImpl implements AutonomousController {
     }
 
     @Override
-    public void calibrationInit() {
+    public void calibrationInit(int calibrationCycle) {
         calibrationsCount=0;
         calibrateSequence[calibrationsCount++] = new Pair(1.0, null, "Move"); //Move for 5 sec at max speed
         calibrateSequence[calibrationsCount++] = new Pair(0.5, null, "Move"); //Move for 5 sec at half speed
@@ -119,6 +120,6 @@ public class AutonomousControllerImpl implements AutonomousController {
         calibrateSequence[calibrationsCount++] = new Pair(1.0, null, "Turn"); //Turn for 5 sec at max speed
         calibrateSequence[calibrationsCount++] = new Pair(0.5, null, "Turn"); //Turn for 5 sec at half speed      
         calibrateSequence[calibrationsCount++] = new Pair(0.25, null, "Turn"); //Turn for 5 sec at qtr speed      
-        calibrateSequence[calibrationsCount++] = new Pair(0.1, null, "Turn"); //Turn for 5 sec at 10% max speed      
+        calibrateSequence[calibrationsCount++] = new Pair(0.1, null, "Turn"); //Turn for 5 sec at 10% max speed
     }
 }
