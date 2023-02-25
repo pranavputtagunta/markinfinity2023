@@ -6,31 +6,31 @@ public class IntakeControllerImpl implements IntakeController {
     IntakeSubsystem intakeSubsytem = new IntakeSubsystem();
     boolean stopped = true;
 
-    public void grabCone(double moveTime) {
+    public void grabCone(double magnitude) {
         stopped = false;
-        System.out.println("grabCone:"+moveTime);
-        intakeSubsytem.grab(1.0);
+        System.out.println("grabCone:"+magnitude);
+        intakeSubsytem.grab(magnitude);
     }
 
 
-    public void releaseCone(double moveTime) {
+    public void releaseCone(double magnitude) {
         stopped = false;
-        System.out.println("releaseCone:"+moveTime);
-        intakeSubsytem.release(1.0);
+        System.out.println("releaseCone:"+magnitude);
+        intakeSubsytem.release(magnitude);
     }
 
   
-    public void grabCube(double moveTime) {
+    public void grabCube(double magnitude) {
         stopped = false;
-        System.out.println("grabCube:"+moveTime);
-        intakeSubsytem.grab(1.0);
+        System.out.println("grabCube:"+magnitude);
+        intakeSubsytem.grab(magnitude);
     }
 
 
-    public void releaseCube(double moveTime) {
+    public void releaseCube(double magnitude) {
         stopped = false;
-        System.out.println("releaseCube:"+moveTime);
-        intakeSubsytem.release(1.0);
+        System.out.println("releaseCube:"+magnitude);
+        intakeSubsytem.release(magnitude);
     }
 
     public void stop() {

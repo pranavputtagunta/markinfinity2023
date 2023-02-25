@@ -146,13 +146,13 @@ public class RobotContainer {
     if (teleController.shouldArmMove()) {
       double extendMagnitude = teleController.getArmExtensionMagnitude();
       double liftMagnitude = teleController.getArmLiftMagnitude();
-      if (extendMagnitude>0.7) extendMagnitude = 0.7;
+      //if (extendMagnitude>0.7) extendMagnitude = 0.7;
       if (liftMagnitude>0.7) liftMagnitude = 0.7;
 
       if (extendMagnitude > 0.05)
         armController.extendArm(extendMagnitude);
       else if (extendMagnitude < -0.05)
-        armController.retractArm(-extendMagnitude);
+        armController.retractArm(extendMagnitude);
       else {
         armController.stop();
       }
@@ -160,7 +160,7 @@ public class RobotContainer {
       if (liftMagnitude > 0.05)
         armController.raiseArm(liftMagnitude);
       else if (liftMagnitude < -0.05) {
-        armController.lowerArm(-liftMagnitude);
+        armController.lowerArm(liftMagnitude);
       }
       else {
         armController.stop();

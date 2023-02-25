@@ -13,19 +13,17 @@ public class LiftSubsystem {
 
     public void raiseArm(double magnitude) {
         System.out.println("raiseArm:"+magnitude);
-        double intakePower = 1.0;
         int intakeAmps = 25;
 
-        pulley.set(intakePower);
+        pulley.set(magnitude);
         pulley.setSmartCurrentLimit(intakeAmps);
     }
 
     public void lowerArm(double magnitude) {
         System.out.println("lowerArm:"+magnitude);
-        double intakePower = -1.0;
         int intakeAmps = 25;
 
-        pulley.set(intakePower);
+        pulley.set(magnitude);
         pulley.setSmartCurrentLimit(intakeAmps);
     }
 

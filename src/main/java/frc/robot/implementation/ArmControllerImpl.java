@@ -37,7 +37,6 @@ public class ArmControllerImpl implements ArmController {
         if (!stopped) {
             System.out.println("Stopping......");
             stopped = true;
-        }
-       
+        }       
     }
 }
