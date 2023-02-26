@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.interfaces.IntakeController.ItemType;
+import frc.robot.main.Constants;
 
 public class IntakeSubsystem {
     static final int INTAKE_CURRENT_LIMIT_A = 30; // How many amps the intake can use while picking up
@@ -14,7 +15,7 @@ public class IntakeSubsystem {
     private final CANSparkMax intake;
 
     IntakeSubsystem() {
-        intake = new CANSparkMax(4, MotorType.kBrushed);
+        intake = new CANSparkMax(Constants.DriveConstants.INTAKE, MotorType.kBrushed);
         intake.setIdleMode(IdleMode.kCoast);
     }
 

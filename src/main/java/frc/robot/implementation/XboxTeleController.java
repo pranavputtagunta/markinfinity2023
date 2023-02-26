@@ -20,8 +20,7 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public double getRotation() {
-    double rotation = xbc.getRawAxis(5);
-    
+    double rotation = -xbc.getRawAxis(4);
     return rotation;
   }
 
