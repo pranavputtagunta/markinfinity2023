@@ -66,7 +66,7 @@ public class LiftSubsystem {
             pulley.set(currSpeed);
             if (currSpeed<0.05) {
                 //pulley.stopMotor();
-                pulley.set(0.05);
+                pulley.set(0.01);
                 stopped = true;
                 System.out.println("Stopped Lift");
             }
