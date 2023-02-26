@@ -1,7 +1,9 @@
 package frc.robot.implementation;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -12,10 +14,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.main.Constants.*;
 
 public class DriveSubsystem extends SubsystemBase {
-    private final WPI_TalonSRX m_rightDrive2 = new WPI_TalonSRX(DriveConstants.TalonDevNumLt); //ok
+    /*private final WPI_TalonSRX m_rightDrive2 = new WPI_TalonSRX(DriveConstants.TalonDevNumLt); //ok
     private final WPI_VictorSPX m_leftDrive2 = new WPI_VictorSPX(DriveConstants.VictorDevNumLt);
     private final WPI_TalonSRX m_rightDrive1 = new WPI_TalonSRX(DriveConstants.TalonDevNumRt); // OK
     private final WPI_VictorSPX m_leftDrive1 = new WPI_VictorSPX(DriveConstants.VictorDevNumRt); //Ok
+    */
+
+    private final CANSparkMax m_rightDrive1 = new CANSparkMax(DriveConstants.SparkDevNumRight1, MotorType.kBrushed);
+    private final CANSparkMax m_rightDrive2 = new CANSparkMax(DriveConstants.SparkDevNumRight2, MotorType.kBrushed);
+    private final CANSparkMax m_leftDrive1 = new CANSparkMax(DriveConstants.SparkDevNumLeft1, MotorType.kBrushed);
+    private final CANSparkMax m_leftDrive2 = new CANSparkMax(DriveConstants.SparkDevNumLeft2, MotorType.kBrushed);
+
 
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1, m_rightDrive2);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1, m_leftDrive2);

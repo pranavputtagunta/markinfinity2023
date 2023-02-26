@@ -15,10 +15,19 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
   public static class DriveConstants {
-    public static final int TalonDevNumRt = 1;
+    
+    //Old controllers
+    /*public static final int TalonDevNumRt = 1;
     public static final int TalonDevNumLt = 8;
     public static final int VictorDevNumRt = 3;
-    public static final int VictorDevNumLt = 10;
+    public static final int VictorDevNumLt = 10;*/
+
+    public static final int SparkDevNumRight1 = 17;
+    public static final int SparkDevNumRight2 = 18;
+    public static final int SparkDevNumLeft1 = 19;
+    public static final int SparkDevNumLeft2 = 20;
+
+
     public static final double maxSpeed = 1.0;
     public static final int[] kLeftEncoderPorts = new int[] { 0, 1 };
     public static final int[] kRightEncoderPorts = new int[] { 2, 3 };
