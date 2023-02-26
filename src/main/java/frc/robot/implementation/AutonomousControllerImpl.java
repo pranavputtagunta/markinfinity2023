@@ -44,17 +44,18 @@ public class AutonomousControllerImpl implements AutonomousController {
                 map = rotateMap;
                 action = "Turn";
             }
-            for (Pair entPair : map) {
-                // System.out.println("Checking "+entPair);
-                if (entPair.p2 <= distangl) {
-                    Integer duration = distangl / entPair.p2;
-                    distangl = distangl % entPair.p2;
-                    time += duration;
-                    Pair p = new Pair(reverse ? -entPair.p1 : entPair.p1, time * 1000, action);
-                    actionMap.add(p);
-                    System.out.println("Adding " + p + ". Remaining:" + distangl);
+            if (map!=null)
+                for (Pair entPair : map) {
+                    // System.out.println("Checking "+entPair);
+                    if (entPair.p2 <= distangl) {
+                        Integer duration = distangl / entPair.p2;
+                        distangl = distangl % entPair.p2;
+                        time += duration;
+                        Pair p = new Pair(reverse ? -entPair.p1 : entPair.p1, time * 1000, action);
+                        actionMap.add(p);
+                        System.out.println("Adding " + p + ". Remaining:" + distangl);
+                    }
                 }
-            }
         }
     }
 
