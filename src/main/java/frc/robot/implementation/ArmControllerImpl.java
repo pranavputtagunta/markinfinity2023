@@ -31,6 +31,16 @@ public class ArmControllerImpl implements ArmController {
         elevatorSubsystem.retractArm(magnitude);
     }
 
+    public void stopElevator() {
+        System.out.println("Stopping elevator......");
+        elevatorSubsystem.stop();
+    }
+
+    public void stopLift() {
+        System.out.println("Stopping lift......");
+        liftSubsystem.stop();
+    }
+
     public void stop() {
         liftSubsystem.stop();
         elevatorSubsystem.stop();

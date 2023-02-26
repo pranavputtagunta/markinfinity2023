@@ -74,16 +74,16 @@ public class RobotContainer {
         driveController.stop();
         break;
       case "MoveConeForward":
-        clawController.grabCone(chosenAction.p1);
+        clawController.grabCone();
         break;
       case "MoveConeBackward":
-        clawController.releaseCone(chosenAction.p1);
+        clawController.releaseCone();
         break;
       case "MoveCubeForward":
-        clawController.grabCube(chosenAction.p1);
+        clawController.grabCube();
         break;
       case "MoveCubeBackward":
-        clawController.releaseCube(chosenAction.p1);
+        clawController.releaseCube();
         break;
       default:
         System.out.print("Skipping " + chosenAction.type);
@@ -154,7 +154,7 @@ public class RobotContainer {
       else if (extendMagnitude < -0.05)
         armController.retractArm(extendMagnitude);
       else {
-        armController.stop();
+        armController.stopElevator();
       }
 
       if (liftMagnitude > 0.05)
@@ -163,21 +163,20 @@ public class RobotContainer {
         armController.lowerArm(liftMagnitude);
       }
       else {
-        armController.stop();
+        armController.stopLift();
       }
     } else {
       armController.stop();
     }
 
-    double grabMagnitude = 0.3;
     if (teleController.shouldGrabCone()) {
-      clawController.grabCone(grabMagnitude);
+      clawController.grabCone();
     } else if (teleController.shouldGrabCube()) {
-      clawController.grabCube(grabMagnitude);
+      clawController.grabCube();
     } else if (teleController.shouldReleaseCone()) {
-      clawController.releaseCone(grabMagnitude);
+      clawController.releaseCone();
     } else if (teleController.shouldReleaseCube()) {
-      clawController.releaseCube(grabMagnitude);
+      clawController.releaseCube();
     } else {
       clawController.stop();
     } 
