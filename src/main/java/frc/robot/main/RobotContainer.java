@@ -29,7 +29,7 @@ public class RobotContainer {
   private TeleController teleController;
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
-  private IntakeController clawController = new IntakeControllerImpl();
+  private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonomousControllerImpl();
   Pair lastAction = null;
   int calibrationCycle = 0;
@@ -74,16 +74,16 @@ public class RobotContainer {
         driveController.stop();
         break;
       case "MoveConeForward":
-        clawController.grabCone();
+        intakeController.grabCone(1.0);
         break;
       case "MoveConeBackward":
-        clawController.releaseCone();
+        intakeController.releaseCone(1.0);
         break;
       case "MoveCubeForward":
-        clawController.grabCube();
+        intakeController.grabCube(0.9);
         break;
       case "MoveCubeBackward":
-        clawController.releaseCube();
+        intakeController.releaseCube(1.0);
         break;
       default:
         System.out.print("Skipping " + chosenAction.type);
@@ -131,10 +131,16 @@ public class RobotContainer {
     }
   }
 
+  private double limit(double orig, double limit) {
+    if (orig>limit) return limit;
+    if (orig<-limit) return -limit;
+    return orig;
+  }
+
   public void teleOp() {
     if (teleController.shouldRoboMove()) {
-      double speed = teleController.getSpeed();
-      double rotation = teleController.getRotation();
+      double speed = limit(teleController.getSpeed(), 1.0);
+      double rotation = limit(teleController.getRotation(), 1.0);
       if ((Math.abs(speed) > 0.05) || (Math.abs(rotation) > 0.05))
         driveController.move(speed, rotation);
       else
@@ -144,43 +150,37 @@ public class RobotContainer {
     }
 
     if (teleController.shouldArmMove()) {
-      double extendMagnitude = teleController.getArmExtensionMagnitude();
-      double liftMagnitude = teleController.getArmLiftMagnitude();
-      if (extendMagnitude>0.75) extendMagnitude = 0.75;
-      if (liftMagnitude>0.5) liftMagnitude = 0.5;
+      double extendMagnitude = limit(teleController.getArmExtensionMagnitude(), 0.75);
+      double liftMagnitude = limit(teleController.getArmLiftMagnitude(), 0.66);
 
       if (extendMagnitude > 0.05)
         armController.extendArm(extendMagnitude);
       else if (extendMagnitude < -0.05)
         armController.retractArm(extendMagnitude);
-      else {
+      else
         armController.stopElevator();
-      }
 
       if (liftMagnitude > 0.05)
         armController.raiseArm(liftMagnitude);
-      else if (liftMagnitude < -0.05) {
+      else if (liftMagnitude < -0.05)
         armController.lowerArm(liftMagnitude);
-      }
-      else {
+      else
         armController.stopLift();
-      }
     } else {
       armController.stop();
     }
 
     if (teleController.shouldGrabCone()) {
-      clawController.grabCone();
+      intakeController.grabCone(1.0);
     } else if (teleController.shouldGrabCube()) {
-      clawController.grabCube();
+      intakeController.grabCube(0.9);
     } else if (teleController.shouldReleaseCone()) {
-      clawController.releaseCone();
+      intakeController.releaseCone(1.0);
     } else if (teleController.shouldReleaseCube()) {
-      clawController.releaseCube();
+      intakeController.releaseCube(1.0);
     } else {
-      clawController.stop();
-    } 
-
+      intakeController.stop();
+    }
   }
 
 

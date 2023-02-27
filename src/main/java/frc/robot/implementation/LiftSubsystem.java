@@ -14,11 +14,13 @@ public class LiftSubsystem {
     private final int intakeAmps = 35;
     private RelativeEncoder m_encoder;
     private double currSpeed = 0;
+    private double stoppedPos;
 
     LiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
         pulley.setSmartCurrentLimit(intakeAmps);
         m_encoder = pulley.getEncoder();
+        stoppedPos = m_encoder.getPosition();
         //m_encoder.setPosition(HIGH_LIMIT);
         SmartDashboard.putNumber("Lift Position", m_encoder.getPosition());
         SmartDashboard.putNumber("Lift Low Limit",-55);
@@ -64,12 +66,19 @@ public class LiftSubsystem {
             currSpeed *= 0.5;
             System.out.println("Slowing lift motor..speed:"+currSpeed);
             pulley.set(currSpeed);
-            if (currSpeed<0.05) {
+            stoppedPos = m_encoder.getPosition();
+            if (currSpeed<0.05 && currSpeed>-0.05) {
                 //pulley.stopMotor();
                 pulley.set(0.01);
                 stopped = true;
                 System.out.println("Stopped Lift");
             }
+        } else {
+            double currentPos = m_encoder.getPosition();
+            if (currentPos-stoppedPos>2)
+                lowerArm(-0.01);
+            else (currentPos-stoppedPos<-2)
+                raiseArm(0.01);
         }
     }
 }

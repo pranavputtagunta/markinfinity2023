@@ -10,7 +10,6 @@ import frc.robot.main.Constants;
 public class IntakeSubsystem {
     static final int INTAKE_CURRENT_LIMIT_A = 30; // How many amps the intake can use while picking up
     static final int INTAKE_HOLD_CURRENT_LIMIT_A = 5; // How many amps the intake can use while holding
-    static final double INTAKE_OUTPUT_POWER = 1.0; // Percent output for intaking
     static final double INTAKE_HOLD_POWER = 0.07; // Percent output for holding
     private final CANSparkMax intake;
 
@@ -19,25 +18,25 @@ public class IntakeSubsystem {
         intake.setIdleMode(IdleMode.kCoast);
     }
 
-    public void grab(ItemType itemType) {
+    public void grab(ItemType itemType, double speed) {
         double intakePower;
         int intakeAmps;
 
         if (itemType==ItemType.Cube) {       // cube in or cone out
-            intakePower = INTAKE_OUTPUT_POWER;
+            intakePower = speed;
             intakeAmps = INTAKE_CURRENT_LIMIT_A;
         } else {
-            intakePower = -INTAKE_OUTPUT_POWER;
+            intakePower = -speed;
             intakeAmps = INTAKE_CURRENT_LIMIT_A;
         }
         setIntakeMotor(intakePower, intakeAmps);
     }
 
-    public void release(ItemType itemType) {
+    public void release(ItemType itemType, double speed) {
         if (itemType==ItemType.Cube)
-            grab(ItemType.Cone);
+            grab(ItemType.Cone, speed);
         else
-            grab(ItemType.Cube);
+            grab(ItemType.Cube, speed);
     }
 
     public void hold(ItemType itemType) {
