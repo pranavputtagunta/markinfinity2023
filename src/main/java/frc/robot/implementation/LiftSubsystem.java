@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.main.Constants;
@@ -13,6 +14,7 @@ public class LiftSubsystem {
     private boolean stopped = true;
     private final int intakeAmps = 35;
     private RelativeEncoder m_encoder;
+    private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
 
@@ -20,6 +22,8 @@ public class LiftSubsystem {
         pulley.setIdleMode(IdleMode.kBrake);
         pulley.setSmartCurrentLimit(intakeAmps);
         m_encoder = pulley.getEncoder();
+        m_pidController = pulley.getPIDController();
+        m_pidController.setFeedbackDevice(m_encoder);
         stoppedPos = m_encoder.getPosition();
         //m_encoder.setPosition(HIGH_LIMIT);
         SmartDashboard.putNumber("Lift Position", m_encoder.getPosition());
@@ -77,7 +81,7 @@ public class LiftSubsystem {
             double currentPos = m_encoder.getPosition();
             if (currentPos-stoppedPos>2)
                 lowerArm(-0.01);
-            else (currentPos-stoppedPos<-2)
+            else if (currentPos-stoppedPos<-2)
                 raiseArm(0.01);
         }
     }

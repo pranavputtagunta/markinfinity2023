@@ -29,8 +29,4 @@ public interface TeleController {
     public double getSpeed();
 
     public double getRotation();
-
-    
-
-    
 }
