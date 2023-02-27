@@ -6,4 +6,6 @@ public interface ArmController {
     public void extendArm(double magnitude);
     public void retractArm(double magnitude);
     public void stop();
+    public void stopElevator();
+    public void stopLift();
 }

@@ -5,39 +5,44 @@ import frc.robot.interfaces.IntakeController;
 public class IntakeControllerImpl implements IntakeController {
     IntakeSubsystem intakeSubsytem = new IntakeSubsystem();
     boolean stopped = true;
-
-    public void grabCone(double magnitude) {
+    ItemType currentPiece = null;
+    
+    public void grabCone() {
         stopped = false;
-        System.out.println("grabCone:"+magnitude);
-        intakeSubsytem.grab(magnitude);
+        currentPiece = ItemType.Cone;
+        System.out.println("Grab:" + currentPiece);
+        intakeSubsytem.grab(currentPiece);
     }
 
-
-    public void releaseCone(double magnitude) {
+    public void releaseCone() {
         stopped = false;
-        System.out.println("releaseCone:"+magnitude);
-        intakeSubsytem.release(magnitude);
+        System.out.println("Release:" + currentPiece); 
+        intakeSubsytem.release(currentPiece);
+        currentPiece = null;
     }
 
-  
-    public void grabCube(double magnitude) {
+    public void grabCube() {
         stopped = false;
-        System.out.println("grabCube:"+magnitude);
-        intakeSubsytem.grab(magnitude);
+        currentPiece = ItemType.Cone;
+        System.out.println("Grab:" + currentPiece);
+        intakeSubsytem.grab(currentPiece);
     }
 
-
-    public void releaseCube(double magnitude) {
+    public void releaseCube() {
         stopped = false;
-        System.out.println("releaseCube:"+magnitude);
-        intakeSubsytem.release(magnitude);
+        System.out.println("Release:" + currentPiece); 
+        intakeSubsytem.release(currentPiece);
+        currentPiece = null;
     }
 
     public void stop() {
-        if (!stopped) {
+        if (currentPiece!=null) {
+            System.out.println("Holding "+currentPiece);
+            intakeSubsytem.hold(currentPiece);
+        } else if (!stopped) {
+            System.out.println("Stopping.....");
             intakeSubsytem.stop();
             stopped = true;
-            System.out.println("Stopping.....");
         }
     }
 }
