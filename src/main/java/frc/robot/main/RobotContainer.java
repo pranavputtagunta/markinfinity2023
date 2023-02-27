@@ -146,7 +146,7 @@ public class RobotContainer {
     if (teleController.shouldArmMove()) {
       double extendMagnitude = teleController.getArmExtensionMagnitude();
       double liftMagnitude = teleController.getArmLiftMagnitude();
-      if (extendMagnitude>0.5) extendMagnitude = 0.5;
+      if (extendMagnitude>0.75) extendMagnitude = 0.75;
       if (liftMagnitude>0.5) liftMagnitude = 0.5;
 
       if (extendMagnitude > 0.05)
