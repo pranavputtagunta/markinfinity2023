@@ -8,12 +8,17 @@ public interface TeleController {
 
     public boolean shouldRoboMove();
 
+    public boolean shouldArmMoveToConeTarget();
+
+    public boolean shouldArmMoveToCubeTarget();
+
+    public boolean shouldArmMoveToStablePos();
     /*
     * @return amount by which arm should move.. Positive implies extend and negative implies retract
     */
-    public double getArmExtensionMagnitude();
+    public double getArmExtensionSpeed();
 
-    public double getArmLiftMagnitude();
+    public double getArmLiftSpeed();
 
     public boolean shouldGrabCone();
 

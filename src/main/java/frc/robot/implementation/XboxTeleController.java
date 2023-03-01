@@ -31,7 +31,7 @@ public class XboxTeleController implements TeleController {
   }
 
   @Override
-  public double getArmExtensionMagnitude() {
+  public double getArmExtensionSpeed() {
     double val = xbc.getRawAxis(1);
     return -val;
   }
@@ -46,7 +46,7 @@ public class XboxTeleController implements TeleController {
     return xbc.getRightBumper();
   }
 
-  public double getArmLiftMagnitude() {
+  public double getArmLiftSpeed() {
     double lift = xbc.getRawAxis(5);
     return -lift;
   }
@@ -70,5 +70,20 @@ public class XboxTeleController implements TeleController {
   @Override
   public boolean shouldReleaseCube() {
     return xbc.getAButton();
+  }
+
+  @Override
+  public boolean shouldArmMoveToConeTarget() {
+    return xbc.getLeftStickButton();
+  }
+
+  @Override
+  public boolean shouldArmMoveToCubeTarget() {
+    return xbc.getRightStickButton();
+  }
+
+  @Override
+  public boolean shouldArmMoveToStablePos() {
+    return xbc.getStartButton();
   }
 }

@@ -22,8 +22,8 @@ public class IntakeControllerImpl implements IntakeController {
 
     public void releaseCone(double speed) {
         stopped = false;
-        System.out.println("Release:" + currentPiece); 
-        intakeSubsytem.release(currentPiece, speed);
+        System.out.println("Release Cone"); 
+        intakeSubsytem.release(ItemType.Cone, speed);
         currentPiece = null;
         SmartDashboard.putString("currentPiece", "None");
     }
@@ -38,8 +38,8 @@ public class IntakeControllerImpl implements IntakeController {
 
     public void releaseCube(double speed) {
         stopped = false;
-        System.out.println("Release:" + currentPiece); 
-        intakeSubsytem.release(currentPiece, speed);
+        System.out.println("Release Cube"); 
+        intakeSubsytem.release(ItemType.Cube, speed);
         currentPiece = null;
         SmartDashboard.putString("currentPiece", "None");
     }
@@ -49,7 +49,7 @@ public class IntakeControllerImpl implements IntakeController {
             System.out.println("Holding "+currentPiece);
             intakeSubsytem.hold(currentPiece);
         } else if (!stopped) {
-            System.out.println("Stopping.....");
+            System.out.println("Stopping intake.....");
             intakeSubsytem.stop();
             stopped = true;
         }

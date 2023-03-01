@@ -7,12 +7,12 @@ import java.util.List;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.main.Pair;
-import frc.robot.main.Constants.DashboardItem;
+import frc.robot.main.DashboardItem;
 
 public class AutonomousControllerImpl implements AutonomousController {
     ArrayList<Pair> speedMap = new ArrayList<Pair>(5);
     ArrayList<Pair> rotateMap = new ArrayList<Pair>(5);
-    ArrayList<Pair> actionMap = new ArrayList<Pair>(25);
+    ArrayList<Pair> actionMap = new ArrayList<Pair>(50);
     int calibrationsCount;
     Pair[] calibrateSequence = new Pair[10];
     final int CALIBRATION_TIME = 5000; // in milli sec
@@ -27,24 +27,39 @@ public class AutonomousControllerImpl implements AutonomousController {
         System.out.println("Received " + autoOp.length + " autoOp items");
         int time = 0;
         for (int i = 0; i < autoOp.length; i++) {
-            System.out.println("Processing:" + autoOp[i]);
-            int spaceIndx = autoOp[i].indexOf(' ');
-            Integer distangl = Integer.parseInt(autoOp[i].substring(spaceIndx+1));
-            boolean reverse = false;
-            if (distangl < 0) {
-                reverse = true;
-                distangl = -distangl;
-            }
+            String op = autoOp[i].trim();
+            System.out.println("Processing:" + op);
+            int spaceIndx = op.indexOf(' ');
+            String action = op.substring(0,spaceIndx);
+            Integer distangl = Integer.parseInt(op.substring(spaceIndx+1));
             List<Pair> map = null;
-            String action = null;
-            if (autoOp[i].startsWith("Move")) {
-                map = speedMap;
-                action = "Move";
-            } else {// if (autoOp[i].startsWith("Turn")) {
-                map = rotateMap;
-                action = "Turn";
+            switch (action) {
+                case "Move": 
+                    map = speedMap;
+                    break;
+                case "Turn": 
+                    map = rotateMap; 
+                    break;
+                case "SArm":
+                case "GCone":
+                case "PCone":
+                case "RCone":
+                case "PCube":
+                case "RCube":
+                    time += distangl;
+                    Pair p = new Pair(0.0,time * 1000,action);
+                    System.out.println("Adding " + p);
+                    actionMap.add(p);
+                    break;
+                default:
+                    System.out.println("Unknown operation:"+action);
             }
-            if (map!=null)
+            if (map!=null) {
+                boolean reverse = false;
+                if (distangl < 0) {
+                    reverse = true;
+                    distangl = -distangl;
+                }
                 for (Pair entPair : map) {
                     // System.out.println("Checking "+entPair);
                     if (entPair.p2 <= distangl) {
@@ -56,7 +71,9 @@ public class AutonomousControllerImpl implements AutonomousController {
                         System.out.println("Adding " + p + ". Remaining:" + distangl);
                     }
                 }
+            }
         }
+        System.out.println("COMPLETED processing " + autoOp.length + " autoOp items");
     }
 
     @Override
@@ -91,19 +108,19 @@ public class AutonomousControllerImpl implements AutonomousController {
     
     // Update these values after calibration in code or smart dashboard
     void initMagnitudeToPhysicalMap() {
-        speedMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.DistOn_100.name(), DashboardItem.DistOn_100.getDefaultValue()))); // Speed value of 1.0 results in 20 inches/sec
-        speedMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.DistOn_50.name(), DashboardItem.DistOn_50.getDefaultValue()))); 
-        speedMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.DistOn_25.name(), DashboardItem.DistOn_25.getDefaultValue()))); 
-        speedMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.DistOn_10.name(), DashboardItem.DistOn_10.getDefaultValue()))); 
+        speedMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.DistOn_100.getKey(), DashboardItem.DistOn_100.getDefaultValue()))); // Speed value of 1.0 results in 20 inches/sec
+        speedMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.DistOn_50.getKey(), DashboardItem.DistOn_50.getDefaultValue()))); 
+        speedMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.DistOn_25.getKey(), DashboardItem.DistOn_25.getDefaultValue()))); 
+        speedMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.DistOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToDistance Map");
         for (Pair p: speedMap) {
             System.out.println(p);
         }
 
-        rotateMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_100.name(), DashboardItem.RotaOn_100.getDefaultValue())));  // Rotation value of 1.0 results in 45 deg/sec
-        rotateMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_50.name(), DashboardItem.RotaOn_50.getDefaultValue()))); 
-        rotateMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_25.name(), DashboardItem.RotaOn_25.getDefaultValue()))); 
-        rotateMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_10.name(), DashboardItem.DistOn_10.getDefaultValue()))); 
+        rotateMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_100.getKey(), DashboardItem.RotaOn_100.getDefaultValue())));  // Rotation value of 1.0 results in 45 deg/sec
+        rotateMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_50.getKey(), DashboardItem.RotaOn_50.getDefaultValue()))); 
+        rotateMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_25.getKey(), DashboardItem.RotaOn_25.getDefaultValue()))); 
+        rotateMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToAngle Map");
         for (Pair p: rotateMap) {
             System.out.println(p);

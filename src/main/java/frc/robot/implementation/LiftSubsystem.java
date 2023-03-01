@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.interfaces.ArmController;
 import frc.robot.main.Constants;
 
 public class LiftSubsystem {
@@ -17,6 +18,7 @@ public class LiftSubsystem {
     private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
+    private double liftRange = 135; // Difference between high and low encode values
 
     LiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
@@ -25,16 +27,26 @@ public class LiftSubsystem {
         m_pidController = pulley.getPIDController();
         m_pidController.setFeedbackDevice(m_encoder);
         stoppedPos = m_encoder.getPosition();
-        //m_encoder.setPosition(HIGH_LIMIT);
-        SmartDashboard.putNumber("Lift Position", m_encoder.getPosition());
-        SmartDashboard.putNumber("Lift Low Limit",-55);
-        SmartDashboard.putNumber("Lift High Limit", 80);
+    }
+
+    public double getPosition() {
+        return m_encoder.getPosition();
+    }
+
+    public boolean moveToTarget(double target) {
+        target += SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        double curPos = m_encoder.getPosition();
+        int diff = (int) (curPos-target);
+        double speed = Math.abs(diff)>10?0.75:0.25;
+        if (diff>1) { lowerArm(speed); return false; }
+        else if (diff<1) { raiseArm(speed); return false; }
+        return true;
     }
 
     public void raiseArm(double magnitude) {
-        double high_limit = SmartDashboard.getNumber("Lift High Limit", 80);
+        double high_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 80)+liftRange;
         if (m_encoder.getPosition()>high_limit) {
-            System.out.println("Cant go higher!!!");
+            System.out.println("Cant go higher than "+high_limit);
             stop();
             return;
         }
@@ -43,11 +55,10 @@ public class LiftSubsystem {
         stopped = false;
         pulley.set(currSpeed);
         //pulley.setSmartCurrentLimit(intakeAmps);
-        SmartDashboard.putNumber("Lift Position", m_encoder.getPosition());
     }
 
     public void lowerArm(double magnitude) {
-        double low_limit = SmartDashboard.getNumber("Lift Low Limit", -55);
+        double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, -55);
         if (m_encoder.getPosition()<low_limit) {
             System.out.println("Cant go lower!!!");
             stop();
@@ -58,7 +69,6 @@ public class LiftSubsystem {
         stopped = false;
         pulley.set(currSpeed);
         //pulley.setSmartCurrentLimit(intakeAmps);
-        SmartDashboard.putNumber("Lift Position", m_encoder.getPosition());
     }
 
     public boolean isStopped() {
@@ -66,11 +76,12 @@ public class LiftSubsystem {
     }
 
     public void stop() {
+        double currentPos = m_encoder.getPosition();
         if (!stopped) {
             currSpeed *= 0.5;
             System.out.println("Slowing lift motor..speed:"+currSpeed);
             pulley.set(currSpeed);
-            stoppedPos = m_encoder.getPosition();
+            stoppedPos = currentPos;
             if (currSpeed<0.05 && currSpeed>-0.05) {
                 //pulley.stopMotor();
                 pulley.set(0.01);
@@ -78,7 +89,6 @@ public class LiftSubsystem {
                 System.out.println("Stopped Lift");
             }
         } else {
-            double currentPos = m_encoder.getPosition();
             if (currentPos-stoppedPos>2)
                 lowerArm(-0.01);
             else if (currentPos-stoppedPos<-2)
