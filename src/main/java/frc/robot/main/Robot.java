@@ -86,6 +86,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     System.out.println("Teleop initialized");
     calibrateInProgress = false;
+    robotContainer.teleOpInit();
   }
 
   /** This function is called periodically during teleoperated mode. */

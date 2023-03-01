@@ -36,7 +36,7 @@ public class RobotContainer {
 
   // Instructions for auton operation
   // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
-  String autoOp = "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";  
+  String autoOp = null;// "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";  
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -119,6 +119,15 @@ public class RobotContainer {
       return true;
     } else {
       return false;
+    }
+  }
+
+  public void teleOpInit() {
+    boolean resetEncoderPos = SmartDashboard.getBoolean("Reset Encoder", false);
+    if (resetEncoderPos) {
+      System.out.println("Resetting encoder pos");
+      armController.resetEncoderPos();
+      SmartDashboard.putBoolean("Reset Encoder", false);
     }
   }
 
@@ -212,6 +221,8 @@ public class RobotContainer {
       System.out.println("Adding "+m.getKey() + " with "+m.getDefaultValue());
       SmartDashboard.putNumber(m.getKey(), m.getDefaultValue());
    }
+   SmartDashboard.putBoolean("Reset Encoder", false);
    SmartDashboard.putString("Auton Commands", "");
+
   }
 }

@@ -27,6 +27,12 @@ public class LiftSubsystem {
         m_pidController = pulley.getPIDController();
         m_pidController.setFeedbackDevice(m_encoder);
         stoppedPos = m_encoder.getPosition();
+        SmartDashboard.putNumber(ArmController.LIFT_RANGE, liftRange);
+    }
+
+    public void resetEncoderPos() {
+        m_encoder.setPosition(0);
+        liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
     }
 
     public double getPosition() {
@@ -43,31 +49,34 @@ public class LiftSubsystem {
         return true;
     }
 
-    public void raiseArm(double magnitude) {
-        double high_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 80)+liftRange;
+    public void raiseArm(double speed) {
+        double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        double high_limit = low_limit+liftRange;
         if (m_encoder.getPosition()>high_limit) {
-            System.out.println("Cant go higher than "+high_limit);
-            stop();
-            return;
+            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
+            high_limit = low_limit+liftRange;
+            if (m_encoder.getPosition()>high_limit) {
+                System.out.println("Can't go higher than "+high_limit);
+                stop();
+                return;
+            }
         }
-        currSpeed = magnitude;
-        System.out.println("raiseArm:"+currSpeed);
+        System.out.println("raiseArm:"+speed);
         stopped = false;
-        pulley.set(currSpeed);
+        pulley.set(speed);
         //pulley.setSmartCurrentLimit(intakeAmps);
     }
 
-    public void lowerArm(double magnitude) {
-        double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, -55);
+    public void lowerArm(double speed) {
+        double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         if (m_encoder.getPosition()<low_limit) {
             System.out.println("Cant go lower!!!");
             stop();
             return;
         }
-        currSpeed = magnitude;
-        System.out.println("lowerArm:"+currSpeed);
+        System.out.println("lowerArm:"+speed);
         stopped = false;
-        pulley.set(currSpeed);
+        pulley.set(speed);
         //pulley.setSmartCurrentLimit(intakeAmps);
     }
 
