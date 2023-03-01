@@ -32,7 +32,7 @@ public class PSTeleController implements TeleController {
 
   @Override
   public double getArmExtensionSpeed() {
-    double val = ps4c.getRawAxis(1);
+    double val = ps4c.getRawAxis(5);
     return -val;
   }
 
