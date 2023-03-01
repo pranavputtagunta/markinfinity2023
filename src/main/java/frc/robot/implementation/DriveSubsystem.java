@@ -3,6 +3,7 @@ package frc.robot.implementation;
 //import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 //import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -54,8 +55,17 @@ public class DriveSubsystem extends SubsystemBase {
         m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
 
         //robotDrive.setExpiration(1.0);
+        robotDrive.setSafetyEnabled(false);
 
         resetEncoders();
+    }
+
+    RelativeEncoder getRightEncoder() {
+        return m_leftDrive1.getEncoder();
+    }
+
+    RelativeEncoder getLeftEncoder() {
+        return m_rightDrive1.getEncoder();
     }
 
     public DifferentialDrive getRoboDrive() {

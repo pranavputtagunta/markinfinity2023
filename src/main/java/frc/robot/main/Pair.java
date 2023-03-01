@@ -3,7 +3,7 @@ package frc.robot.main;
 public class Pair {
    public Double p1;
    public Integer p2; 
-   String type;
+   public String type;
 
    public Pair(Double p1, Integer p2) {
     this.p1 = p1;

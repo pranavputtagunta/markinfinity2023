@@ -1,5 +1,7 @@
 package frc.robot.implementation;
 
+import com.revrobotics.RelativeEncoder;
+
 import frc.robot.interfaces.DriveController;
 import frc.robot.main.Constants.DriveConstants;
 
@@ -33,5 +35,15 @@ public class DriveControllerImpl implements DriveController {
     @Override
     public void resetEncoders() {
         driveSubsystem.resetEncoders();
+    }
+
+    @Override
+    public RelativeEncoder getRighttEncoder() {
+        return driveSubsystem.getRightEncoder();
+    }
+
+    @Override
+    public RelativeEncoder getLeftEncoder() {
+        return driveSubsystem.getLeftEncoder();
     }
 }

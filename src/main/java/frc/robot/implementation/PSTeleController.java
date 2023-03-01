@@ -31,7 +31,7 @@ public class PSTeleController implements TeleController {
   }
 
   @Override
-  public double getArmExtensionMagnitude() {
+  public double getArmExtensionSpeed() {
     double val = ps4c.getRawAxis(1);
     return -val;
   }
@@ -46,7 +46,7 @@ public class PSTeleController implements TeleController {
     return ps4c.getR1Button();
   }
 
-  public double getArmLiftMagnitude() {
+  public double getArmLiftSpeed() {
     double lift = ps4c.getRawAxis(2);
     return -lift;
   }
@@ -68,5 +68,20 @@ public class PSTeleController implements TeleController {
   @Override
   public boolean shouldReleaseCube() {
     return ps4c.getCircleButton();
+  }
+
+  @Override
+  public boolean shouldArmMoveToConeTarget() {
+    return ps4c.getL2Button();
+  }
+
+  @Override
+  public boolean shouldArmMoveToCubeTarget() {
+    return ps4c.getR2Button();
+  }
+
+  @Override
+  public boolean shouldArmMoveToStablePos() {
+    return ps4c.getPSButton();
   }
 }
