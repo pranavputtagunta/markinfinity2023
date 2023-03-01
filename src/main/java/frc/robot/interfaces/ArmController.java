@@ -23,5 +23,5 @@ public interface ArmController {
     public void stop();
     public void stopElevator();
     public void stopLift();
-    
+    public void resetEncoderPos();
 }

@@ -10,12 +10,12 @@ public class ArmControllerImpl implements ArmController {
 
     public ArmControllerImpl() {
         SmartDashboard.putNumber(LIFT_POSITION, 0);
+        SmartDashboard.putNumber(LIFT_LOW_LIMIT, 0);
         SmartDashboard.putNumber(LIFT_CONE_KEY, 60);
-        SmartDashboard.putNumber(LIFT_LOW_LIMIT, -55);
 
         SmartDashboard.putNumber(ELEV_POSITION, 0);
-        SmartDashboard.putNumber(ELEV_CONE_KEY, 50);
         SmartDashboard.putNumber(ELEV_LOW_LIMIT, -20);
+        SmartDashboard.putNumber(ELEV_CONE_KEY, 50);
     }
 
     @Override
@@ -92,5 +92,11 @@ public class ArmControllerImpl implements ArmController {
             System.out.println("Stopping arm.....");
             stopped = true;
         }       
+    }
+
+    @Override
+    public void resetEncoderPos() {
+        liftSubsystem.resetEncoderPos();
+        elevatorSubsystem.resetEncoderPos();        
     }
 }

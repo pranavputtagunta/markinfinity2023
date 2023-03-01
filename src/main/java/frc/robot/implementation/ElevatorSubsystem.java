@@ -26,44 +26,56 @@ public class ElevatorSubsystem {
         m_right.setInverted(true);
         m_right.setIdleMode(IdleMode.kBrake);
         m_encoder = m_left.getEncoder();
+        SmartDashboard.putNumber(ArmController.ELEV_RANGE, elevRange);
     }
 
     public double getPosition() {
         return m_encoder.getPosition();
     }
 
-    public void extendArm(double magnitude) {
-        System.out.println("extendArm:"+magnitude);
-        double xtnd_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0)+elevRange;
+    public void resetEncoderPos() {
+        m_encoder.setPosition(0); 
+        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+    }
+
+    public void extendArm(double speed) {
+        System.out.println("extendArm:"+speed);
+        double low_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        double xtnd_limit = low_limit+elevRange;
         if (m_encoder.getPosition()>=xtnd_limit) {
-            System.out.println("Cant go further than "+xtnd_limit);
-            stop();
-            return;
+            elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
+            xtnd_limit = low_limit+elevRange;
+            if (m_encoder.getPosition()>=xtnd_limit) {
+                System.out.println("Cant go further than "+xtnd_limit);
+                elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+                stop();
+                return;
+            }
         }
         stopped = false;
-        elev.arcadeDrive(magnitude, 0);
+        elev.arcadeDrive(speed, 0);
     }
 
     boolean moveToTarget(double target) {
-        target += SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, -20);
+        target += SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         double curPos = m_encoder.getPosition();
         int diff = (int) (curPos-target);
-        double speed = Math.abs(diff)>10?0.75:0.25;
+        double speed = Math.abs(diff)>5?0.75:0.25;
         if (diff>1) { extendArm(speed); return false; }
         else if (diff<1) { retractArm(speed); return false; }
         return true;
     }
 
-    public void retractArm(double magnitude) {
-        System.out.println("retractArm:"+magnitude);
-        double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, -20);
+    public void retractArm(double speed) {
+        System.out.println("retractArm:"+speed);
+        double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         if (m_encoder.getPosition()<=rtrt_limit) {
             System.out.println("Cant go further than "+rtrt_limit);
             stop();
             return;
         }
         stopped = false;
-        elev.arcadeDrive(magnitude, 0);
+        elev.arcadeDrive(speed, 0);
     }
 
     public void stop() {
