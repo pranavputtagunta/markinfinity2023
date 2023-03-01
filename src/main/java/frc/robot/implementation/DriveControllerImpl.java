@@ -2,6 +2,7 @@ package frc.robot.implementation;
 
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.DriveController;
 import frc.robot.main.Constants.DriveConstants;
 
@@ -9,6 +10,11 @@ public class DriveControllerImpl implements DriveController {
     private double currentSpeed = 0.0;
     private double currentRotation = 0.0;
     private DriveSubsystem driveSubsystem = new DriveSubsystem();
+    private double rotAccLimit = 0.1;
+
+    public DriveControllerImpl() {
+        SmartDashboard.putNumber(ROTATIONAL_ACC_LIMIT, rotAccLimit);
+    }
 
     @Override
     public void stop() {
@@ -23,7 +29,19 @@ public class DriveControllerImpl implements DriveController {
 
     @Override
     public void move(double speed, double rotation) {
-        if ((currentSpeed != speed) || (rotation!=currentRotation)) {
+        boolean speedChange = currentSpeed != speed;
+        boolean rotChange = rotation != currentRotation;
+        if ((speedChange) || (rotChange)) {
+            if (rotChange) {
+                rotAccLimit = SmartDashboard.getNumber(ROTATIONAL_ACC_LIMIT, rotAccLimit);
+                if (rotAccLimit!=0) {
+                    double diff = rotation-currentRotation;
+                    if ((rotation>0 && diff>rotAccLimit) || (rotation<0&&diff<-rotAccLimit)) {
+                        System.out.println("Limiting rotational acceleration to "+rotAccLimit);
+                        rotation = currentRotation + (diff>0?rotAccLimit:-rotAccLimit);
+                    }
+                }
+            }
             System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
             currentSpeed = speed;
             currentRotation = rotation;
