@@ -30,7 +30,7 @@ public class RobotContainer {
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonomousControllerImpl();
-  boolean armMoveToTargetInProgress = false;
+  String armMoveToTargetInProgress = null;
   Pair lastAction = null;
   int calibrationCycle = 0;
 
@@ -50,9 +50,13 @@ public class RobotContainer {
     initDashboard();
   }
 
+  public void simulationPeriodic() {
+    armController.simulationPeriodic();
+  }
+
   public void autonomousInit() {
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
-    armMoveToTargetInProgress = false;
+    armMoveToTargetInProgress = null;
     if (autoOpr!=null && autoOpr.length()>0) 
       autonomousController.autonomousInit(autoOpr.split(","));
     else if (autoOp!=null)
@@ -175,7 +179,7 @@ public class RobotContainer {
     }
 
     if (teleController.shouldArmMove()) {
-      armMoveToTargetInProgress = false; // Stop automated move to target if user start manually adjusting arm
+      armMoveToTargetInProgress = null; // Stop automated move to target if user start manually adjusting arm
       double extendSpeed = limit(teleController.getArmExtensionSpeed(), 0.75);
       double liftSpeed = limit(teleController.getArmLiftSpeed(), 0.66);
 
@@ -192,12 +196,12 @@ public class RobotContainer {
         armController.lowerArm(liftSpeed);
       else
         armController.stopLift();
-    } else if (armMoveToTargetInProgress || teleController.shouldArmMoveToConeTarget()) {
-      armMoveToTargetInProgress = !armController.moveArmToTarget("Cone");
-    } else if (armMoveToTargetInProgress || teleController.shouldArmMoveToCubeTarget()) {
-      armMoveToTargetInProgress = !armController.moveArmToTarget("Cube");
-    } else if (armMoveToTargetInProgress || teleController.shouldArmMoveToStablePos()) {
-      armMoveToTargetInProgress = !armController.moveArmToTarget("Stable");
+    } else if ("Cone".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToConeTarget()) {
+      armMoveToTargetInProgress = armController.moveArmToTarget("Cone")?null:"Cone";
+    } else if ("Cube".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToCubeTarget()) {
+      armMoveToTargetInProgress = armController.moveArmToTarget("Cube")?null:"Cube";
+    } else if ("Stable".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToStablePos()) {
+      armMoveToTargetInProgress = armController.moveArmToTarget("Stable")?null:"Stable";
     } else {
       armController.stop();
     }

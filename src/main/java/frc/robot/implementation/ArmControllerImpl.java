@@ -6,16 +6,19 @@ import frc.robot.interfaces.ArmController;
 public class ArmControllerImpl implements ArmController {
     LiftSubsystem liftSubsystem = new LiftSubsystem();
     ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    boolean stopped = true;
-
+    
     public ArmControllerImpl() {
         SmartDashboard.putNumber(LIFT_POSITION, 0);
         SmartDashboard.putNumber(LIFT_LOW_LIMIT, 0);
         SmartDashboard.putNumber(LIFT_CONE_KEY, 60);
+        SmartDashboard.putNumber(LIFT_CUBE_KEY, 65);
+        SmartDashboard.putNumber(LIFT_STAB_KEY, 88);
 
         SmartDashboard.putNumber(ELEV_POSITION, 0);
         SmartDashboard.putNumber(ELEV_LOW_LIMIT, -20);
         SmartDashboard.putNumber(ELEV_CONE_KEY, 50);
+        SmartDashboard.putNumber(ELEV_CUBE_KEY, 55);
+        SmartDashboard.putNumber(ELEV_STAB_KEY, 5);
     }
 
     @Override
@@ -26,13 +29,11 @@ public class ArmControllerImpl implements ArmController {
 
     @Override
     public void raiseArm(double speed) {
-        stopped = false;
         liftSubsystem.raiseArm(speed);
     }
 
     @Override
     public void lowerArm(double speed) {
-        stopped = false;
         liftSubsystem.lowerArm(speed);
     }
 
@@ -50,30 +51,30 @@ public class ArmControllerImpl implements ArmController {
                 eTarget = SmartDashboard.getNumber(ELEV_CONE_KEY, 50);
                 break;
             case "Cube": 
-                lTarget= SmartDashboard.getNumber(LIFT_CUBE_KEY, 60);
-                eTarget = SmartDashboard.getNumber(ELEV_CUBE_KEY, 50);
+                lTarget= SmartDashboard.getNumber(LIFT_CUBE_KEY, 65);
+                eTarget = SmartDashboard.getNumber(ELEV_CUBE_KEY, 55);
                 break;
             case "Stable": 
-                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 60);
-                eTarget = SmartDashboard.getNumber(ELEV_STAB_KEY, 50);
+                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 88);
+                eTarget = SmartDashboard.getNumber(ELEV_STAB_KEY, 5);
                 break;
             default:
                 return status;
         }
-        status  = liftSubsystem.moveToTarget(lTarget);
-        status &= elevatorSubsystem.moveToTarget(eTarget);
+        boolean status1 = liftSubsystem.moveToTarget(lTarget);
+        boolean status2 = elevatorSubsystem.moveToTarget(eTarget);
+        status = status1 && status2;
+        if (status) System.out.println("Completed move to target:"+itemType);
         return status;
     }
 
     @Override
     public void extendArm(double speed) {
-        stopped = false;
         elevatorSubsystem.extendArm(speed);
     }
 
     @Override
     public void retractArm(double speed) {
-        stopped = false;
         elevatorSubsystem.retractArm(speed);
     }
 
@@ -86,17 +87,26 @@ public class ArmControllerImpl implements ArmController {
     }
 
     public void stop() {
-        liftSubsystem.stop();
-        elevatorSubsystem.stop();
-        if (!stopped) {
-            System.out.println("Stopping arm.....");
-            stopped = true;
-        }       
+        if (!(liftSubsystem.isStopped() && elevatorSubsystem.isStopped())) {
+            liftSubsystem.stop();
+            elevatorSubsystem.stop();
+            System.out.println("Stopped arm.....");
+        }  
     }
 
     @Override
     public void resetEncoderPos() {
-        liftSubsystem.resetEncoderPos();
-        elevatorSubsystem.resetEncoderPos();        
+        liftSubsystem.setPosition(0);
+        elevatorSubsystem.setPosition(0);        
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        double elev_change = elevatorSubsystem.getCurrentSpeed();
+        double lift_change = liftSubsystem.getCurrentSpeed();
+        if (!liftSubsystem.isStopped())
+            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change);
+        if (!elevatorSubsystem.isStopped())
+            elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elev_change);
     }
 }
