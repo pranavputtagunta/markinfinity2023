@@ -148,9 +148,10 @@ public class LiftSubsystem {
             }
         } else {
             double diff = currentPos-stoppedPos;
-            double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.025;
-            if (diff>.5) { lowerArm(-speed/4.0); }
-            else if (diff<-.5) { raiseArm(speed); }
+            double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.05;
+            if (diff>1.0) { lowerArm(-speed/4.0); }
+            else if (diff<-.25) { raiseArm(speed); }
+            else if (currSpeed!=0) {currSpeed = 0; pulley.set(currSpeed); }
             stopped = true; // reset stopped to true as we are only in holding mode
         }
     }

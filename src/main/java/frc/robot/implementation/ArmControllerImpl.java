@@ -105,7 +105,7 @@ public class ArmControllerImpl implements ArmController {
         double lift_change = liftSubsystem.getCurrentSpeed();
         if (lift_change!=0)
             liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change); 
-        liftSubsystem.setPosition(liftSubsystem.getPosition()-0.01); // simulate the pull of gravity
+        liftSubsystem.setPosition(liftSubsystem.getPosition()-0.001); // simulate the pull of gravity
         if (elev_change!=0)
             elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elev_change);
     }
