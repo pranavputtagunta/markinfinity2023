@@ -62,8 +62,12 @@ public final class Constants {
 
   public static final class IOConstants {
     public static final int psDriverControllerPort = 0;
+    public static final int psDriverControllerPort2 = 1;
     public static final int xbDriverControllerPort = 0;
-    public static String teleControllerType = "Xbox"; // "PS4";
+    public static final int xbDriverControllerPort2 = 1;
+    public static String teleControllerType = "Xbox"; // "PS4"; // primary for drive
+    public static String teleControllerType2 = null; // "Xbox"; // optional for arm if null  primary will be used
+
   }
 
   public static final class AutoConstants {

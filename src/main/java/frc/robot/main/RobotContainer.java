@@ -25,7 +25,8 @@ import frc.robot.main.Constants.IOConstants;
  * declared here.
  */
 public class RobotContainer {
-  private TeleController teleController;
+  private TeleController driveteleController;
+  private TeleController armTeleController;
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
@@ -43,10 +44,19 @@ public class RobotContainer {
    */
   public RobotContainer() {
     if ("PS4".equalsIgnoreCase(IOConstants.teleControllerType))
-      teleController = new PSTeleController(IOConstants.psDriverControllerPort);
+    driveteleController = new PSTeleController(IOConstants.psDriverControllerPort);
     else
-      teleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
-    System.out.println("Using " + teleController.getControllerType() + " telecontroller");
+    driveteleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
+    System.out.println("Using " + driveteleController.getControllerType() + " telecontroller");
+
+    if ("PS4".equals(IOConstants.teleControllerType2))
+      armTeleController = new PSTeleController(IOConstants.psDriverControllerPort2);
+    else if (IOConstants.teleControllerType2!=null)
+      armTeleController = new XboxTeleController(IOConstants.xbDriverControllerPort2);
+    else {
+      System.out.println("Using single controller for arm and drive");
+      armTeleController = driveteleController;
+    }
     initDashboard();
   }
 
@@ -168,9 +178,9 @@ public class RobotContainer {
   }
 
   public void teleOp() {
-    if (teleController.shouldRoboMove()) {
-      double speed = limit(teleController.getSpeed(), 1.0);
-      double rotation = limit(teleController.getRotation(), 1.0);
+    if (driveteleController.shouldRoboMove()) {
+      double speed = limit(driveteleController.getSpeed(), 1.0);
+      double rotation = limit(driveteleController.getRotation(), 1.0);
       if ((speed!=0) || (rotation!= 0))
         driveController.move(speed, rotation);
       else
@@ -179,10 +189,10 @@ public class RobotContainer {
       driveController.stop();
     }
 
-    if (teleController.shouldArmMove()) {
+    if (armTeleController.shouldArmMove()) {
       armMoveToTargetInProgress = null; // Stop automated move to target if user start manually adjusting arm
-      double extendSpeed = limit(teleController.getArmExtensionSpeed(), 0.75);
-      double liftSpeed = limit(teleController.getArmLiftSpeed(), 0.66);
+      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.75);
+      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.66);
 
       if (extendSpeed > 0)
         armController.extendArm(extendSpeed);
@@ -197,23 +207,23 @@ public class RobotContainer {
         armController.lowerArm(liftSpeed);
       else
         armController.stopLift();
-    } else if ("Cone".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToConeTarget()) {
+    } else if ("Cone".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToConeTarget()) {
       armMoveToTargetInProgress = armController.moveArmToTarget("Cone")?null:"Cone";
-    } else if ("Cube".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToCubeTarget()) {
+    } else if ("Cube".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToCubeTarget()) {
       armMoveToTargetInProgress = armController.moveArmToTarget("Cube")?null:"Cube";
-    } else if ("Stable".equals(armMoveToTargetInProgress) || teleController.shouldArmMoveToStablePos()) {
+    } else if ("Stable".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToStablePos()) {
       armMoveToTargetInProgress = armController.moveArmToTarget("Stable")?null:"Stable";
     } else {
       armController.stop();
     }
 
-    if (teleController.shouldGrabCone()) {
+    if (armTeleController.shouldGrabCone()) {
       intakeController.grabCone(1.0);
-    } else if (teleController.shouldGrabCube()) {
+    } else if (armTeleController.shouldGrabCube()) {
       intakeController.grabCube(0.9);
-    } else if (teleController.shouldReleaseCone()) {
+    } else if (armTeleController.shouldReleaseCone()) {
       intakeController.releaseCone(1.0);
-    } else if (teleController.shouldReleaseCube()) {
+    } else if (armTeleController.shouldReleaseCube()) {
       intakeController.releaseCube(1.0);
     } else {
       intakeController.stop();
@@ -228,6 +238,5 @@ public class RobotContainer {
    }
    SmartDashboard.putBoolean("Reset Encoder", false);
    SmartDashboard.putString("Auton Commands", "");
-
   }
 }
