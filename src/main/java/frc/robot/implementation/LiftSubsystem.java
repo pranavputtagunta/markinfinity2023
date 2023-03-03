@@ -48,7 +48,7 @@ public class LiftSubsystem {
         double lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
         if (position<lowLimit || position>liftRange+lowLimit) {
-            System.out.println("Lift pos outside limit");
+            //System.out.println("Ignoring lift pos outside limit");
             return;
         }
         m_encoder.setPosition(position);
@@ -62,11 +62,11 @@ public class LiftSubsystem {
     public boolean moveToTarget(double target) {
         target += SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         double curPos = m_encoder.getPosition();
-        int diff = (int) (curPos-target);
+        double diff = curPos-target;
         System.out.println("Moving lift to target:"+target+".. Diff:"+diff);
         double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.1;
-        if (diff>1) { lowerArm(-speed); return false; }
-        else if (diff<-1) { raiseArm(speed); return false; }
+        if (diff>.5) { lowerArm(-speed); return false; }
+        else if (diff<-0.5) { raiseArm(speed); return false; }
         else {stop(); return true;}
     }
 
@@ -142,15 +142,16 @@ public class LiftSubsystem {
                 //pulley.stopMotor();
                 pulley.set(0.01);
                 stopped = true;
-                System.out.println("Stopped Lift");
+                System.out.println("Stopped Lift at pos:"+stoppedPos);
                 //double feedforward = 0;
                 //m_pidController.setReference(stoppedPos, CANSparkMax.ControlType.kPosition, 0, feedforward);
             }
         } else {
-            if (currentPos-stoppedPos>2)
-                lowerArm(-0.01);
-            else if (currentPos-stoppedPos<-2)
-                raiseArm(0.01);
+            double diff = currentPos-stoppedPos;
+            double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.025;
+            if (diff>.5) { lowerArm(-speed/4.0); }
+            else if (diff<-.5) { raiseArm(speed); }
+            stopped = true; // reset stopped to true as we are only in holding mode
         }
     }
 

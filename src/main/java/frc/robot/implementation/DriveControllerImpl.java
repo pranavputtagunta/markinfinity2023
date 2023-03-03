@@ -64,4 +64,9 @@ public class DriveControllerImpl implements DriveController {
     public RelativeEncoder getLeftEncoder() {
         return driveSubsystem.getLeftEncoder();
     }
+
+    @Override
+    public void simulationPeriodic() {
+        
+    }
 }

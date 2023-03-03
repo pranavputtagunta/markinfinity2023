@@ -9,4 +9,5 @@ public interface DriveController {
     public RelativeEncoder getRighttEncoder();
     public RelativeEncoder getLeftEncoder();
     public void resetEncoders();
+    public void simulationPeriodic();
 }

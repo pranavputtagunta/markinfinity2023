@@ -87,11 +87,10 @@ public class ArmControllerImpl implements ArmController {
     }
 
     public void stop() {
-        if (!(liftSubsystem.isStopped() && elevatorSubsystem.isStopped())) {
-            liftSubsystem.stop();
-            elevatorSubsystem.stop();
+        if (!(liftSubsystem.isStopped() && elevatorSubsystem.isStopped()))
             System.out.println("Stopped arm.....");
-        }  
+        liftSubsystem.stop(); // Call this even if already stopped to maintain position
+        elevatorSubsystem.stop();
     }
 
     @Override
@@ -104,9 +103,10 @@ public class ArmControllerImpl implements ArmController {
     public void simulationPeriodic() {
         double elev_change = elevatorSubsystem.getCurrentSpeed();
         double lift_change = liftSubsystem.getCurrentSpeed();
-        if (!liftSubsystem.isStopped())
-            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change);
-        if (!elevatorSubsystem.isStopped())
+        if (lift_change!=0)
+            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change); 
+        liftSubsystem.setPosition(liftSubsystem.getPosition()-0.01); // simulate the pull of gravity
+        if (elev_change!=0)
             elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elev_change);
     }
 }

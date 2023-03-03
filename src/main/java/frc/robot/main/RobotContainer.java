@@ -51,6 +51,7 @@ public class RobotContainer {
   }
 
   public void simulationPeriodic() {
+    driveController.simulationPeriodic();
     armController.simulationPeriodic();
   }
 
