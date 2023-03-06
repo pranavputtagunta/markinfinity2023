@@ -22,6 +22,8 @@ public class ElevatorSubsystem {
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
     ElevatorSubsystem() {
+        m_left.setSmartCurrentLimit(35);
+        m_right.setSmartCurrentLimit(35);
         m_left.setIdleMode(IdleMode.kBrake);
         m_left.setInverted(false);
         m_right.setInverted(true);
@@ -45,7 +47,7 @@ public class ElevatorSubsystem {
     public void setPosition(double position) {
         double lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
-        if (position<lowLimit || position>elevRange+lowLimit) {
+        if (elevRange>0 && (position<lowLimit || position>elevRange+lowLimit)) {
             System.out.println("Lift pos outside limit");
             return;
         }
@@ -59,7 +61,7 @@ public class ElevatorSubsystem {
         if (m_encoder.getPosition()>=xtnd_limit) {
             elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
             xtnd_limit = low_limit+elevRange;
-            if (m_encoder.getPosition()>=xtnd_limit) {
+            if (elevRange>0 && m_encoder.getPosition()>=xtnd_limit) {
                 System.out.println("Cant go further than "+xtnd_limit);
                 elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
                 stop();
@@ -86,7 +88,7 @@ public class ElevatorSubsystem {
     public void retractArm(double speed) {
         System.out.println("retractArm:"+speed);
         double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-        if (m_encoder.getPosition()<=rtrt_limit) {
+        if (elevRange>0 && m_encoder.getPosition()<=rtrt_limit) {
             System.out.println("Cant go further than "+rtrt_limit);
             stop();
             return;

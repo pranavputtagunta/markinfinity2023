@@ -62,7 +62,7 @@ public class AutonomousControllerImpl implements AutonomousController {
                 }
                 for (Pair entPair : map) {
                     // System.out.println("Checking "+entPair);
-                    if (entPair.p2 <= distangl) {
+                    if (entPair.p2>0 && entPair.p2 <= distangl) {
                         Integer duration = distangl / entPair.p2;
                         distangl = distangl % entPair.p2;
                         time += duration;

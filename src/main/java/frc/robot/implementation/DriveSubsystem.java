@@ -50,6 +50,12 @@ public class DriveSubsystem extends SubsystemBase {
         // gearbox is constructed, you might have to invert the left side instead.
         m_leftMotors.setInverted(true);
         
+        m_rightDrive1.setSmartCurrentLimit(35);
+        m_rightDrive2.setSmartCurrentLimit(35);
+        m_leftDrive1.setSmartCurrentLimit(35);
+        m_leftDrive2.setSmartCurrentLimit(35);
+
+
         // Sets the distance per pulse for the encoders
         m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
         m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
