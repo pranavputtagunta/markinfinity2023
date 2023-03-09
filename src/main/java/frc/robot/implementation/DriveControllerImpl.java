@@ -45,10 +45,27 @@ public class DriveControllerImpl implements DriveController {
             System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
             currentSpeed = speed;
             currentRotation = rotation;
+            // while(currentSpeed < speed){
+            //     currentSpeed = 0;
+            //     currentSpeed += 0.1;
+            // }
+            // while(currentRotation < rotation){
+            //     currentRotation = 0;
+            //     currentRotation += 0.1;
+            // }
         }
         double adjustedSpeed = (speed>DriveConstants.maxSpeed) ? DriveConstants.maxSpeed: speed;
         driveSubsystem.arcadeDrive(adjustedSpeed, rotation);
     }
+
+
+
+
+
+
+
+
+
 
     @Override
     public void resetEncoders() {

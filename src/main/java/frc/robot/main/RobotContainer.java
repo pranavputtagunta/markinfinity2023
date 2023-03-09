@@ -1,6 +1,8 @@
 package frc.robot.main;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.implementation.ArmControllerImpl;
 import frc.robot.implementation.IntakeControllerImpl;
 import frc.robot.implementation.AutonomousControllerImpl;
@@ -25,13 +27,19 @@ import frc.robot.main.Constants.IOConstants;
  * declared here.
  */
 public class RobotContainer {
-  private TeleController driveteleController;
-  private TeleController armTeleController;
+
+  public int cycle = 0;
+
+  private Joystick operatoe = new Joystick(0);
+  private Joystick driver = new Joystick(1);
+
+  private TeleController teleController;
+  
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonomousControllerImpl();
-  String armMoveToTargetInProgress = null;
+  boolean armMoveToTargetInProgress = false;
   Pair lastAction = null;
   int calibrationCycle = 0;
 
@@ -44,30 +52,17 @@ public class RobotContainer {
    */
   public RobotContainer() {
     if ("PS4".equalsIgnoreCase(IOConstants.teleControllerType))
-    driveteleController = new PSTeleController(IOConstants.psDriverControllerPort);
+      teleController = new PSTeleController(IOConstants.psDriverControllerPort);
     else
-    driveteleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
-    System.out.println("Using " + driveteleController.getControllerType() + " telecontroller");
-
-    if ("PS4".equals(IOConstants.teleControllerType2))
-      armTeleController = new PSTeleController(IOConstants.psDriverControllerPort2);
-    else if (IOConstants.teleControllerType2!=null)
-      armTeleController = new XboxTeleController(IOConstants.xbDriverControllerPort2);
-    else {
-      System.out.println("Using single controller for arm and drive");
-      armTeleController = driveteleController;
-    }
+      teleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
+      
+    System.out.println("Using " + teleController.getControllerType() + " telecontroller");
     initDashboard();
-  }
-
-  public void simulationPeriodic() {
-    driveController.simulationPeriodic();
-    armController.simulationPeriodic();
   }
 
   public void autonomousInit() {
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
-    armMoveToTargetInProgress = null;
+    armMoveToTargetInProgress = false;
     if (autoOpr!=null && autoOpr.length()>0) 
       autonomousController.autonomousInit(autoOpr.split(","));
     else if (autoOp!=null)
@@ -178,21 +173,18 @@ public class RobotContainer {
   }
 
   public void teleOp() {
-    if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 1.0);
-      double rotation = limit(driveteleController.getRotation(), 1.0);
+
+      double speed = -driver.getRawAxis(1) *.8;
+      double rotation = -driver.getRawAxis(4)*.8;
       if ((speed!=0) || (rotation!= 0))
         driveController.move(speed, rotation);
       else
         driveController.stop();
-    } else {
-      driveController.stop();
-    }
+    
 
-    if (armTeleController.shouldArmMove()) {
-      armMoveToTargetInProgress = null; // Stop automated move to target if user start manually adjusting arm
-      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.75);
-      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.66);
+      armMoveToTargetInProgress = false; // Stop automated move to target if user start manually adjusting arm
+      double extendSpeed = -operatoe.getRawAxis(1)*.8;
+      double liftSpeed = -operatoe.getRawAxis(5)*.8;
 
       if (extendSpeed > 0)
         armController.extendArm(extendSpeed);
@@ -207,23 +199,15 @@ public class RobotContainer {
         armController.lowerArm(liftSpeed);
       else
         armController.stopLift();
-    } else if ("Cone".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToConeTarget()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Cone")?null:"Cone";
-    } else if ("Cube".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToCubeTarget()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Cube")?null:"Cube";
-    } else if ("Stable".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToStablePos()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Stable")?null:"Stable";
-    } else {
-      armController.stop();
-    }
+    
 
-    if (armTeleController.shouldGrabCone()) {
+    if (teleController.shouldGrabCone()) { //buttons
       intakeController.grabCone(1.0);
-    } else if (armTeleController.shouldGrabCube()) {
+    } else if (teleController.shouldGrabCube()) {
       intakeController.grabCube(0.9);
-    } else if (armTeleController.shouldReleaseCone()) {
+    } else if (teleController.shouldReleaseCone()) {
       intakeController.releaseCone(1.0);
-    } else if (armTeleController.shouldReleaseCube()) {
+    } else if (teleController.shouldReleaseCube()) {
       intakeController.releaseCube(1.0);
     } else {
       intakeController.stop();
@@ -238,5 +222,31 @@ public class RobotContainer {
    }
    SmartDashboard.putBoolean("Reset Encoder", false);
    SmartDashboard.putString("Auton Commands", "");
+
+  }
+
+  public void autonCommand(int bigNum){
+    
+    //ArmController.moveArmToTagret(autoOp);
+    
+    // if(cycle < bigNum) driveController.move(.75,0);
+    // else driveController.stop();
+
+    // if(cycle < 20) armController.lowerArm(.75);
+    // else armController.stopLift();
+
+    // intakeController.releaseCone(.7);
+
+    // if(cycle < 20) armController.raiseArm(.75);
+    // else armController.stopLift();
+    
+    // if(cycle < bigNum) driveController.move(-.75,0);
+    // else driveController.stop();
+
+    if(cycle < bigNum) driveController.move(-.5,0);
+
+    else driveController.stop();
+    
+
   }
 }

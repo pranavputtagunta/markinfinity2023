@@ -73,15 +73,15 @@ public class LiftSubsystem {
     public void raiseArm(double speed) {
         double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         double high_limit = low_limit+liftRange;
-        if (m_encoder.getPosition()>high_limit) {
-            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
-            high_limit = low_limit+liftRange;
-            if (liftRange>0 && m_encoder.getPosition()>high_limit) {
-                System.out.println("Can't go higher than "+high_limit);
-                stop();
-                return;
-            }
-        }
+        // if (m_encoder.getPosition()>high_limit) {
+        //     liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
+        //     high_limit = low_limit+liftRange;
+        //     if (m_encoder.getPosition()>high_limit) {
+        //         System.out.println("Can't go higher than "+high_limit);
+        //         stop();
+        //         return;
+        //     }
+        // }
         System.out.println("raiseArm:"+speed);
         stopped = false;
         pulley.set(speed);
@@ -91,11 +91,11 @@ public class LiftSubsystem {
 
     public void lowerArm(double speed) {
         double low_limit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-        if (liftRange>0 && m_encoder.getPosition()<low_limit) {
-            System.out.println("Cant go lower!!!");
-            stop();
-            return;
-        }
+        // if (m_encoder.getPosition()<low_limit) {
+        //     System.out.println("Cant go lower!!!");
+        //     stop();
+        //     return;
+        // }
         System.out.println("lowerArm:"+speed);
         stopped = false;
         pulley.set(speed);
@@ -140,7 +140,7 @@ public class LiftSubsystem {
             stoppedPos = currentPos;
             if (currSpeed<0.05 && currSpeed>-0.05) {
                 //pulley.stopMotor();
-                pulley.set(0.01);
+                pulley.set(0.0);
                 stopped = true;
                 System.out.println("Stopped Lift at pos:"+stoppedPos);
                 //double feedforward = 0;

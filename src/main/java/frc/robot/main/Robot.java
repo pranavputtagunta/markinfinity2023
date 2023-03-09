@@ -6,6 +6,8 @@ package frc.robot.main;
 
 import java.util.Date;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cameraserver.CameraServerShared;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -29,6 +31,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    CameraServer.startAutomaticCapture();
     robotContainer = new RobotContainer();
   }
 
@@ -68,21 +71,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // Return immediately if robo has completed all operations in autonomous mode.
-    if (autonomousComplete) return;
-    // Otherwise calculate the time the Robo has been in autonomous mode and invoke autonomousOp() in roboContainer
-    Date currentTime = new Date();
-    long difference = 0;
-    if (autonomousStartTime==null) 
-      autonomousStartTime = currentTime;
-    else
-      difference = currentTime.getTime()-autonomousStartTime.getTime();
-    //System.out.println("Elapsed time: "+difference);
-    // If autonomousOp returns false, then all operations are done and autonomous mode is complete
-    if (!robotContainer.autonomousOp(difference)) {
-      System.out.println("Autonomous completed in "+difference+" millisec!");
-      autonomousComplete = true;
-    }
+    robotContainer.autonCommand(30);
+    robotContainer.cycle++;
   }
 
   /**

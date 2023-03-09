@@ -9,7 +9,7 @@ public class ArmControllerImpl implements ArmController {
     
     public ArmControllerImpl() {
         SmartDashboard.putNumber(LIFT_POSITION, 0);
-        SmartDashboard.putNumber(LIFT_LOW_LIMIT, 0);
+        SmartDashboard.putNumber(LIFT_LOW_LIMIT, -110);
         SmartDashboard.putNumber(LIFT_CONE_KEY, 60);
         SmartDashboard.putNumber(LIFT_CUBE_KEY, 65);
         SmartDashboard.putNumber(LIFT_STAB_KEY, 88);

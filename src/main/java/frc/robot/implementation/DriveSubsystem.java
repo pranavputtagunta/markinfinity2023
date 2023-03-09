@@ -26,7 +26,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final CANSparkMax m_leftDrive1 = new CANSparkMax(DriveConstants.SparkDevNumLeft1, MotorType.kBrushed);
     private final CANSparkMax m_leftDrive2 = new CANSparkMax(DriveConstants.SparkDevNumLeft2, MotorType.kBrushed);
 
-
+    
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1, m_rightDrive2);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1, m_leftDrive2);
 
@@ -62,6 +62,11 @@ public class DriveSubsystem extends SubsystemBase {
 
         //robotDrive.setExpiration(1.0);
         robotDrive.setSafetyEnabled(false);
+
+        // m_rightDrive1.setSmartCurrentLimit(35);
+        // m_leftDrive2.setSmartCurrentLimit(35);
+        // m_leftDrive1.setSmartCurrentLimit(35);
+        // m_rightDrive2.setSmartCurrentLimit(35);
 
         resetEncoders();
     }

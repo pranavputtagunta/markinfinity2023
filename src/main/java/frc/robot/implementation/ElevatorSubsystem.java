@@ -25,9 +25,10 @@ public class ElevatorSubsystem {
         m_left.setSmartCurrentLimit(35);
         m_right.setSmartCurrentLimit(35);
         m_left.setIdleMode(IdleMode.kBrake);
+        m_right.setIdleMode(IdleMode.kBrake);
         m_left.setInverted(false);
         m_right.setInverted(true);
-        m_right.setIdleMode(IdleMode.kBrake);
+       
         m_encoder = m_left.getEncoder();
         SmartDashboard.putNumber(ArmController.ELEV_RANGE, elevRange);
     }
@@ -58,16 +59,16 @@ public class ElevatorSubsystem {
         System.out.println("extendArm:"+speed);
         double low_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         double xtnd_limit = low_limit+elevRange;
-        if (m_encoder.getPosition()>=xtnd_limit) {
-            elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
-            xtnd_limit = low_limit+elevRange;
-            if (elevRange>0 && m_encoder.getPosition()>=xtnd_limit) {
-                System.out.println("Cant go further than "+xtnd_limit);
-                elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
-                stop();
-                return;
-            }
-        }
+        // if (m_encoder.getPosition()>=xtnd_limit) {
+        //     elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
+        //     xtnd_limit = low_limit+elevRange;
+        //     if (m_encoder.getPosition()>=xtnd_limit) {
+        //         System.out.println("Cant go further than "+xtnd_limit);
+        //         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+        //         stop();
+        //         return;
+        //     }
+        // }
         stopped = false;
         currSpeed = speed;
         elev.arcadeDrive(speed, 0);
@@ -88,7 +89,7 @@ public class ElevatorSubsystem {
     public void retractArm(double speed) {
         System.out.println("retractArm:"+speed);
         double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-        if (elevRange>0 && m_encoder.getPosition()<=rtrt_limit) {
+       if (m_encoder.getPosition()<=rtrt_limit) {
             System.out.println("Cant go further than "+rtrt_limit);
             stop();
             return;
