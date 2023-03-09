@@ -20,6 +20,7 @@ public interface ArmController {
     public void retractArm(double speed);
     public boolean moveArmToTarget(String itemType);
     public void periodic();
+    public void simulationPeriodic();
     public void stop();
     public void stopElevator();
     public void stopLift();

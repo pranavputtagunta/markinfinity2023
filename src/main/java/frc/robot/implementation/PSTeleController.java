@@ -47,7 +47,7 @@ public class PSTeleController implements TeleController {
   }
 
   public double getArmLiftSpeed() {
-    double lift = ps4c.getRawAxis(2);
+    double lift = ps4c.getRawAxis(1);
     return -lift;
   }
 
