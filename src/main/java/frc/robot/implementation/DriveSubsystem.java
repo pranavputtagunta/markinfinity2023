@@ -6,43 +6,33 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.main.Constants.*;
 
 public class DriveSubsystem extends SubsystemBase {
-    /*private final WPI_TalonSRX m_rightDrive2 = new WPI_TalonSRX(DriveConstants.TalonDevNumLt); //ok
+    /*private final WPI_TalonSRX m_rightDrive2 = new WPI_TalonSRX(DriveConstants.TalonDevNumLt);
     private final WPI_VictorSPX m_leftDrive2 = new WPI_VictorSPX(DriveConstants.VictorDevNumLt);
-    private final WPI_TalonSRX m_rightDrive1 = new WPI_TalonSRX(DriveConstants.TalonDevNumRt); // OK
-    private final WPI_VictorSPX m_leftDrive1 = new WPI_VictorSPX(DriveConstants.VictorDevNumRt); //Ok
+    private final WPI_TalonSRX m_rightDrive1 = new WPI_TalonSRX(DriveConstants.TalonDevNumRt);
+    private final WPI_VictorSPX m_leftDrive1 = new WPI_VictorSPX(DriveConstants.VictorDevNumRt);
     */
 
-    private final CANSparkMax m_rightDrive1 = new CANSparkMax(DriveConstants.SparkDevNumRight1, MotorType.kBrushed);
-    private final CANSparkMax m_rightDrive2 = new CANSparkMax(DriveConstants.SparkDevNumRight2, MotorType.kBrushed);
-    private final CANSparkMax m_leftDrive1 = new CANSparkMax(DriveConstants.SparkDevNumLeft1, MotorType.kBrushed);
-    private final CANSparkMax m_leftDrive2 = new CANSparkMax(DriveConstants.SparkDevNumLeft2, MotorType.kBrushed);
+    private final CANSparkMax m_rightDrive1 = new CANSparkMax(DriveConstants.SparkDevNumRight1, MotorType.kBrushless); 
+    private final CANSparkMax m_rightDrive2 = new CANSparkMax(DriveConstants.SparkDevNumRight2, MotorType.kBrushless);
+    private final CANSparkMax m_leftDrive1 = new CANSparkMax(DriveConstants.SparkDevNumLeft1, MotorType.kBrushless);
+    private final CANSparkMax m_leftDrive2 = new CANSparkMax(DriveConstants.SparkDevNumLeft2, MotorType.kBrushless);
 
+    RelativeEncoder rtEncoder = m_rightDrive1.getEncoder();
+    RelativeEncoder ltEncoder = m_leftDrive1.getEncoder();
 
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1, m_rightDrive2);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1, m_leftDrive2);
 
     private final DifferentialDrive robotDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
-
-    // The left-side drive encoder
-    private final Encoder m_leftEncoder = new Encoder(
-            DriveConstants.kLeftEncoderPorts[0],
-            DriveConstants.kLeftEncoderPorts[1],
-            DriveConstants.kLeftEncoderReversed);
-
-    // The right-side drive encoder
-    private final Encoder m_rightEncoder = new Encoder(
-            DriveConstants.kRightEncoderPorts[0],
-            DriveConstants.kRightEncoderPorts[1],
-            DriveConstants.kRightEncoderReversed);
+    private double currentSpeed = 0;
+    private double currentRotation = 0;
 
     public DriveSubsystem() {
         // We need to invert one side of the drivetrain so that positive voltages
@@ -54,24 +44,27 @@ public class DriveSubsystem extends SubsystemBase {
         m_rightDrive2.setSmartCurrentLimit(35);
         m_leftDrive1.setSmartCurrentLimit(35);
         m_leftDrive2.setSmartCurrentLimit(35);
-
-
-        // Sets the distance per pulse for the encoders
-        m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-        m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-
+    
         //robotDrive.setExpiration(1.0);
         robotDrive.setSafetyEnabled(false);
 
         resetEncoders();
     }
 
-    RelativeEncoder getRightEncoder() {
-        return m_leftDrive1.getEncoder();
+    public double getCurrentSpeed() {
+        return currentSpeed;
     }
 
-    RelativeEncoder getLeftEncoder() {
-        return m_rightDrive1.getEncoder();
+    public double getCurrentRotation() {
+        return currentRotation;
+    }
+
+    public double getRightEncoderPosition() {
+        return  rtEncoder!=null? rtEncoder.getPosition() : 0;
+    }
+
+    public double getLeftEncoderPosition() {
+        return  ltEncoder!=null? ltEncoder.getPosition() : 0;
     }
 
     public DifferentialDrive getRoboDrive() {
@@ -79,11 +72,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void resetEncoders() {
-        m_leftEncoder.reset();
-        m_rightEncoder.reset();
+        if (rtEncoder!=null) rtEncoder.setPosition(0);
+        if (ltEncoder!=null) ltEncoder.setPosition(0);
     }
 
     public void stopMotor() {
+        currentSpeed = 0;
+        currentRotation = 0;
         robotDrive.stopMotor();
     }
 
@@ -94,6 +89,8 @@ public class DriveSubsystem extends SubsystemBase {
      * @param rot the commanded rotation
      */
     public void arcadeDrive(double speed, double rotation) {
+        currentSpeed = speed;
+        currentRotation = rotation;
         robotDrive.arcadeDrive(speed, rotation);
     }
 
@@ -108,21 +105,6 @@ public class DriveSubsystem extends SubsystemBase {
         m_rightMotors.setVoltage(rightVolts);
         robotDrive.feed();
     }
-
-    @Override
-    public void periodic() {
-      // Update the odometry in the periodic block
-      //m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
-    }
-  
-    /**
-     * Returns the currently-estimated pose of the robot.
-     *
-     * @return The pose.
-     */
-    public Pose2d getPose() {
-      return new Pose2d(); //m_odometry.getPoseMeters();
-    }
   
     /**
      * Returns the current wheel speeds of the robot.
@@ -130,6 +112,12 @@ public class DriveSubsystem extends SubsystemBase {
      * @return The current wheel speeds.
      */
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-      return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+      return null; //new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        ltEncoder.setPosition(ltEncoder.getPosition()+currentSpeed+currentRotation);
+        rtEncoder.setPosition(rtEncoder.getPosition()+currentSpeed-currentRotation);
     }
 }

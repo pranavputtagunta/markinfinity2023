@@ -2,6 +2,7 @@ package frc.robot.main;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.implementation.ArmControllerImpl;
+import frc.robot.implementation.AutonWithEncoder;
 import frc.robot.implementation.IntakeControllerImpl;
 import frc.robot.implementation.AutonomousControllerImpl;
 import frc.robot.implementation.DriveControllerImpl;
@@ -30,7 +31,7 @@ public class RobotContainer {
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
-  private AutonomousController autonomousController = new AutonomousControllerImpl();
+  private AutonomousController autonomousController = new AutonWithEncoder(driveController); // new AutonomousControllerImpl();
   String armMoveToTargetInProgress = null;
   Pair lastAction = null;
   int calibrationCycle = 0;
@@ -57,7 +58,7 @@ public class RobotContainer {
       System.out.println("Using single controller for arm and drive");
       armTeleController = driveteleController;
     }
-    initDashboard();
+    SmartDashboard.putString("Auton Commands", "");
   }
 
   public void simulationPeriodic() {
@@ -66,6 +67,7 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
+    driveController.resetEncoders();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
     armMoveToTargetInProgress = null;
     if (autoOpr!=null && autoOpr.length()>0) 
@@ -133,20 +135,24 @@ public class RobotContainer {
       performAction(chosenAction);
       return true;
     } else {
+      driveController.stop();
+      armController.stop();
       return false;
     }
   }
 
   public void teleOpInit() {
+    driveController.resetEncoders();
     boolean resetEncoderPos = SmartDashboard.getBoolean("Reset Encoder", false);
     if (resetEncoderPos) {
-      System.out.println("Resetting encoder pos");
+      System.out.println("Resetting arm encoder pos");
       armController.resetEncoderPos();
       SmartDashboard.putBoolean("Reset Encoder", false);
     }
   }
 
   public void calibrationInit() {
+    driveController.resetEncoders();
     calibrationCycle = (int) SmartDashboard.getNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
     calibrationCycle++;
     SmartDashboard.putNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
@@ -168,6 +174,7 @@ public class RobotContainer {
 
   void periodic() {
     armController.periodic();
+    driveController.periodic();
   }
 
   private double limit(double orig, double limit) {
@@ -228,15 +235,5 @@ public class RobotContainer {
     } else {
       intakeController.stop();
     }
-  }
-
-  private void initDashboard() {
-    System.out.println("Initializing dashboard");
-    for(DashboardItem m : DashboardItem.values()) { 
-      System.out.println("Adding "+m.getKey() + " with "+m.getDefaultValue());
-      SmartDashboard.putNumber(m.getKey(), m.getDefaultValue());
-   }
-   SmartDashboard.putBoolean("Reset Encoder", false);
-   SmartDashboard.putString("Auton Commands", "");
   }
 }

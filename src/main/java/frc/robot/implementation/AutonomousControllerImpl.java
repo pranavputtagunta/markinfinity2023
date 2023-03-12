@@ -17,6 +17,10 @@ public class AutonomousControllerImpl implements AutonomousController {
     Pair[] calibrateSequence = new Pair[10];
     final int CALIBRATION_TIME = 5000; // in milli sec
     
+    AutonomousControllerImpl() {
+        initDashboard();
+    }
+
     @Override
     public void autonomousInit(String[] autoOp) {
         initMagnitudeToPhysicalMap();
@@ -140,4 +144,12 @@ public class AutonomousControllerImpl implements AutonomousController {
         calibrateSequence[calibrationsCount++] = new Pair(0.25, null, "Turn"); //Turn for 5 sec at qtr speed      
         calibrateSequence[calibrationsCount++] = new Pair(0.1, null, "Turn"); //Turn for 5 sec at 10% max speed
     }
+
+    private void initDashboard() {
+        System.out.println("Initializing dashboard");
+        for(DashboardItem m : DashboardItem.values()) { 
+          System.out.println("Adding "+m.getKey() + " with "+m.getDefaultValue());
+          SmartDashboard.putNumber(m.getKey(), m.getDefaultValue());
+       }
+      }
 }

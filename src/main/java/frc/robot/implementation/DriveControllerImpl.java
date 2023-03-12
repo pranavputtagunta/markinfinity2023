@@ -1,26 +1,22 @@
 package frc.robot.implementation;
 
-import com.revrobotics.RelativeEncoder;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.DriveController;
 import frc.robot.main.Constants.DriveConstants;
 
 public class DriveControllerImpl implements DriveController {
-    private double currentSpeed = 0.0;
-    private double currentRotation = 0.0;
     private DriveSubsystem driveSubsystem = new DriveSubsystem();
+    private GyroSubsystem gyro = new GyroSubsystem();
     private double rotAccLimit = 0.1;
 
     public DriveControllerImpl() {
+        SmartDashboard.putBoolean(RESET_ENCODER, false);
         SmartDashboard.putNumber(ROTATIONAL_ACC_LIMIT, rotAccLimit);
     }
 
     @Override
     public void stop() {
-        if ((currentSpeed!=0) || (currentRotation!=0)) {
-            currentSpeed = 0;
-            currentRotation = 0;
+        if ((driveSubsystem.getCurrentSpeed()!=0) || (driveSubsystem.getCurrentRotation()!=0)) {
             driveSubsystem.stopMotor();
             System.out.println("Not moving");
         }
@@ -29,22 +25,20 @@ public class DriveControllerImpl implements DriveController {
 
     @Override
     public void move(double speed, double rotation) {
-        boolean speedChange = currentSpeed != speed;
-        boolean rotChange = rotation != currentRotation;
+        boolean speedChange = driveSubsystem.getCurrentSpeed() != speed;
+        boolean rotChange = rotation != driveSubsystem.getCurrentRotation();
         if ((speedChange) || (rotChange)) {
             if (rotChange) {
                 rotAccLimit = SmartDashboard.getNumber(ROTATIONAL_ACC_LIMIT, rotAccLimit);
                 if (rotAccLimit!=0) {
-                    double diff = rotation-currentRotation;
+                    double diff = rotation-driveSubsystem.getCurrentRotation();
                     if ((rotation>0 && diff>rotAccLimit) || (rotation<0&&diff<-rotAccLimit)) {
                         System.out.println("Limiting rotational acceleration to "+rotAccLimit);
-                        rotation = currentRotation + (diff>0?rotAccLimit:-rotAccLimit);
+                        rotation = driveSubsystem.getCurrentRotation() + (diff>0?rotAccLimit:-rotAccLimit);
                     }
                 }
             }
             System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
-            currentSpeed = speed;
-            currentRotation = rotation;
         }
         double adjustedSpeed = (speed>DriveConstants.maxSpeed) ? DriveConstants.maxSpeed: speed;
         driveSubsystem.arcadeDrive(adjustedSpeed, rotation);
@@ -56,17 +50,26 @@ public class DriveControllerImpl implements DriveController {
     }
 
     @Override
-    public RelativeEncoder getRighttEncoder() {
-        return driveSubsystem.getRightEncoder();
+    public double getLeftEncoderPosition() {
+        return driveSubsystem.getLeftEncoderPosition();
     }
 
     @Override
-    public RelativeEncoder getLeftEncoder() {
-        return driveSubsystem.getLeftEncoder();
+    public double getRightEncoderPosition() {
+        return driveSubsystem.getRightEncoderPosition();
+    }
+
+    @Override
+    public void periodic() {
+        //System.out.println("gyroD:"+gyro.getDegrees()+", gyroR:"+gyro.getRate());
+        SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
+        SmartDashboard.putNumber(DriveController.GYRO_RATE, gyro.getRate());
+        SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, driveSubsystem.getRightEncoderPosition());
+        SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, driveSubsystem.getLeftEncoderPosition());
     }
 
     @Override
     public void simulationPeriodic() {
-        
+        driveSubsystem.simulationPeriodic();
     }
 }
