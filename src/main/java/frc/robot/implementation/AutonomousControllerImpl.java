@@ -152,4 +152,8 @@ public class AutonomousControllerImpl implements AutonomousController {
           SmartDashboard.putNumber(m.getKey(), m.getDefaultValue());
        }
       }
+
+    @Override
+    public void actionComplete(Pair action) {
+    }
 }

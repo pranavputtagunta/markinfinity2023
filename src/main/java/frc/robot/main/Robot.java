@@ -76,9 +76,10 @@ public class Robot extends TimedRobot {
     // Otherwise calculate the time the Robo has been in autonomous mode and invoke autonomousOp() in roboContainer
     Date currentTime = new Date();
     long difference = 0;
-    if (autonomousStartTime==null) 
+    if (autonomousStartTime==null) {
+      System.out.println("Autonomous started");
       autonomousStartTime = currentTime;
-    else
+    } else
       difference = currentTime.getTime()-autonomousStartTime.getTime();
     //System.out.println("Elapsed time: "+difference);
     // If autonomousOp returns false, then all operations are done and autonomous mode is complete

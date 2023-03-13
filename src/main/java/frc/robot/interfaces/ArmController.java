@@ -14,11 +14,14 @@ public interface ArmController {
     public final String ELEV_LOW_LIMIT = "Elev Low Limit";
     public final String ELEV_RANGE = "Elev Range";
 
+    public void init();
     public void raiseArm(double speed);
     public void lowerArm(double speed);
     public void extendArm(double speed);
     public void retractArm(double speed);
     public boolean moveArmToTarget(String itemType);
+    public String getCurrentTarget();
+    public void setCurrentTarget(String targetItemType);
     public void periodic();
     public void simulationPeriodic();
     public void stop();

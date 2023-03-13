@@ -9,6 +9,7 @@ public interface DriveController {
     public final String GYRO_ROLL="Gyro Roll";
     public final String GYRO_YAW="Gyro Yaw";
 
+    public void init();
     public void move(double speed, double rotation);
     public void stop();
     public void resetEncoders();

@@ -2,7 +2,6 @@ package frc.robot.implementation;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.DriveController;
-import frc.robot.main.Constants.DriveConstants;
 
 public class DriveControllerImpl implements DriveController {
     private DriveSubsystem driveSubsystem = new DriveSubsystem();
@@ -12,6 +11,10 @@ public class DriveControllerImpl implements DriveController {
     public DriveControllerImpl() {
         SmartDashboard.putBoolean(RESET_ENCODER, false);
         SmartDashboard.putNumber(ROTATIONAL_ACC_LIMIT, rotAccLimit);
+    }
+
+    public void init() {
+        driveSubsystem.resetEncoders();  
     }
 
     @Override
@@ -40,8 +43,7 @@ public class DriveControllerImpl implements DriveController {
             }
             System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
         }
-        double adjustedSpeed = (speed>DriveConstants.maxSpeed) ? DriveConstants.maxSpeed: speed;
-        driveSubsystem.arcadeDrive(adjustedSpeed, rotation);
+        driveSubsystem.arcadeDrive(speed, rotation);
     }
 
     @Override

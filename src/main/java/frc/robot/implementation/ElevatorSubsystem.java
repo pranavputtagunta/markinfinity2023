@@ -17,6 +17,7 @@ public class ElevatorSubsystem {
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_right);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_left);
     private double elevRange = 180; // Difference between high and low encode values
+    double lowLimit = 0;
     boolean stopped = true;
     double currSpeed = 0;
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
@@ -32,6 +33,11 @@ public class ElevatorSubsystem {
         SmartDashboard.putNumber(ArmController.ELEV_RANGE, elevRange);
     }
 
+    public void init() {
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+    }
+
     public double getPosition() {
         return m_encoder.getPosition();
     }
@@ -45,7 +51,7 @@ public class ElevatorSubsystem {
     }
 
     public void setPosition(double position) {
-        double lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         if (elevRange>0 && (position<lowLimit || position>elevRange+lowLimit)) {
             System.out.println("Lift pos outside limit");
@@ -56,11 +62,11 @@ public class ElevatorSubsystem {
 
     public void extendArm(double speed) {
         System.out.println("extendArm:"+speed);
-        double low_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-        double xtnd_limit = low_limit+elevRange;
+        double xtnd_limit = lowLimit+elevRange;
         if (m_encoder.getPosition()>=xtnd_limit) {
             elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
-            xtnd_limit = low_limit+elevRange;
+            lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+            xtnd_limit = lowLimit+elevRange;
             if (elevRange>0 && m_encoder.getPosition()>=xtnd_limit) {
                 System.out.println("Cant go further than "+xtnd_limit);
                 elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
