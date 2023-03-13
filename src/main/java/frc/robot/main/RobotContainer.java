@@ -35,7 +35,7 @@ public class RobotContainer {
   String armMoveToTargetInProgress = null;
   Pair lastAction = null;
   int calibrationCycle = 0;
-
+  int cycle = 0;
   // Instructions for auton operation
   // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
   String autoOp = null;// "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";  
@@ -179,15 +179,13 @@ public class RobotContainer {
 
   private double limit(double orig, double limit) {
     if (orig>-0.04 && orig<0.04) return 0.0;
-    if (orig>limit) return limit;
-    if (orig<-limit) return -limit;
-    return orig;
+    return orig*limit;
   }
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 1.0);
-      double rotation = limit(driveteleController.getRotation(), 1.0);
+      double speed = limit(driveteleController.getSpeed(), 0.8);
+      double rotation = limit(driveteleController.getRotation(), 0.8);
       if ((speed!=0) || (rotation!= 0))
         driveController.move(speed, rotation);
       else
@@ -198,8 +196,8 @@ public class RobotContainer {
 
     if (armTeleController.shouldArmMove()) {
       armMoveToTargetInProgress = null; // Stop automated move to target if user start manually adjusting arm
-      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.75);
-      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.66);
+      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.8);
+      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.8);
 
       if (extendSpeed > 0)
         armController.extendArm(extendSpeed);
@@ -236,4 +234,11 @@ public class RobotContainer {
       intakeController.stop();
     }
   }
+
+  public void autonCommand(int bigNum) {
+    if (cycle++ < bigNum) driveController.move(-.5,0);
+
+    else driveController.stop();
+  }
+
 }
