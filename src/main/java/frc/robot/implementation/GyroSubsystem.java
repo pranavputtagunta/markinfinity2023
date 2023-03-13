@@ -2,26 +2,25 @@ package frc.robot.implementation;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 
 public class GyroSubsystem {
-    private ADXRS450_Gyro gyro1 = new ADXRS450_Gyro();
-    AHRS ahrsGyro = new AHRS(SPI.Port.kMXP);
+    //private ADXRS450_Gyro gyro1 = new ADXRS450_Gyro();
+    AHRS ahrsGyro = new AHRS(SerialPort.Port.kUSB);
 
     GyroSubsystem() {
         ahrsGyro.reset();
     }
 
-    public double getAngle() {
-        return ahrsGyro.getAngle();
+    public double getYaw() {
+        return ahrsGyro.getYaw();
     }
 
-    public double getRate() {
-        return ahrsGyro.getRate();
+    public double getRoll() {
+        return ahrsGyro.getRoll();
     }
 
-    public double getDegrees() {
-        return ahrsGyro.getRotation2d().getDegrees();
-    }  
+    public double getPitch() {
+        return ahrsGyro.getPitch();
+    }
 }

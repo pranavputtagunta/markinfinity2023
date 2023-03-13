@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,8 +23,12 @@ public class DriveSubsystem extends SubsystemBase {
     private final CANSparkMax m_leftDrive1 = new CANSparkMax(DriveConstants.SparkDevNumLeft1, MotorType.kBrushless);
     private final CANSparkMax m_leftDrive2 = new CANSparkMax(DriveConstants.SparkDevNumLeft2, MotorType.kBrushless);
 
-    RelativeEncoder rtEncoder = m_rightDrive1.getEncoder();
-    RelativeEncoder ltEncoder = m_leftDrive1.getEncoder();
+    RelativeEncoder rtEncoder1 = m_rightDrive1.getEncoder();
+    RelativeEncoder rtEncoder2 = m_rightDrive2.getEncoder();
+
+    RelativeEncoder ltEncoder1 = m_leftDrive1.getEncoder();
+    RelativeEncoder ltEncoder2 = m_leftDrive2.getEncoder();
+
 
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1, m_rightDrive2);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1, m_leftDrive2);
@@ -60,11 +63,11 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public double getRightEncoderPosition() {
-        return  rtEncoder!=null? rtEncoder.getPosition() : 0;
+        return  rtEncoder1!=null? (rtEncoder1.getPosition()+rtEncoder2.getPosition())/2.0 : 0;
     }
 
     public double getLeftEncoderPosition() {
-        return  ltEncoder!=null? ltEncoder.getPosition() : 0;
+        return  ltEncoder1!=null? -(ltEncoder1.getPosition()+ltEncoder2.getPosition())/2.0 : 0;
     }
 
     public DifferentialDrive getRoboDrive() {
@@ -72,8 +75,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void resetEncoders() {
-        if (rtEncoder!=null) rtEncoder.setPosition(0);
-        if (ltEncoder!=null) ltEncoder.setPosition(0);
+        if (rtEncoder1!=null) rtEncoder1.setPosition(0);
+        if (rtEncoder2!=null) rtEncoder2.setPosition(0);
+        if (ltEncoder1!=null) ltEncoder1.setPosition(0);
+        if (ltEncoder2!=null) ltEncoder2.setPosition(0);
     }
 
     public void stopMotor() {
@@ -94,30 +99,13 @@ public class DriveSubsystem extends SubsystemBase {
         robotDrive.arcadeDrive(speed, rotation);
     }
 
-    /**
-     * Controls the left and right sides of the drive directly with voltages.
-     *
-     * @param leftVolts  the commanded left output
-     * @param rightVolts the commanded right output
-     */
-    public void tankDriveVolts(double leftVolts, double rightVolts) {
-        m_leftMotors.setVoltage(leftVolts);
-        m_rightMotors.setVoltage(rightVolts);
-        robotDrive.feed();
-    }
-  
-    /**
-     * Returns the current wheel speeds of the robot.
-     *
-     * @return The current wheel speeds.
-     */
-    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-      return null; //new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
-    }
-
     @Override
     public void simulationPeriodic() {
-        ltEncoder.setPosition(ltEncoder.getPosition()+currentSpeed+currentRotation);
-        rtEncoder.setPosition(rtEncoder.getPosition()+currentSpeed-currentRotation);
+        double rotToEncVal = currentRotation/2.0;
+        double speedToEncVal = currentSpeed/2.0;
+        rtEncoder1.setPosition(rtEncoder1.getPosition()+speedToEncVal+rotToEncVal);
+        rtEncoder2.setPosition(rtEncoder2.getPosition()+speedToEncVal+rotToEncVal);
+        ltEncoder1.setPosition(ltEncoder1.getPosition()-speedToEncVal+rotToEncVal);
+        ltEncoder2.setPosition(ltEncoder2.getPosition()-speedToEncVal+rotToEncVal);
     }
 }

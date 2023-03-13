@@ -61,11 +61,12 @@ public class DriveControllerImpl implements DriveController {
 
     @Override
     public void periodic() {
-        //System.out.println("gyroD:"+gyro.getDegrees()+", gyroR:"+gyro.getRate());
-        SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
-        SmartDashboard.putNumber(DriveController.GYRO_RATE, gyro.getRate());
-        SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, driveSubsystem.getRightEncoderPosition());
-        SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, driveSubsystem.getLeftEncoderPosition());
+        //System.out.println("gyroP:"+gyro.getPitch()+", gyroR:"+gyro.getDegrees());
+        SmartDashboard.putNumber(DriveController.GYRO_PITCH, gyro.getPitch());
+        SmartDashboard.putNumber(DriveController.GYRO_YAW, gyro.getYaw());
+        SmartDashboard.putNumber(DriveController.GYRO_ROLL, gyro.getRoll());
+        SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
+        SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
     }
 
     @Override

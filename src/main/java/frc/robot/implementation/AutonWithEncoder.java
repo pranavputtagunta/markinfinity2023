@@ -9,13 +9,13 @@ import frc.robot.main.Pair;
 
 public class AutonWithEncoder implements AutonomousController {
     ArrayList<Pair> actionMap = new ArrayList<Pair>(25);
-    DriveController driveSubsystem;
+    DriveController driveController;
     int curOp = 0;
     Double startLtPos, startRtPos;
     double autonMaxSpeed = 0.75;
 
-    public AutonWithEncoder(DriveController driveSubsystem) {
-        this.driveSubsystem = driveSubsystem;
+    public AutonWithEncoder(DriveController driveController) {
+        this.driveController = driveController;
         SmartDashboard.putNumber("Auton MAX Speed", autonMaxSpeed);
         SmartDashboard.putString("Auton Cur Action", "");
     }
@@ -55,24 +55,24 @@ public class AutonWithEncoder implements AutonomousController {
         boolean reverse = remaining<0? true: false;
         double factor = 1.0;
         if (Math.abs(remaining)<10) factor = 0.5;
-        return factor*(reverse?-autonMaxSpeed:autonMaxSpeed);
+        return factor*(reverse?autonMaxSpeed:-autonMaxSpeed);
     }
 
     @Override
     public Pair getNextAction(long timeInAutonomous) {
         while(curOp<actionMap.size()) {
-            if (startLtPos==null) startLtPos =  driveSubsystem.getLeftEncoderPosition();
-            if (startRtPos==null) startRtPos =  driveSubsystem.getRightEncoderPosition();
+            if (startLtPos==null) startLtPos =  driveController.getLeftEncoderPosition();
+            if (startRtPos==null) startRtPos =  driveController.getRightEncoderPosition();
             Pair p =  actionMap.get(curOp);
-            System.out.println("Currnet action:"+p);
-            double currentLtPos = driveSubsystem.getLeftEncoderPosition();
-            double currentRtPos = driveSubsystem.getRightEncoderPosition();
+            System.out.println("Current action:"+p);
+            double currentLtPos = driveController.getLeftEncoderPosition();
+            double currentRtPos = driveController.getRightEncoderPosition();
             double remaining = 0;
             if (p.type.equals("Move")) {
                 double distMoved = convertToDistance(currentLtPos-startLtPos, currentRtPos-startRtPos);
                 remaining = p.p2-distMoved;
                 System.out.println("Distance Moved:"+distMoved+". Remaining:"+remaining);
-                if (Math.abs(remaining)<=0.1) {
+                if (Math.abs(remaining)<=1) {
                     System.out.println("Completed action:"+p);
                     startLtPos = startRtPos = null;
                     curOp++;
@@ -83,8 +83,8 @@ public class AutonWithEncoder implements AutonomousController {
             } else if (p.type.equals("Turn")) {
                 double distTurned = convertToAngle(currentLtPos-startLtPos, currentRtPos-startRtPos);
                 remaining = p.p2-distTurned;
-                System.out.println("Distance Turned:"+distTurned+". Remaining:"+remaining);
-                if (Math.abs(remaining)<=0.1) {
+                System.out.println("Angle Turned:"+distTurned+". Remaining:"+remaining);
+                if (Math.abs(remaining)<=1) {
                     System.out.println("Completed action:"+p);
                     startLtPos = startRtPos = null;
                     curOp++;
