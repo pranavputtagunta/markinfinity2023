@@ -1,20 +1,18 @@
 package frc.robot.main;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.implementation.ArmControllerImpl;
-import frc.robot.implementation.AutonWithEncoder;
-import frc.robot.implementation.IntakeControllerImpl;
-import frc.robot.implementation.AutonomousControllerImpl;
-import frc.robot.implementation.DriveControllerImpl;
-import frc.robot.implementation.PSTeleController;
-import frc.robot.implementation.XboxTeleController;
+import frc.robot.controller.ArmControllerImpl;
+import frc.robot.controller.AutonWithEncoder;
+import frc.robot.controller.DriveControllerImpl;
+import frc.robot.controller.IntakeControllerImpl;
+import frc.robot.controller.PSTeleController;
+import frc.robot.controller.XboxTeleController;
 import frc.robot.interfaces.Action;
 import frc.robot.interfaces.ArmController;
 import frc.robot.interfaces.IntakeController;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
-import frc.robot.interfaces.Action.ActionType;
 import frc.robot.main.Constants.IOConstants;
 
 /**
@@ -32,8 +30,7 @@ public class RobotContainer {
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
-  private AutonomousController autonomousController = new AutonWithEncoder(driveController); // new
-                                                                                             // AutonomousControllerImpl();
+  private AutonomousController autonomousController = new AutonWithEncoder(driveController);
   Action lastAction = null;
   int calibrationCycle = 0;
   int cycle = 0;

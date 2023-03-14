@@ -1,7 +1,9 @@
-package frc.robot.implementation;
+package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.DriveController;
+import frc.robot.subsystem.DriveSubsystem;
+import frc.robot.subsystem.GyroSubsystem;
 
 public class DriveControllerImpl implements DriveController {
     private DriveSubsystem driveSubsystem = new DriveSubsystem();

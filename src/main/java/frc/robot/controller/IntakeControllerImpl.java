@@ -1,7 +1,8 @@
-package frc.robot.implementation;
+package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.IntakeController;
+import frc.robot.subsystem.IntakeSubsystem;
 
 public class IntakeControllerImpl implements IntakeController {
     IntakeSubsystem intakeSubsytem = new IntakeSubsystem();

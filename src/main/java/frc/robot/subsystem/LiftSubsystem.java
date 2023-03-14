@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -30,7 +30,7 @@ public class LiftSubsystem {
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
     private double lowLimit = 0;
 
-    LiftSubsystem() {
+    public LiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
         pulley.setSmartCurrentLimit(intakeAmps);
         m_encoder = pulley.getEncoder();

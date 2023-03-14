@@ -17,6 +17,14 @@ public class Action {
     this.type = type;
    }
 
+   public boolean equals(Action obj) {
+     if (obj==null) return false;
+     if (obj.type!=type) return false;
+     if (obj.speed!=speed) return false;
+     if (obj.magnitude!=magnitude) return false;
+    return true;
+   }
+
    @Override
    public String toString() {
        return type+":"+speed+".."+magnitude;

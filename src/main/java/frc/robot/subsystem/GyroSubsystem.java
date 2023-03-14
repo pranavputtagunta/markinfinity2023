@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.subsystem;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -9,7 +9,7 @@ public class GyroSubsystem {
     final AHRS ahrsGyro = new AHRS(SerialPort.Port.kUSB);
     double simulatedAngle = 0;
 
-    GyroSubsystem() {
+    public GyroSubsystem() {
         init();
     }
 
@@ -34,7 +34,7 @@ public class GyroSubsystem {
         return ahrsGyro.getPitch();
     }
 
-    void simulationPeriodic(double rotSpeed) {
+    public void simulationPeriodic(double rotSpeed) {
         simulatedAngle += rotSpeed;
         if (simulatedAngle>180)
             simulatedAngle=-180+(simulatedAngle-180);

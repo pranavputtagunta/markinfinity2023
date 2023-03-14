@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.controller;
 
 import java.util.ArrayList;
 
@@ -11,6 +11,7 @@ import frc.robot.interfaces.Action.ActionType;
 public class AutonWithEncoder implements AutonomousController {
     ArrayList<Action> actionMap = new ArrayList<Action>(25);
     DriveController driveController;
+    Action prevAction = null;
     int curOp = 0;
     Double startLtPos, startRtPos;
     double autonMaxSpeed = 0.75;
@@ -30,6 +31,7 @@ public class AutonWithEncoder implements AutonomousController {
     @Override
     public void autonomousInit(String[] autoOp) {
         curOp = 0;
+        prevAction = null;
         actionMap.clear();
         System.out.println("Received " + autoOp.length + " autoOp items");
         startAngle = driveController.getAngle();
@@ -43,12 +45,15 @@ public class AutonWithEncoder implements AutonomousController {
             String autoOpr = autoOp[i].trim();
             System.out.println("Processing:" + autoOpr);
             int spaceIndx = autoOpr.indexOf(' ');
+            ActionType actionType;
             try {
-                Integer distangl = Integer.parseInt(autoOpr.substring(spaceIndx+1));
-                ActionType actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
-                if (distangl>=0)
+                Integer distangl = 0;
+                if (spaceIndx>=0) {
+                    distangl = Integer.parseInt(autoOpr.substring(spaceIndx+1));
                     actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
-                else
+                    if (distangl>=0)
+                        actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
+                } else
                     actionType = ActionType.valueOf(autoOpr);
                 Action p = new Action(autonMaxSpeed, distangl, actionType);
                 System.out.println("Adding:" + p);
@@ -89,6 +94,7 @@ public class AutonWithEncoder implements AutonomousController {
         System.out.println("Completed action:"+action);
         startLtPos = startRtPos = null;
         actionStartTime = 0;
+        prevAction = action;
         curOp++;
     }
 
@@ -105,7 +111,10 @@ public class AutonWithEncoder implements AutonomousController {
             if (startLtPos==null) startLtPos =  driveController.getLeftEncoderPosition();
             if (startRtPos==null) startRtPos =  driveController.getRightEncoderPosition();
             chosenAction = actionMap.get(curOp);
-            System.out.println("Current action:"+chosenAction);
+            if (prevAction==null || !prevAction.equals(chosenAction)) {
+                System.out.println("Current action:"+chosenAction);
+                prevAction = chosenAction;
+            }
             if (actionStartTime==0) actionStartTime = timeInAutonomous;
             double currentLtPos = driveController.getLeftEncoderPosition();
             double currentRtPos = driveController.getRightEncoderPosition();
@@ -134,7 +143,7 @@ public class AutonWithEncoder implements AutonomousController {
                 break;
             } else if (chosenAction.type == ActionType.RCone || chosenAction.type== ActionType.RCube ) {
                 remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
-                System.out.println("Action time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
+                System.out.println(chosenAction.type+".. time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
                 if (remaining<=10)
                     actionComplete(chosenAction);
                 else

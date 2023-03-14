@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -13,7 +13,7 @@ public class IntakeSubsystem {
     static final double INTAKE_HOLD_POWER = 0.07; // Percent output for holding
     private final CANSparkMax intake;
 
-    IntakeSubsystem() {
+    public IntakeSubsystem() {
         intake = new CANSparkMax(Constants.DriveConstants.INTAKE, MotorType.kBrushed);
         intake.setIdleMode(IdleMode.kCoast);
     }

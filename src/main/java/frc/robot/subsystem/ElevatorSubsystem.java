@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -22,7 +22,7 @@ public class ElevatorSubsystem {
     double currSpeed = 0;
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
-    ElevatorSubsystem() {
+    public ElevatorSubsystem() {
         m_left.setSmartCurrentLimit(35);
         m_right.setSmartCurrentLimit(35);
         m_left.setIdleMode(IdleMode.kBrake);
@@ -80,7 +80,7 @@ public class ElevatorSubsystem {
     }
 
     // Returns true if target reached
-    boolean moveToTarget(double target) {
+    public boolean moveToTarget(double target) {
         target += SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         double curPos = m_encoder.getPosition();
         int diff = (int) (curPos-target);
