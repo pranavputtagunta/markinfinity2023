@@ -3,12 +3,13 @@ package frc.robot.implementation;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.interfaces.Action;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
-import frc.robot.main.Pair;
+import frc.robot.interfaces.Action.ActionType;
 
 public class AutonWithEncoder implements AutonomousController {
-    ArrayList<Pair> actionMap = new ArrayList<Pair>(25);
+    ArrayList<Action> actionMap = new ArrayList<Action>(25);
     DriveController driveController;
     int curOp = 0;
     Double startLtPos, startRtPos;
@@ -16,6 +17,7 @@ public class AutonWithEncoder implements AutonomousController {
     double encoderToDistanceConversion = 2.355;
     double encoderToAngleConversion = 10;
     long actionStartTime = 0;
+    double startAngle;
 
     public AutonWithEncoder(DriveController driveController) {
         this.driveController = driveController;
@@ -27,7 +29,10 @@ public class AutonWithEncoder implements AutonomousController {
 
     @Override
     public void autonomousInit(String[] autoOp) {
+        curOp = 0;
+        actionMap.clear();
         System.out.println("Received " + autoOp.length + " autoOp items");
+        startAngle = driveController.getAngle();
         autonMaxSpeed = SmartDashboard.getNumber("Auton MAX Speed", autonMaxSpeed);
         encoderToDistanceConversion = SmartDashboard.getNumber("Encoder Dist Factor", encoderToDistanceConversion);
         encoderToAngleConversion = SmartDashboard.getNumber("Encoder Angle Factor", encoderToAngleConversion);
@@ -38,11 +43,19 @@ public class AutonWithEncoder implements AutonomousController {
             String autoOpr = autoOp[i].trim();
             System.out.println("Processing:" + autoOpr);
             int spaceIndx = autoOpr.indexOf(' ');
-            Integer distangl = Integer.parseInt(autoOpr.substring(spaceIndx+1));
-            String action = autoOpr.substring(0, spaceIndx);
-            Pair p = new Pair(autonMaxSpeed, distangl, action);
-            System.out.println("Adding:" + p);
-            actionMap.add(p);
+            try {
+                Integer distangl = Integer.parseInt(autoOpr.substring(spaceIndx+1));
+                ActionType actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
+                if (distangl>=0)
+                    actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
+                else
+                    actionType = ActionType.valueOf(autoOpr);
+                Action p = new Action(autonMaxSpeed, distangl, actionType);
+                System.out.println("Adding:" + p);
+                actionMap.add(p);
+            } catch (Exception e) {
+                System.out.println("Ignoring"+e.getMessage());
+            }
         }
     }
 
@@ -63,24 +76,30 @@ public class AutonWithEncoder implements AutonomousController {
     }
 
     private double angleRemainingToSpeed(double remaining) {
-        boolean reverse = remaining<0? true: false;
+        double speed = remaining>0? autonMaxSpeed: -autonMaxSpeed; //positive speed turns clockwise
         double factor = 1.0;
-        if (Math.abs(remaining)<10) factor = 0.5;
-        if (Math.abs(remaining)<5) factor = 0.25;
-        return factor*(reverse?autonMaxSpeed:-autonMaxSpeed);
+        double absVal = Math.abs(remaining);
+        if (absVal<10) factor = 0.5;
+        if (absVal<5) factor = 0.25;
+        return factor*speed;
     }
 
     @Override
-    public void actionComplete(Pair action) {
+    public void actionComplete(Action action) {
         System.out.println("Completed action:"+action);
         startLtPos = startRtPos = null;
         actionStartTime = 0;
         curOp++;
     }
 
+    private double getAngleTurned() {
+        double angleTurned = driveController.getAngle()-startAngle;
+        return angleTurned;
+    }
+
     @Override
-    public Pair getNextAction(long timeInAutonomous) {
-        Pair chosenAction = null;
+    public Action getNextAction(long timeInAutonomous) {
+        Action chosenAction = null;
         double remaining = 0;
         while(curOp<actionMap.size()) {
             if (startLtPos==null) startLtPos =  driveController.getLeftEncoderPosition();
@@ -90,31 +109,32 @@ public class AutonWithEncoder implements AutonomousController {
             if (actionStartTime==0) actionStartTime = timeInAutonomous;
             double currentLtPos = driveController.getLeftEncoderPosition();
             double currentRtPos = driveController.getRightEncoderPosition();
-            if (chosenAction.type.equals("Move")) {
+            if (chosenAction.type == ActionType.Move) {
                 double distMoved = convertToDistance(currentLtPos-startLtPos, currentRtPos-startRtPos);
-                remaining = chosenAction.p2-distMoved;
+                remaining = chosenAction.magnitude-distMoved;
                 System.out.println("Distance Moved:"+distMoved+". Remaining:"+remaining);
                 if (Math.abs(remaining)<=1) {
                     actionComplete(chosenAction);
                 } else {
-                    chosenAction.p1 = distanceRemainingToSpeed(remaining);
+                    chosenAction.speed = distanceRemainingToSpeed(remaining);
                     break;
                 }
-            } else if (chosenAction.type.equals("Turn")) {
-                double distTurned = convertToAngle(currentLtPos-startLtPos, currentRtPos-startRtPos);
-                remaining = chosenAction.p2-distTurned;
-                System.out.println("Angle Turned:"+distTurned+". Remaining:"+remaining);
+            } else if (chosenAction.type == ActionType.Turn) {
+                //double angleTurned = convertToAngle(currentLtPos-startLtPos, currentRtPos-startRtPos);
+                double angleTurned = getAngleTurned();
+                remaining = chosenAction.magnitude-angleTurned;
+                System.out.println("Angle Turned:"+angleTurned+". Remaining:"+remaining);
                 if (Math.abs(remaining)<=1) {
                     actionComplete(chosenAction);
                 } else {
-                    chosenAction.p1 = angleRemainingToSpeed(remaining);
+                    chosenAction.speed = angleRemainingToSpeed(remaining);
                     break;
                 }
-            } else if (chosenAction.type.equals("PCone") || chosenAction.type.equals("PCube") || chosenAction.type.equals("Stable") ) {
+            } else if (chosenAction.type == ActionType.PCone || chosenAction.type== ActionType.PCube || chosenAction.type== ActionType.SArm ) {
                 break;
-            } else if (chosenAction.type.equals("RCone") || chosenAction.type.equals("RCube") ) {
-                remaining = chosenAction.p2*1000-(timeInAutonomous-actionStartTime);
-                System.out.println("Action time:"+chosenAction.p2*1000+". Remaining:"+remaining);
+            } else if (chosenAction.type == ActionType.RCone || chosenAction.type== ActionType.RCube ) {
+                remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
+                System.out.println("Action time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
                 if (remaining<=10)
                     actionComplete(chosenAction);
                 else
@@ -125,14 +145,14 @@ public class AutonWithEncoder implements AutonomousController {
             }
         }
         if (chosenAction!=null)
-            SmartDashboard.putString("Auton Cur Action", chosenAction.type+" "+remaining+"/"+chosenAction.p2);
+            SmartDashboard.putString("Auton Cur Action", chosenAction.type+" "+remaining+"/"+chosenAction.magnitude);
         else
             SmartDashboard.putString("Auton Cur Action", "None");
         return chosenAction;
     }
 
     @Override
-    public Pair calibrate(int calibrationCount, long timeInTest) {
+    public Action calibrate(int calibrationCount, long timeInTest) {
         return null;
     }
 

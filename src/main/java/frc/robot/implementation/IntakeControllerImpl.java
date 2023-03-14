@@ -7,15 +7,16 @@ public class IntakeControllerImpl implements IntakeController {
     IntakeSubsystem intakeSubsytem = new IntakeSubsystem();
     boolean stopped = true;
     ItemType currentPiece = null;
+    private final String CURRENT_PIECE = "Current Piece";
 
     public IntakeControllerImpl() {
-        SmartDashboard.putString("currentPiece", "None");
+        SmartDashboard.putString(CURRENT_PIECE, "None");
     }
     
     public void grabCone(double speed) {
         stopped = false;
         currentPiece = ItemType.Cone;
-        SmartDashboard.putString("currentPiece", currentPiece.name());
+        SmartDashboard.putString(CURRENT_PIECE, currentPiece.name());
         System.out.println("Grab:" + currentPiece);
         intakeSubsytem.grab(currentPiece, speed);
     }
@@ -25,13 +26,13 @@ public class IntakeControllerImpl implements IntakeController {
         System.out.println("Release Cone"); 
         intakeSubsytem.release(ItemType.Cone, speed);
         currentPiece = null;
-        SmartDashboard.putString("currentPiece", "None");
+        SmartDashboard.putString(CURRENT_PIECE, "None");
     }
 
     public void grabCube(double speed) {
         stopped = false;
         currentPiece = ItemType.Cone;
-        SmartDashboard.putString("currentPiece", currentPiece.name());
+        SmartDashboard.putString(CURRENT_PIECE, currentPiece.name());
         System.out.println("Grab:" + currentPiece);
         intakeSubsytem.grab(currentPiece, speed);
     }
@@ -41,7 +42,7 @@ public class IntakeControllerImpl implements IntakeController {
         System.out.println("Release Cube"); 
         intakeSubsytem.release(ItemType.Cube, speed);
         currentPiece = null;
-        SmartDashboard.putString("currentPiece", "None");
+        SmartDashboard.putString(CURRENT_PIECE, "None");
     }
 
     public void stop() {

@@ -8,6 +8,7 @@ public interface DriveController {
     public final String GYRO_PITCH="Gyro Pitch";
     public final String GYRO_ROLL="Gyro Roll";
     public final String GYRO_YAW="Gyro Yaw";
+    public final String GYRO_ANGLE = "Gyro Angle";
 
     public void init();
     public void move(double speed, double rotation);
@@ -17,4 +18,5 @@ public interface DriveController {
     public double getRightEncoderPosition();
     public void simulationPeriodic();
     public void periodic();
+    public double getAngle();
 }

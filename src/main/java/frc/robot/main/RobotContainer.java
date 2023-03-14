@@ -8,12 +8,13 @@ import frc.robot.implementation.AutonomousControllerImpl;
 import frc.robot.implementation.DriveControllerImpl;
 import frc.robot.implementation.PSTeleController;
 import frc.robot.implementation.XboxTeleController;
-
+import frc.robot.interfaces.Action;
 import frc.robot.interfaces.ArmController;
 import frc.robot.interfaces.IntakeController;
 import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
+import frc.robot.interfaces.Action.ActionType;
 import frc.robot.main.Constants.IOConstants;
 
 /**
@@ -33,7 +34,7 @@ public class RobotContainer {
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonWithEncoder(driveController); // new
                                                                                              // AutonomousControllerImpl();
-  Pair lastAction = null;
+  Action lastAction = null;
   int calibrationCycle = 0;
   int cycle = 0;
   // Instructions for auton operation
@@ -78,44 +79,39 @@ public class RobotContainer {
       autonomousController.autonomousInit(autoOp.split(","));
   }
 
-  private void performAction(Pair chosenAction) {
+  private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
-      case "Lift":
-        armController.raiseArm(chosenAction.p1);
+      case Turn:
+        driveController.move(0, chosenAction.speed);
         break;
-      case "Xtnd":
-        armController.extendArm(chosenAction.p1);
-      case "Turn":
-        driveController.move(0, chosenAction.p1);
+      case Move:
+        driveController.move(chosenAction.speed, 0);
         break;
-      case "Move":
-        driveController.move(chosenAction.p1, 0);
-        break;
-      case "Stop":
+      case Stop:
         driveController.stop();
         break;
-      case "SArm":
+      case SArm:
         if (armController.moveArmToTarget("Stable"))
           autonomousController.actionComplete(chosenAction);
         break;
-      case "PCone":
+      case PCone:
         if (armController.moveArmToTarget("Cone"))
           autonomousController.actionComplete(chosenAction);
         break;
-      case "PCube":
+      case PCube:
         if (armController.moveArmToTarget("Cube"))
           autonomousController.actionComplete(chosenAction);
         break;
-      case "GCone":
+      case GCone:
         intakeController.grabCone(1.0);
         break;
-      case "RCone":
+      case RCone:
         intakeController.releaseCone(1.0);
         break;
-      case "GCube":
+      case GCube:
         intakeController.grabCube(0.9);
         break;
-      case "RCube":
+      case RCube:
         intakeController.releaseCube(1.0);
         break;
       default:
@@ -130,7 +126,7 @@ public class RobotContainer {
   public boolean autonomousOp(long timeInAutonomous) {
     // Get the next operation to perform and magnitude (e.g <Move, 0.5> - meaning
     // move at 50% speed)
-    Pair chosenAction = autonomousController.getNextAction(timeInAutonomous);
+    Action chosenAction = autonomousController.getNextAction(timeInAutonomous);
 
     if (chosenAction != null) {
       if (lastAction != chosenAction) {
@@ -167,7 +163,7 @@ public class RobotContainer {
   }
 
   public boolean calibrate(long timeInTest) {
-    Pair chosenAction = autonomousController.calibrate(calibrationCycle, timeInTest);
+    Action chosenAction = autonomousController.calibrate(calibrationCycle, timeInTest);
     if (chosenAction != null) {
       if (chosenAction.type != null)
         performAction(chosenAction);

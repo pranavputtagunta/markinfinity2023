@@ -15,6 +15,7 @@ public class DriveControllerImpl implements DriveController {
 
     public void init() {
         driveSubsystem.resetEncoders();  
+        gyro.init();
     }
 
     @Override
@@ -61,11 +62,18 @@ public class DriveControllerImpl implements DriveController {
         return driveSubsystem.getRightEncoderPosition();
     }
 
+
+    @Override
+    public double getAngle() {
+        return gyro.getAngle();
+    }
+
     @Override
     public void periodic() {
         //System.out.println("gyroP:"+gyro.getPitch()+", gyroR:"+gyro.getDegrees());
         SmartDashboard.putNumber(DriveController.GYRO_PITCH, gyro.getPitch());
         SmartDashboard.putNumber(DriveController.GYRO_YAW, gyro.getYaw());
+        SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
         SmartDashboard.putNumber(DriveController.GYRO_ROLL, gyro.getRoll());
         SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
         SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
@@ -74,5 +82,6 @@ public class DriveControllerImpl implements DriveController {
     @Override
     public void simulationPeriodic() {
         driveSubsystem.simulationPeriodic();
+        gyro.simulationPeriodic(driveSubsystem.getCurrentRotation());
     }
 }

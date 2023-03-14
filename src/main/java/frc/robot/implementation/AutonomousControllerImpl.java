@@ -5,16 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.interfaces.Action;
 import frc.robot.interfaces.AutonomousController;
-import frc.robot.main.Pair;
+import frc.robot.interfaces.Action.ActionType;
 import frc.robot.main.DashboardItem;
 
 public class AutonomousControllerImpl implements AutonomousController {
-    ArrayList<Pair> speedMap = new ArrayList<Pair>(5);
-    ArrayList<Pair> rotateMap = new ArrayList<Pair>(5);
-    ArrayList<Pair> actionMap = new ArrayList<Pair>(50);
+    ArrayList<Action> speedMap = new ArrayList<Action>(5);
+    ArrayList<Action> rotateMap = new ArrayList<Action>(5);
+    ArrayList<Action> actionMap = new ArrayList<Action>(50);
     int calibrationsCount;
-    Pair[] calibrateSequence = new Pair[10];
+    Action[] calibrateSequence = new Action[10];
     final int CALIBRATION_TIME = 5000; // in milli sec
     
     AutonomousControllerImpl() {
@@ -34,24 +35,24 @@ public class AutonomousControllerImpl implements AutonomousController {
             String op = autoOp[i].trim();
             System.out.println("Processing:" + op);
             int spaceIndx = op.indexOf(' ');
-            String action = op.substring(0,spaceIndx);
+            ActionType action = ActionType.valueOf(op.substring(0,spaceIndx));
             Integer distangl = Integer.parseInt(op.substring(spaceIndx+1));
-            List<Pair> map = null;
+            List<Action> map = null;
             switch (action) {
-                case "Move": 
+                case Move: 
                     map = speedMap;
                     break;
-                case "Turn": 
+                case Turn: 
                     map = rotateMap; 
                     break;
-                case "SArm":
-                case "GCone":
-                case "PCone":
-                case "RCone":
-                case "PCube":
-                case "RCube":
+                case SArm:
+                case GCone:
+                case PCone:
+                case RCone:
+                case PCube:
+                case RCube:
                     time += distangl;
-                    Pair p = new Pair(0.0,time * 1000,action);
+                    Action p = new Action(1.0,time * 1000,action);
                     System.out.println("Adding " + p);
                     actionMap.add(p);
                     break;
@@ -64,13 +65,13 @@ public class AutonomousControllerImpl implements AutonomousController {
                     reverse = true;
                     distangl = -distangl;
                 }
-                for (Pair entPair : map) {
+                for (Action entPair : map) {
                     // System.out.println("Checking "+entPair);
-                    if (entPair.p2>0 && entPair.p2 <= distangl) {
-                        Integer duration = distangl / entPair.p2;
-                        distangl = distangl % entPair.p2;
+                    if (entPair.magnitude>0 && entPair.magnitude <= distangl) {
+                        Integer duration = distangl / entPair.magnitude;
+                        distangl = distangl % entPair.magnitude;
                         time += duration;
-                        Pair p = new Pair(reverse ? -entPair.p1 : entPair.p1, time * 1000, action);
+                        Action p = new Action(reverse ? -entPair.speed : entPair.speed, time * 1000, action);
                         actionMap.add(p);
                         System.out.println("Adding " + p + ". Remaining:" + distangl);
                     }
@@ -81,13 +82,13 @@ public class AutonomousControllerImpl implements AutonomousController {
     }
 
     @Override
-    public Pair getNextAction(long timeInAutonomous) {
-        Pair chosenAction = null;
-        Iterator<Pair> itr = actionMap.iterator();
+    public Action getNextAction(long timeInAutonomous) {
+        Action chosenAction = null;
+        Iterator<Action> itr = actionMap.iterator();
         while (itr.hasNext()) {
-            Pair action = itr.next();
+            Action action = itr.next();
             // System.out.println("Checking: "+action);
-            if (timeInAutonomous-action.p2 >= -10) {
+            if (timeInAutonomous-action.magnitude >= -10) {
                 System.out.println("Removing completed action:" + action);
                 itr.remove();
             } else {
@@ -99,34 +100,34 @@ public class AutonomousControllerImpl implements AutonomousController {
     }
 
     @Override
-    public Pair calibrate(int currentCalibration, long timeInCalibration) {
+    public Action calibrate(int currentCalibration, long timeInCalibration) {
         if (currentCalibration>calibrationsCount) 
             return null;
         else {
             if (timeInCalibration<CALIBRATION_TIME) 
                 return calibrateSequence[currentCalibration-1]; 
             else
-                return new Pair(null, null, "Stop"); // Nothing more to do for this count
+                return new Action(null, null, ActionType.Stop); // Nothing more to do for this count
         }
     }
     
     // Update these values after calibration in code or smart dashboard
     void initMagnitudeToPhysicalMap() {
-        speedMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.DistOn_100.getKey(), DashboardItem.DistOn_100.getDefaultValue()))); // Speed value of 1.0 results in 20 inches/sec
-        speedMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.DistOn_50.getKey(), DashboardItem.DistOn_50.getDefaultValue()))); 
-        speedMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.DistOn_25.getKey(), DashboardItem.DistOn_25.getDefaultValue()))); 
-        speedMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.DistOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
+        speedMap.add(new Action(1.0, (int)SmartDashboard.getNumber(DashboardItem.DistOn_100.getKey(), DashboardItem.DistOn_100.getDefaultValue()))); // Speed value of 1.0 results in 20 inches/sec
+        speedMap.add(new Action(0.5, (int)SmartDashboard.getNumber(DashboardItem.DistOn_50.getKey(), DashboardItem.DistOn_50.getDefaultValue()))); 
+        speedMap.add(new Action(0.25,(int)SmartDashboard.getNumber(DashboardItem.DistOn_25.getKey(), DashboardItem.DistOn_25.getDefaultValue()))); 
+        speedMap.add(new Action(0.05,(int)SmartDashboard.getNumber(DashboardItem.DistOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToDistance Map");
-        for (Pair p: speedMap) {
+        for (Action p: speedMap) {
             System.out.println(p);
         }
 
-        rotateMap.add(new Pair(1.0, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_100.getKey(), DashboardItem.RotaOn_100.getDefaultValue())));  // Rotation value of 1.0 results in 45 deg/sec
-        rotateMap.add(new Pair(0.5, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_50.getKey(), DashboardItem.RotaOn_50.getDefaultValue()))); 
-        rotateMap.add(new Pair(0.25,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_25.getKey(), DashboardItem.RotaOn_25.getDefaultValue()))); 
-        rotateMap.add(new Pair(0.05,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
+        rotateMap.add(new Action(1.0, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_100.getKey(), DashboardItem.RotaOn_100.getDefaultValue())));  // Rotation value of 1.0 results in 45 deg/sec
+        rotateMap.add(new Action(0.5, (int)SmartDashboard.getNumber(DashboardItem.RotaOn_50.getKey(), DashboardItem.RotaOn_50.getDefaultValue()))); 
+        rotateMap.add(new Action(0.25,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_25.getKey(), DashboardItem.RotaOn_25.getDefaultValue()))); 
+        rotateMap.add(new Action(0.05,(int)SmartDashboard.getNumber(DashboardItem.RotaOn_10.getKey(), DashboardItem.DistOn_10.getDefaultValue()))); 
         System.out.println("SpeedToAngle Map");
-        for (Pair p: rotateMap) {
+        for (Action p: rotateMap) {
             System.out.println(p);
         }
     }
@@ -134,15 +135,15 @@ public class AutonomousControllerImpl implements AutonomousController {
     @Override
     public void calibrationInit(int calibrationCycle) {
         calibrationsCount=0;
-        calibrateSequence[calibrationsCount++] = new Pair(1.0, null, "Move"); //Move for 5 sec at max speed
-        calibrateSequence[calibrationsCount++] = new Pair(0.5, null, "Move"); //Move for 5 sec at half speed
-        calibrateSequence[calibrationsCount++] = new Pair(0.25, null, "Move"); //Move for 5 sec at qtr speed
-        calibrateSequence[calibrationsCount++] = new Pair(0.1, null, "Move"); //Move for 5 sec at 10% of max speed
+        calibrateSequence[calibrationsCount++] = new Action(1.0, null, ActionType.Move); //Move for 5 sec at max speed
+        calibrateSequence[calibrationsCount++] = new Action(0.5, null, ActionType.Move); //Move for 5 sec at half speed
+        calibrateSequence[calibrationsCount++] = new Action(0.25, null, ActionType.Move); //Move for 5 sec at qtr speed
+        calibrateSequence[calibrationsCount++] = new Action(0.1, null, ActionType.Move); //Move for 5 sec at 10% of max speed
 
-        calibrateSequence[calibrationsCount++] = new Pair(1.0, null, "Turn"); //Turn for 5 sec at max speed
-        calibrateSequence[calibrationsCount++] = new Pair(0.5, null, "Turn"); //Turn for 5 sec at half speed      
-        calibrateSequence[calibrationsCount++] = new Pair(0.25, null, "Turn"); //Turn for 5 sec at qtr speed      
-        calibrateSequence[calibrationsCount++] = new Pair(0.1, null, "Turn"); //Turn for 5 sec at 10% max speed
+        calibrateSequence[calibrationsCount++] = new Action(1.0, null, ActionType.Turn); //Turn for 5 sec at max speed
+        calibrateSequence[calibrationsCount++] = new Action(0.5, null, ActionType.Turn); //Turn for 5 sec at half speed      
+        calibrateSequence[calibrationsCount++] = new Action(0.25, null, ActionType.Turn); //Turn for 5 sec at qtr speed      
+        calibrateSequence[calibrationsCount++] = new Action(0.1, null, ActionType.Turn); //Turn for 5 sec at 10% max speed
     }
 
     private void initDashboard() {
@@ -154,6 +155,6 @@ public class AutonomousControllerImpl implements AutonomousController {
       }
 
     @Override
-    public void actionComplete(Pair action) {
+    public void actionComplete(Action action) {
     }
 }
