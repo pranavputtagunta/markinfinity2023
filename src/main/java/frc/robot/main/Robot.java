@@ -90,6 +90,12 @@ public class Robot extends TimedRobot {
     //robotContainer.autonCommand(30);
   }
 
+  @Override
+  public void autonomousExit() {
+    robotContainer.autonomousExit();
+    System.out.println("Autonomous ended");
+  }
+
   /**
    * This function is called once each time the robot enters teleoperated mode.
    */

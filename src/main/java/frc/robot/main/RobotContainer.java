@@ -1,5 +1,6 @@
 package frc.robot.main;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.controller.ArmControllerImpl;
 import frc.robot.controller.AutonWithEncoder;
@@ -37,7 +38,15 @@ public class RobotContainer {
   // Instructions for auton operation
   // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release
   // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
-  String autoOp = null;// "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
+ // "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
+
+  final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
+  final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
+  final String[] midOps = {"Move 20", "Move -20"};
+  final String[] defOps = {"Move 10", "Turn 180"};
+
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -57,6 +66,12 @@ public class RobotContainer {
       System.out.println("Using single controller for arm and drive");
       armTeleController = driveteleController;
     }
+    m_chooser.setDefaultOption("DefaultSeq", "Default");
+    m_chooser.addOption("RightSeq", "Right");
+    m_chooser.addOption("LeftSeq", "Left");
+    m_chooser.addOption("MiddleSeq", "Middle");
+
+    SmartDashboard.putData("Auto choices", m_chooser);
     SmartDashboard.putString("Auton Commands", "");
   }
 
@@ -69,11 +84,26 @@ public class RobotContainer {
     driveController.init();
     armController.init();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
-
+  
     if (autoOpr != null && autoOpr.length() > 0)
       autonomousController.autonomousInit(autoOpr.split(","));
-    else if (autoOp != null)
-      autonomousController.autonomousInit(autoOp.split(","));
+    else {
+      String[] autoOps;
+      m_autoSelected = m_chooser.getSelected();
+      System.out.println("Auto selected: " + m_autoSelected);    
+      switch (m_autoSelected) {
+        case "Right": autoOps = ritOps; break;
+        case "Middle": autoOps = midOps; break;
+        case "Left":autoOps = lftOps; break;
+        default: autoOps = defOps; break;
+      }
+      autonomousController.autonomousInit(autoOps);
+    }
+  }
+
+  void autonomousExit() {
+    driveController.stop();
+    armController.stop();
   }
 
   private void performAction(Action chosenAction) {
