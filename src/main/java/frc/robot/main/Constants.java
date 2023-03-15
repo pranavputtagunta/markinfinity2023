@@ -17,10 +17,11 @@ public final class Constants {
   public static class DriveConstants {
     public static final int INTAKE = 1;
     public static final int PULLEY = 2;
-    public static final int LIFT_TOP = 5; // Will change later
-    public static final int LIFT_BOTTOM = 6; // Will change later
+    public static final int LIFT_RT = 5; // Will change later
+    public static final int LIFT_LT = 6; // Will change later
     public static final int ELEV_RT = 3;
     public static final int ELEV_LT = 4;
+    
     //Old controllers
     /*public static final int TalonDevNumRt = 1;
     public static final int TalonDevNumLt = 8;
