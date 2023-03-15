@@ -6,8 +6,8 @@ import frc.robot.subsystem.DriveSubsystem;
 import frc.robot.subsystem.GyroSubsystem;
 
 public class DriveControllerImpl implements DriveController {
-    private DriveSubsystem driveSubsystem = new DriveSubsystem();
     private GyroSubsystem gyro = new GyroSubsystem();
+    private DriveSubsystem driveSubsystem = new DriveSubsystem();
     private double rotAccLimit = 0.1;
 
     public DriveControllerImpl() {
@@ -64,10 +64,9 @@ public class DriveControllerImpl implements DriveController {
         return driveSubsystem.getRightEncoderPosition();
     }
 
-
     @Override
-    public double getAngle() {
-        return gyro.getAngle();
+    public double getYaw() {
+        return gyro.getYaw();
     }
 
     @Override
@@ -75,10 +74,11 @@ public class DriveControllerImpl implements DriveController {
         //System.out.println("gyroP:"+gyro.getPitch()+", gyroR:"+gyro.getDegrees());
         SmartDashboard.putNumber(DriveController.GYRO_PITCH, gyro.getPitch());
         SmartDashboard.putNumber(DriveController.GYRO_YAW, gyro.getYaw());
-        SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
-        SmartDashboard.putNumber(DriveController.GYRO_ROLL, gyro.getRoll());
+        //SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
+        //SmartDashboard.putNumber(DriveController.GYRO_ROLL, gyro.getRoll());
         SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
         SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
+        //driveSubsystem.updateOdometry();
     }
 
     @Override

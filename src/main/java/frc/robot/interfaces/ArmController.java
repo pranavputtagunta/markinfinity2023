@@ -13,6 +13,7 @@ public interface ArmController {
     public final String ELEV_STAB_KEY = "Elev Stable Pos";
     public final String ELEV_LOW_LIMIT = "Elev Low Limit";
     public final String ELEV_RANGE = "Elev Range";
+    public final String SPEED_LIMIT_POINT = "Speed Lim Point";
 
     public void init();
     public void raiseArm(double speed);

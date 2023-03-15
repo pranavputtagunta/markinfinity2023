@@ -20,6 +20,8 @@ public class ElevatorSubsystem {
     double lowLimit = 0;
     boolean stopped = true;
     double currSpeed = 0;
+    double speedLimitPoint = 2.0;
+
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
     public ElevatorSubsystem() {
@@ -36,6 +38,7 @@ public class ElevatorSubsystem {
     public void init() {
         lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+        speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, speedLimitPoint);
     }
 
     public double getPosition() {
@@ -66,17 +69,23 @@ public class ElevatorSubsystem {
         if (m_encoder.getPosition()>=xtnd_limit) {
             elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
             lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+            speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, 0);
             xtnd_limit = lowLimit+elevRange;
-            if (elevRange>0 && m_encoder.getPosition()>=xtnd_limit) {
+            double amtLeft = xtnd_limit-m_encoder.getPosition();
+             if (elevRange>0 && amtLeft<=0) {
                 System.out.println("Cant go further than "+xtnd_limit);
                 elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
                 stop();
                 return;
+            } else if (speed>0.25 && elevRange>0 && speedLimitPoint>0 && amtLeft<speedLimitPoint) {
+                double newSpeed = 0.25+(speed-0.25)*amtLeft/speedLimitPoint;
+                System.out.println("Near limit:"+xtnd_limit+". Restricting speed from "+speed+" to "+newSpeed);
+                speed = newSpeed;
             }
         }
         stopped = false;
         currSpeed = speed;
-        elev.arcadeDrive(speed, 0);
+        elev.arcadeDrive(currSpeed, 0);
     }
 
     // Returns true if target reached
@@ -85,7 +94,7 @@ public class ElevatorSubsystem {
         double curPos = m_encoder.getPosition();
         int diff = (int) (curPos-target);
         System.out.println("Moving elev  to target:"+target+".. Diff:"+diff);
-        double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.1;
+        double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.5:0.25;
         if (diff>1) { retractArm(-speed); return false; }
         else if (diff<1) { extendArm(speed); return false; }
         else { stop(); return true;}

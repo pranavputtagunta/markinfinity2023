@@ -79,10 +79,12 @@ public class RobotContainer {
   private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
       case Turn:
-        driveController.move(0, chosenAction.speed);
+        if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+        else driveController.move(0, chosenAction.speed);
         break;
       case Move:
-        driveController.move(chosenAction.speed, 0);
+      if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+      else driveController.move(chosenAction.speed, 0);
         break;
       case Stop:
         driveController.stop();
@@ -121,8 +123,7 @@ public class RobotContainer {
    * have been completed
    */
   public boolean autonomousOp(long timeInAutonomous) {
-    // Get the next operation to perform and magnitude (e.g <Move, 0.5> - meaning
-    // move at 50% speed)
+    // Get the next operation to perform and magnitude 
     Action chosenAction = autonomousController.getNextAction(timeInAutonomous);
 
     if (chosenAction != null) {
@@ -179,7 +180,7 @@ public class RobotContainer {
   private double limit(double orig, double limit) {
     if (orig > -0.04 && orig < 0.04)
       return 0.0;
-    return orig * Math.abs(orig) * limit;
+    return orig * limit;
   }
 
   public void teleOp() {

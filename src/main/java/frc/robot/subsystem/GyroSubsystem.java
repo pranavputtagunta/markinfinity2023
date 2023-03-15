@@ -2,12 +2,13 @@ package frc.robot.subsystem;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SerialPort;
 
 public class GyroSubsystem {
     //private ADXRS450_Gyro gyro1 = new ADXRS450_Gyro();
     final AHRS ahrsGyro = new AHRS(SerialPort.Port.kUSB);
-    double simulatedAngle = 0;
+    double simulatedYaw = 0;
 
     public GyroSubsystem() {
         init();
@@ -15,15 +16,15 @@ public class GyroSubsystem {
 
     public void init() {
         ahrsGyro.reset();
-        simulatedAngle = 0;
+        simulatedYaw = 0;
     }
 
     public double getAngle() {
-        return simulatedAngle!=0 ? simulatedAngle: ahrsGyro.getAngle();
+        return ahrsGyro.getAngle();
     }
 
     public double getYaw() {
-        return ahrsGyro.getYaw();
+        return simulatedYaw!=0 ? simulatedYaw: ahrsGyro.getYaw();
     }
 
     public double getRoll() {
@@ -35,10 +36,18 @@ public class GyroSubsystem {
     }
 
     public void simulationPeriodic(double rotSpeed) {
-        simulatedAngle += rotSpeed;
-        if (simulatedAngle>180)
-            simulatedAngle=-180+(simulatedAngle-180);
-        if (simulatedAngle<=-180)
-            simulatedAngle=180+(simulatedAngle+180);
+        simulatedYaw += rotSpeed;
+        if (simulatedYaw>180)
+            simulatedYaw=-180+(simulatedYaw-180);
+        if (simulatedYaw<=-180)
+            simulatedYaw=180+(simulatedYaw+180);
+    }
+
+    public Rotation2d getRotation2d() {
+        return ahrsGyro.getRotation2d();
+    }
+
+    public void reset() {
+        ahrsGyro.reset();
     }
 }

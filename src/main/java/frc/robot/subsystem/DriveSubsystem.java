@@ -29,7 +29,6 @@ public class DriveSubsystem extends SubsystemBase {
     RelativeEncoder ltEncoder1 = m_leftDrive1.getEncoder();
     RelativeEncoder ltEncoder2 = m_leftDrive2.getEncoder();
 
-
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightDrive1, m_rightDrive2);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftDrive1, m_leftDrive2);
 
@@ -63,11 +62,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public double getRightEncoderPosition() {
-        return  rtEncoder1!=null? (rtEncoder1.getPosition()+rtEncoder2.getPosition())/2.0 : 0;
+        return  rtEncoder1!=null? rtEncoder1.getPosition(): 0;
+        //return  rtEncoder1!=null? (rtEncoder1.getPosition()+rtEncoder2.getPosition())/2.0 : 0;
     }
 
     public double getLeftEncoderPosition() {
-        return  ltEncoder1!=null? -(ltEncoder1.getPosition()+ltEncoder2.getPosition())/2.0 : 0;
+        return  ltEncoder1!=null? ltEncoder1.getPosition(): 0;
+        //return  ltEncoder1!=null? -(ltEncoder1.getPosition()+ltEncoder2.getPosition())/2.0 : 0;
     }
 
     public DifferentialDrive getRoboDrive() {
@@ -75,6 +76,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void resetEncoders() {
+        System.out.println("Resetting encoders");
         if (rtEncoder1!=null) rtEncoder1.setPosition(0);
         if (rtEncoder2!=null) rtEncoder2.setPosition(0);
         if (ltEncoder1!=null) ltEncoder1.setPosition(0);

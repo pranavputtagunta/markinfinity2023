@@ -18,5 +18,5 @@ public interface DriveController {
     public double getRightEncoderPosition();
     public void simulationPeriodic();
     public void periodic();
-    public double getAngle();
+    public double getYaw();
 }
