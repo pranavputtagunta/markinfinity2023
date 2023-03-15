@@ -67,7 +67,7 @@ public final class Constants {
     public static final int psDriverControllerPort2 = 1;
     public static final int xbDriverControllerPort = 0;
     public static final int xbDriverControllerPort2 = 1;
-    public static String teleControllerType = "PS4"; // "PS4"; // primary for drive
+    public static String teleControllerType = "Xbox"; // "PS4"; // primary for drive
     public static String teleControllerType2 = null; // "Xbox"; // optional for arm if null  primary will be used
 
   }
