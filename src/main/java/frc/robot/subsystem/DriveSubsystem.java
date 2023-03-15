@@ -67,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public double getLeftEncoderPosition() {
-        return  ltEncoder1!=null? ltEncoder1.getPosition(): 0;
+        return  ltEncoder1!=null? -ltEncoder1.getPosition(): 0;
         //return  ltEncoder1!=null? -(ltEncoder1.getPosition()+ltEncoder2.getPosition())/2.0 : 0;
     }
 
@@ -105,9 +105,9 @@ public class DriveSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         double rotToEncVal = currentRotation/2.0;
         double speedToEncVal = currentSpeed/2.0;
-        rtEncoder1.setPosition(rtEncoder1.getPosition()+speedToEncVal+rotToEncVal);
-        rtEncoder2.setPosition(rtEncoder2.getPosition()+speedToEncVal+rotToEncVal);
-        ltEncoder1.setPosition(ltEncoder1.getPosition()-speedToEncVal+rotToEncVal);
-        ltEncoder2.setPosition(ltEncoder2.getPosition()-speedToEncVal+rotToEncVal);
+        if (rtEncoder1!=null) rtEncoder1.setPosition(rtEncoder1.getPosition()+speedToEncVal+rotToEncVal);
+        if (rtEncoder2!=null) rtEncoder2.setPosition(rtEncoder2.getPosition()+speedToEncVal+rotToEncVal);
+        if (ltEncoder1!=null) ltEncoder1.setPosition(ltEncoder1.getPosition()-speedToEncVal+rotToEncVal);
+        if (ltEncoder2!=null) ltEncoder2.setPosition(ltEncoder2.getPosition()-speedToEncVal+rotToEncVal);
     }
 }
