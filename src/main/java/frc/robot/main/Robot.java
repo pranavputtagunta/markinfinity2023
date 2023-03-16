@@ -53,11 +53,11 @@ public class Robot extends TimedRobot {
     robotContainer.periodic();
   }
 
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-    robotContainer.simulationPeriodic();
-  }
+  // @Override
+  // public void simulationPeriodic() {
+  //   // This method will be called once per scheduler run during simulation
+  //   robotContainer.simulationPeriodic();
+  // }
 
   /** This function is run once each time the robot enters autonomous mode. */
   @Override
