@@ -102,6 +102,7 @@ public class ElevatorSubsystem {
 
     public void retractArm(double speed) {
         System.out.println("retractArm:"+speed);
+        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         if (elevRange>0 && m_encoder.getPosition()<=rtrt_limit) {
             System.out.println("Cant go further than "+rtrt_limit);

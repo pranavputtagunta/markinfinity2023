@@ -4,9 +4,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.ArmController;
 import frc.robot.subsystem.ElevatorSubsystem;
 import frc.robot.subsystem.LiftSubsystem;
+import frc.robot.subsystem.PulleyLiftSubsystem;
 
 public class ArmControllerImpl implements ArmController {
-    LiftSubsystem liftSubsystem = new LiftSubsystem();
+    PulleyLiftSubsystem liftSubsystem = new PulleyLiftSubsystem();
     ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     String currentTarget = null;
     

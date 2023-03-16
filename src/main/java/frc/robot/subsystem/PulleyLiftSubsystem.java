@@ -96,11 +96,14 @@ public class PulleyLiftSubsystem {
     }
 
     public void lowerArm(double speed) {
-        double lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-        if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
-            System.out.println("Cant go lower!!!");
-            stop();
-            return;
+        if (m_encoder.getPosition()<lowLimit) {
+            lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
+            if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
+                System.out.println("Cant go lower!!!");
+                stop();
+                return;
+            }
         }
         System.out.println("lowerArm:"+speed);
         stopped = false;
@@ -145,21 +148,21 @@ public class PulleyLiftSubsystem {
             pulley.set(currSpeed);
             stoppedPos = currentPos;
             if (currSpeed<0.05 && currSpeed>-0.05) {
-                //pulley.stopMotor();
-                pulley.set(0.01);
+                pulley.stopMotor();
+                //pulley.set(0.01);
                 stopped = true;
                 System.out.println("Stopped Lift at pos:"+stoppedPos);
                 //double feedforward = 0;
                 //m_pidController.setReference(stoppedPos, CANSparkMax.ControlType.kPosition, 0, feedforward);
             }
-        } else {
+        } /*else {
             double diff = currentPos-stoppedPos;
             double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.05;
             if (diff>1.0) { lowerArm(-speed/4.0); }
             else if (diff<-.25) { raiseArm(speed); }
             else if (currSpeed!=0) {currSpeed = 0; pulley.set(currSpeed); }
             stopped = true; // reset stopped to true as we are only in holding mode
-        }
+        }*/
     }
 
     public double getCurrentSpeed() {

@@ -100,6 +100,7 @@ public class LiftSubsystem {
     }
 
     public void lowerArm(double speed) {
+        double liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, 0);
         double lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
             System.out.println("Cant go lower!!!");
@@ -153,13 +154,13 @@ public class LiftSubsystem {
                 //m_pidController.setReference(stoppedPos, CANSparkMax.ControlType.kPosition, 0, feedforward);
             } else
                 System.out.println("Slowing lift motor..speed:"+currSpeed);
-        } else {
+        } /*else {
             double diff = currentPos-stoppedPos;
             double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.5:0.25;
             if (diff>1.0) { lowerArm(-speed/4.0); }
             else if (diff<-.25) { raiseArm(speed); }
             stopped = true; // reset stopped to true as we are only in holding mode
-        }
+        }*/
         lift.arcadeDrive(0, 0);  
     }
 
