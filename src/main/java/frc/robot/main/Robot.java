@@ -6,8 +6,10 @@ package frc.robot.main;
 
 import java.util.Date;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, 
@@ -29,6 +31,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    CameraServer.startAutomaticCapture();
     robotContainer = new RobotContainer();
   }
 
@@ -73,9 +76,10 @@ public class Robot extends TimedRobot {
     // Otherwise calculate the time the Robo has been in autonomous mode and invoke autonomousOp() in roboContainer
     Date currentTime = new Date();
     long difference = 0;
-    if (autonomousStartTime==null) 
+    if (autonomousStartTime==null) {
+      System.out.println("Autonomous started");
       autonomousStartTime = currentTime;
-    else
+    } else
       difference = currentTime.getTime()-autonomousStartTime.getTime();
     //System.out.println("Elapsed time: "+difference);
     // If autonomousOp returns false, then all operations are done and autonomous mode is complete
@@ -83,6 +87,13 @@ public class Robot extends TimedRobot {
       System.out.println("Autonomous completed in "+difference+" millisec!");
       autonomousComplete = true;
     }
+    //robotContainer.autonCommand(30);
+  }
+
+  @Override
+  public void autonomousExit() {
+    robotContainer.autonomousExit();
+    System.out.println("Autonomous ended");
   }
 
   /**

@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -17,11 +17,14 @@ public class ElevatorSubsystem {
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_right);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_left);
     private double elevRange = 180; // Difference between high and low encode values
+    double lowLimit = 0;
     boolean stopped = true;
     double currSpeed = 0;
+    double speedLimitPoint = 2.0;
+
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
-    ElevatorSubsystem() {
+    public ElevatorSubsystem() {
         m_left.setSmartCurrentLimit(35);
         m_right.setSmartCurrentLimit(35);
         m_left.setIdleMode(IdleMode.kBrake);
@@ -30,6 +33,12 @@ public class ElevatorSubsystem {
         m_right.setIdleMode(IdleMode.kBrake);
         m_encoder = m_left.getEncoder();
         SmartDashboard.putNumber(ArmController.ELEV_RANGE, elevRange);
+    }
+
+    public void init() {
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+        speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, speedLimitPoint);
     }
 
     public double getPosition() {
@@ -45,7 +54,7 @@ public class ElevatorSubsystem {
     }
 
     public void setPosition(double position) {
-        double lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         if (elevRange>0 && (position<lowLimit || position>elevRange+lowLimit)) {
             System.out.println("Lift pos outside limit");
@@ -56,30 +65,36 @@ public class ElevatorSubsystem {
 
     public void extendArm(double speed) {
         System.out.println("extendArm:"+speed);
-        double low_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-        double xtnd_limit = low_limit+elevRange;
+        double xtnd_limit = lowLimit+elevRange;
         if (m_encoder.getPosition()>=xtnd_limit) {
             elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
-            xtnd_limit = low_limit+elevRange;
-            if (elevRange>0 && m_encoder.getPosition()>=xtnd_limit) {
+            lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+            speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, 0);
+            xtnd_limit = lowLimit+elevRange;
+            double amtLeft = xtnd_limit-m_encoder.getPosition();
+             if (elevRange>0 && amtLeft<=0) {
                 System.out.println("Cant go further than "+xtnd_limit);
                 elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
                 stop();
                 return;
+            } else if (speed>0.25 && elevRange>0 && speedLimitPoint>0 && amtLeft<speedLimitPoint) {
+                double newSpeed = 0.25+(speed-0.25)*amtLeft/speedLimitPoint;
+                System.out.println("Near limit:"+xtnd_limit+". Restricting speed from "+speed+" to "+newSpeed);
+                speed = newSpeed;
             }
         }
         stopped = false;
         currSpeed = speed;
-        elev.arcadeDrive(speed, 0);
+        elev.arcadeDrive(currSpeed, 0);
     }
 
     // Returns true if target reached
-    boolean moveToTarget(double target) {
+    public boolean moveToTarget(double target) {
         target += SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         double curPos = m_encoder.getPosition();
         int diff = (int) (curPos-target);
         System.out.println("Moving elev  to target:"+target+".. Diff:"+diff);
-        double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.1;
+        double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.5:0.25;
         if (diff>1) { retractArm(-speed); return false; }
         else if (diff<1) { extendArm(speed); return false; }
         else { stop(); return true;}
@@ -87,6 +102,7 @@ public class ElevatorSubsystem {
 
     public void retractArm(double speed) {
         System.out.println("retractArm:"+speed);
+        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         if (elevRange>0 && m_encoder.getPosition()<=rtrt_limit) {
             System.out.println("Cant go further than "+rtrt_limit);

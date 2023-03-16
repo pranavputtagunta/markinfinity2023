@@ -1,11 +1,15 @@
-package frc.robot.implementation;
+package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.ArmController;
+import frc.robot.subsystem.ElevatorSubsystem;
+import frc.robot.subsystem.LiftSubsystem;
+import frc.robot.subsystem.PulleyLiftSubsystem;
 
 public class ArmControllerImpl implements ArmController {
-    LiftSubsystem liftSubsystem = new LiftSubsystem();
+    PulleyLiftSubsystem liftSubsystem = new PulleyLiftSubsystem();
     ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    String currentTarget = null;
     
     public ArmControllerImpl() {
         SmartDashboard.putNumber(LIFT_POSITION, 0);
@@ -19,6 +23,12 @@ public class ArmControllerImpl implements ArmController {
         SmartDashboard.putNumber(ELEV_CONE_KEY, 50);
         SmartDashboard.putNumber(ELEV_CUBE_KEY, 55);
         SmartDashboard.putNumber(ELEV_STAB_KEY, 5);
+    }
+
+    public void init() {
+        liftSubsystem.init();
+        elevatorSubsystem.init();
+        currentTarget = null;
     }
 
     @Override
@@ -36,6 +46,17 @@ public class ArmControllerImpl implements ArmController {
     public void lowerArm(double speed) {
         liftSubsystem.lowerArm(speed);
     }
+
+    @Override
+    public String getCurrentTarget() {
+        return currentTarget;
+    }
+
+    @Override
+    public void setCurrentTarget(String currentTarget) {
+        this.currentTarget = currentTarget;
+    }
+
 
     /**
      * @return true if moved to target, false if move arm has not yet reached target
@@ -61,10 +82,14 @@ public class ArmControllerImpl implements ArmController {
             default:
                 return status;
         }
+        currentTarget = itemType;
         boolean status1 = liftSubsystem.moveToTarget(lTarget);
         boolean status2 = elevatorSubsystem.moveToTarget(eTarget);
         status = status1 && status2;
-        if (status) System.out.println("Completed move to target:"+itemType);
+        if (status) {
+            System.out.println("Completed move to target:"+itemType);
+            currentTarget = null;
+        }
         return status;
     }
 

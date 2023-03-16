@@ -1,13 +1,14 @@
 package frc.robot.main;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.implementation.ArmControllerImpl;
-import frc.robot.implementation.IntakeControllerImpl;
-import frc.robot.implementation.AutonomousControllerImpl;
-import frc.robot.implementation.DriveControllerImpl;
-import frc.robot.implementation.PSTeleController;
-import frc.robot.implementation.XboxTeleController;
-
+import frc.robot.controller.ArmControllerImpl;
+import frc.robot.controller.AutonWithEncoder;
+import frc.robot.controller.DriveControllerImpl;
+import frc.robot.controller.IntakeControllerImpl;
+import frc.robot.controller.PSTeleController;
+import frc.robot.controller.XboxTeleController;
+import frc.robot.interfaces.Action;
 import frc.robot.interfaces.ArmController;
 import frc.robot.interfaces.IntakeController;
 import frc.robot.interfaces.AutonomousController;
@@ -30,34 +31,48 @@ public class RobotContainer {
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
-  private AutonomousController autonomousController = new AutonomousControllerImpl();
-  String armMoveToTargetInProgress = null;
-  Pair lastAction = null;
+  private AutonomousController autonomousController = new AutonWithEncoder(driveController);
+  Action lastAction = null;
   int calibrationCycle = 0;
-
+  int cycle = 0;
   // Instructions for auton operation
-  // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
-  String autoOp = null;// "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";  
+  // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release
+  // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
+ // "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
+
+  final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
+  final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
+  final String[] midOps = {"Move 20", "Move -20"};
+  final String[] defOps = {"Move 10", "Turn 180"};
+
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     if ("PS4".equalsIgnoreCase(IOConstants.teleControllerType))
-    driveteleController = new PSTeleController(IOConstants.psDriverControllerPort);
+      driveteleController = new PSTeleController(IOConstants.psDriverControllerPort);
     else
-    driveteleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
+      driveteleController = new XboxTeleController(IOConstants.xbDriverControllerPort);
     System.out.println("Using " + driveteleController.getControllerType() + " telecontroller");
 
     if ("PS4".equals(IOConstants.teleControllerType2))
       armTeleController = new PSTeleController(IOConstants.psDriverControllerPort2);
-    else if (IOConstants.teleControllerType2!=null)
+    else if (IOConstants.teleControllerType2 != null)
       armTeleController = new XboxTeleController(IOConstants.xbDriverControllerPort2);
     else {
       System.out.println("Using single controller for arm and drive");
       armTeleController = driveteleController;
     }
-    initDashboard();
+    m_chooser.setDefaultOption("DefaultSeq", "Default");
+    m_chooser.addOption("RightSeq", "Right");
+    m_chooser.addOption("LeftSeq", "Left");
+    m_chooser.addOption("MiddleSeq", "Middle");
+
+    SmartDashboard.putData("Auto choices", m_chooser);
+    SmartDashboard.putString("Auton Commands", "");
   }
 
   public void simulationPeriodic() {
@@ -66,49 +81,66 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
+    driveController.init();
+    armController.init();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
-    armMoveToTargetInProgress = null;
-    if (autoOpr!=null && autoOpr.length()>0) 
+  
+    if (autoOpr != null && autoOpr.length() > 0)
       autonomousController.autonomousInit(autoOpr.split(","));
-    else if (autoOp!=null)
-      autonomousController.autonomousInit(autoOp.split(","));
+    else {
+      String[] autoOps;
+      m_autoSelected = m_chooser.getSelected();
+      System.out.println("Auto selected: " + m_autoSelected);    
+      switch (m_autoSelected) {
+        case "Right": autoOps = ritOps; break;
+        case "Middle": autoOps = midOps; break;
+        case "Left":autoOps = lftOps; break;
+        default: autoOps = defOps; break;
+      }
+      autonomousController.autonomousInit(autoOps);
+    }
   }
 
-  private void performAction(Pair chosenAction) {
+  void autonomousExit() {
+    driveController.stop();
+    armController.stop();
+  }
+
+  private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
-      case "Lift":
-        armController.raiseArm(chosenAction.p1);
+      case Turn:
+        if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+        else driveController.move(0, chosenAction.speed);
         break;
-      case "Xtnd":
-        armController.extendArm(chosenAction.p1);
-      case "Turn":
-        driveController.move(0, chosenAction.p1);
+      case Move:
+      if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+      else driveController.move(chosenAction.speed, 0);
         break;
-      case "Move":
-        driveController.move(chosenAction.p1, 0);
-        break;
-      case "Stop":
+      case Stop:
         driveController.stop();
         break;
-      case "SArm":
-        armController.moveArmToTarget("Stable");
+      case SArm:
+        if (armController.moveArmToTarget("Stable"))
+          autonomousController.actionComplete(chosenAction);
         break;
-      case "PCone":
-        armController.moveArmToTarget("Cone");
+      case PCone:
+        if (armController.moveArmToTarget("Cone"))
+          autonomousController.actionComplete(chosenAction);
         break;
-      case "PCube":
-        armController.moveArmToTarget("Cube");
+      case PCube:
+        if (armController.moveArmToTarget("Cube"))
+          autonomousController.actionComplete(chosenAction);
         break;
-      case "GCone":
+      case GCone:
         intakeController.grabCone(1.0);
         break;
-      case "RCone":
+      case RCone:
         intakeController.releaseCone(1.0);
         break;
-      case "GCube":
+      case GCube:
         intakeController.grabCube(0.9);
         break;
-      case "RCube":
+      case RCube:
         intakeController.releaseCube(1.0);
         break;
       default:
@@ -121,9 +153,8 @@ public class RobotContainer {
    * have been completed
    */
   public boolean autonomousOp(long timeInAutonomous) {
-    // Get the next operation to perform and magnitude (e.g <Move, 0.5> - meaning
-    // move at 50% speed)
-    Pair chosenAction = autonomousController.getNextAction(timeInAutonomous);
+    // Get the next operation to perform and magnitude 
+    Action chosenAction = autonomousController.getNextAction(timeInAutonomous);
 
     if (chosenAction != null) {
       if (lastAction != chosenAction) {
@@ -133,55 +164,60 @@ public class RobotContainer {
       performAction(chosenAction);
       return true;
     } else {
+      driveController.stop();
+      armController.stop();
       return false;
     }
   }
 
   public void teleOpInit() {
+    driveController.init();
+    armController.init();
     boolean resetEncoderPos = SmartDashboard.getBoolean("Reset Encoder", false);
     if (resetEncoderPos) {
-      System.out.println("Resetting encoder pos");
+      System.out.println("Resetting arm encoder pos");
       armController.resetEncoderPos();
       SmartDashboard.putBoolean("Reset Encoder", false);
     }
   }
 
   public void calibrationInit() {
+    driveController.init();
     calibrationCycle = (int) SmartDashboard.getNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
     calibrationCycle++;
     SmartDashboard.putNumber(DashboardItem.Calibrate_Cycle.name(), calibrationCycle);
-    System.out.println("Calibrate Cycle:"+calibrationCycle);
+    System.out.println("Calibrate Cycle:" + calibrationCycle);
     autonomousController.calibrationInit(calibrationCycle);
   }
 
   public boolean calibrate(long timeInTest) {
-    Pair chosenAction = autonomousController.calibrate(calibrationCycle, timeInTest);
+    Action chosenAction = autonomousController.calibrate(calibrationCycle, timeInTest);
     if (chosenAction != null) {
       if (chosenAction.type != null)
         performAction(chosenAction);
       return true;
     } else {
-      System.out.println("Calibrate complete for:"+calibrationCycle);
+      System.out.println("Calibrate complete for:" + calibrationCycle);
       return false;
     }
   }
 
   void periodic() {
     armController.periodic();
+    driveController.periodic();
   }
 
   private double limit(double orig, double limit) {
-    if (orig>-0.04 && orig<0.04) return 0.0;
-    if (orig>limit) return limit;
-    if (orig<-limit) return -limit;
-    return orig;
+    if (orig > -0.04 && orig < 0.04)
+      return 0.0;
+    return orig * limit;
   }
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 1.0);
-      double rotation = limit(driveteleController.getRotation(), 1.0);
-      if ((speed!=0) || (rotation!= 0))
+      double speed = limit(driveteleController.getSpeed(), 0.8);
+      double rotation = limit(driveteleController.getRotation(), 0.8);
+      if ((speed != 0) || (rotation != 0))
         driveController.move(speed, rotation);
       else
         driveController.stop();
@@ -190,9 +226,9 @@ public class RobotContainer {
     }
 
     if (armTeleController.shouldArmMove()) {
-      armMoveToTargetInProgress = null; // Stop automated move to target if user start manually adjusting arm
-      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.75);
-      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.66);
+      armController.setCurrentTarget(null); // Stop automated move to target if user start manually adjusting arm
+      double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.8);
+      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.8);
 
       if (extendSpeed > 0)
         armController.extendArm(extendSpeed);
@@ -207,12 +243,12 @@ public class RobotContainer {
         armController.lowerArm(liftSpeed);
       else
         armController.stopLift();
-    } else if ("Cone".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToConeTarget()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Cone")?null:"Cone";
-    } else if ("Cube".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToCubeTarget()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Cube")?null:"Cube";
-    } else if ("Stable".equals(armMoveToTargetInProgress) || armTeleController.shouldArmMoveToStablePos()) {
-      armMoveToTargetInProgress = armController.moveArmToTarget("Stable")?null:"Stable";
+    } else if ("Cone".equals(armController.getCurrentTarget()) || armTeleController.shouldArmMoveToConeTarget()) {
+      armController.moveArmToTarget("Cone");
+    } else if ("Cube".equals(armController.getCurrentTarget()) || armTeleController.shouldArmMoveToCubeTarget()) {
+      armController.moveArmToTarget("Cube");
+    } else if ("Stable".equals(armController.getCurrentTarget()) || armTeleController.shouldArmMoveToStablePos()) {
+      armController.moveArmToTarget("Stable");
     } else {
       armController.stop();
     }
@@ -230,13 +266,11 @@ public class RobotContainer {
     }
   }
 
-  private void initDashboard() {
-    System.out.println("Initializing dashboard");
-    for(DashboardItem m : DashboardItem.values()) { 
-      System.out.println("Adding "+m.getKey() + " with "+m.getDefaultValue());
-      SmartDashboard.putNumber(m.getKey(), m.getDefaultValue());
-   }
-   SmartDashboard.putBoolean("Reset Encoder", false);
-   SmartDashboard.putString("Auton Commands", "");
+  public void autonCommand(int bigNum) {
+    if (cycle++ < bigNum)
+      driveController.move(-.5, 0);
+    else
+      driveController.stop();
   }
+
 }

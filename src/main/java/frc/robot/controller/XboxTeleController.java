@@ -1,4 +1,4 @@
-package frc.robot.implementation;
+package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.interfaces.TeleController;
