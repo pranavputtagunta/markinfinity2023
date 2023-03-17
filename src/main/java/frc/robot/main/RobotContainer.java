@@ -43,7 +43,7 @@ public class RobotContainer {
   final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
   final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
   final String[] midOps = {"Move 20", "Move -20"};
-  final String[] defOps = {"Move 10", "Turn 180"};
+  final String[] defOps = {"RCone 1", "Move -35"};
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -104,6 +104,7 @@ public class RobotContainer {
   void autonomousExit() {
     driveController.stop();
     armController.stop();
+    intakeController.stop();
   }
 
   private void performAction(Action chosenAction) {
@@ -118,6 +119,7 @@ public class RobotContainer {
         break;
       case Stop:
         driveController.stop();
+        autonomousController.actionComplete(chosenAction);
         break;
       case SArm:
         if (armController.moveArmToTarget("Stable"))
@@ -135,6 +137,7 @@ public class RobotContainer {
         intakeController.grabCone(1.0);
         break;
       case RCone:
+      if (chosenAction.speed==0) { intakeController.stop(); } else
         intakeController.releaseCone(1.0);
         break;
       case GCube:
@@ -208,15 +211,15 @@ public class RobotContainer {
   }
 
   private double limit(double orig, double limit) {
-    if (orig > -0.04 && orig < 0.04)
-      return 0.0;
+    //if (orig > -0.04 && orig < 0.04)
+      //return 0.0;
     return orig * limit;
   }
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 0.8);
-      double rotation = limit(driveteleController.getRotation(), 0.8);
+      double speed = limit(driveteleController.getSpeed(), 0.7);
+      double rotation = limit(driveteleController.getRotation(), 0.5);
       if ((speed != 0) || (rotation != 0))
         driveController.move(speed, rotation);
       else

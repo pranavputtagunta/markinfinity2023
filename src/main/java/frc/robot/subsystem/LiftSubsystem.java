@@ -25,7 +25,7 @@ public class LiftSubsystem {
     private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
-    private double liftRange = 135; // Difference between high and low encode values
+    private double liftRange = 75; // Difference between high and low encode values
 
     private TrapezoidProfile m_profile;
     private Timer m_timer;

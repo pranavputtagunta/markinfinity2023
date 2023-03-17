@@ -10,7 +10,7 @@ public class XboxTeleController implements TeleController {
   private XboxController xbc;
   
   public XboxTeleController(int port) {
-    xbc = new XboxController(0);
+    xbc = new XboxController(port);
   }
 
   @Override
@@ -20,7 +20,7 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public double getRotation() {
-    double rotation = -xbc.getRawAxis(4);
+    double rotation = xbc.getRawAxis(4);
     return rotation;
   }
 
@@ -38,17 +38,19 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldRoboMove() {
-    return xbc.getLeftBumper();
+    //return xbc.getLeftBumper();
+    return true;
   }
 
   @Override
   public boolean shouldArmMove() {
-    return xbc.getRightBumper();
+    //return xbc.getRightBumper();
+    return true;
   }
 
   public double getArmLiftSpeed() {
     double lift = xbc.getRawAxis(5);
-    return -lift;
+    return lift;
   }
 
   @Override

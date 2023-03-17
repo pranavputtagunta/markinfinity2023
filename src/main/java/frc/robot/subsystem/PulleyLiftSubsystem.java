@@ -22,13 +22,13 @@ public class PulleyLiftSubsystem {
     private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
-    private double liftRange = 135; // Difference between high and low encode values
+    private double liftRange = 117; // Difference between high and low encode values
 
     private TrapezoidProfile m_profile;
     private Timer m_timer;
     private double targetPos;
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
-    private double lowLimit = 0;
+    private double lowLimit = -117;
 
     public PulleyLiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
@@ -46,12 +46,12 @@ public class PulleyLiftSubsystem {
     }
 
     public void init() {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        //lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
     }
 
     public void setPosition(double position) {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        //lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
         if (liftRange!=0 && (position<lowLimit || position>liftRange+lowLimit)) {
             //System.out.println("Ignoring lift pos outside limit");
@@ -77,17 +77,17 @@ public class PulleyLiftSubsystem {
     }
 
     public void raiseArm(double speed) {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        //lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         double highLimit = lowLimit+liftRange;
-        if (m_encoder.getPosition()>highLimit) {
-            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
-            highLimit = lowLimit+liftRange;
-            if (liftRange>0 && m_encoder.getPosition()>highLimit) {
-                System.out.println("Can't go higher than "+highLimit);
-                stop();
-                return;
-            }
-        }
+        // if (m_encoder.getPosition()>highLimit) {
+        //     liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
+        //     highLimit = lowLimit+liftRange;
+        //     if (liftRange>0 && m_encoder.getPosition()>highLimit) {
+        //         System.out.println("Can't go higher than "+highLimit);
+        //         stop();
+        //         return;
+        //     }
+        // }
         System.out.println("raiseArm:"+speed);
         stopped = false;
         pulley.set(speed);
@@ -96,15 +96,15 @@ public class PulleyLiftSubsystem {
     }
 
     public void lowerArm(double speed) {
-        if (m_encoder.getPosition()<lowLimit) {
-            lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
-            if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
-                System.out.println("Cant go lower!!!");
-                stop();
-                return;
-            }
-        }
+        // if (m_encoder.getPosition()<lowLimit) {
+        //     //lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        //     liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
+        //     if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
+        //         System.out.println("Cant go lower!!!");
+        //         stop();
+        //         return;
+        //     }
+        // }
         System.out.println("lowerArm:"+speed);
         stopped = false;
         pulley.set(speed);

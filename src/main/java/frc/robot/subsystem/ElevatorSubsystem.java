@@ -16,8 +16,8 @@ public class ElevatorSubsystem {
     private final RelativeEncoder m_encoder;
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_right);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_left);
-    private double elevRange = 180; // Difference between high and low encode values
-    double lowLimit = 0;
+    private double elevRange = 58; // Difference between high and low encode values
+    double lowLimit = 2;
     boolean stopped = true;
     double currSpeed = 0;
     double speedLimitPoint = 2.0;

@@ -14,7 +14,7 @@ public class AutonWithEncoder implements AutonomousController {
     Action prevAction = null;
     int curOp = 0;
     Double startLtPos, startRtPos;
-    double autonMaxSpeed = 0.25;
+    double autonMaxSpeed = 0.33;
     double encoderToDistanceConversion = 2.355;
     double encoderToAngleConversion = 10;
     long actionStartTime = 0;
@@ -132,8 +132,11 @@ public class AutonWithEncoder implements AutonomousController {
             } else if (chosenAction.type == ActionType.RCone || chosenAction.type== ActionType.RCube ) {
                 remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
                 System.out.println(chosenAction.type+".. time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
-                if (remaining<=10)
+                if (remaining<=10) {    
                     actionComplete(chosenAction);
+                    chosenAction.speed = 0.0;
+                    break;
+                }
                 else
                     break;
             } else if (chosenAction.type == ActionType.Stop) {
