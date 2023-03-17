@@ -4,6 +4,7 @@ package frc.robot.subsystem;
 //import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -46,7 +47,12 @@ public class DriveSubsystem extends SubsystemBase {
         m_rightDrive2.setSmartCurrentLimit(35);
         m_leftDrive1.setSmartCurrentLimit(35);
         m_leftDrive2.setSmartCurrentLimit(35);
-    
+
+        m_rightDrive1.setIdleMode(IdleMode.kBrake);
+        m_rightDrive2.setIdleMode(IdleMode.kBrake);
+        m_leftDrive1.setIdleMode(IdleMode.kBrake);
+        m_leftDrive2.setIdleMode(IdleMode.kBrake);
+
         //robotDrive.setExpiration(1.0);
         robotDrive.setSafetyEnabled(false);
 
