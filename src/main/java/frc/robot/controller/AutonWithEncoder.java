@@ -14,7 +14,7 @@ public class AutonWithEncoder implements AutonomousController {
     Action prevAction = null;
     int curOp = 0;
     Double startLtPos, startRtPos;
-    double autonMaxSpeed = 0.33;
+    double autonMaxSpeed = 0.4;
     double encoderToDistanceConversion = 2.355;
     double encoderToAngleConversion = 10;
     long actionStartTime = 0;

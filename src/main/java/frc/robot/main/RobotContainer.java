@@ -42,8 +42,8 @@ public class RobotContainer {
 
   final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
   final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
-  final String[] midOps = {"Move 20", "Move -20"};
-  final String[] defOps = {"RCone 1", "Move -35"};
+  final String[] defOps = {"Move -50"};
+  final String[] midOps = {"Move 89"};
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
