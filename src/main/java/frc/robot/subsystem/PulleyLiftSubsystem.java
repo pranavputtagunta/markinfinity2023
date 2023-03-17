@@ -22,7 +22,7 @@ public class PulleyLiftSubsystem {
     private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
-    private double liftRange = 135; // Difference between high and low encode values
+    private double liftRange = 0; // Difference between high and low encode values
 
     private TrapezoidProfile m_profile;
     private Timer m_timer;
