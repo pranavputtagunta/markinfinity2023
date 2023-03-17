@@ -104,6 +104,7 @@ public class RobotContainer {
   void autonomousExit() {
     driveController.stop();
     armController.stop();
+    intakeController.stop();
   }
 
   private void performAction(Action chosenAction) {
@@ -117,7 +118,8 @@ public class RobotContainer {
       else driveController.move(chosenAction.speed, 0);
         break;
       case Stop:
-        driveController.stop();
+        driveController.stop(); armController.stop(); intakeController.stop();
+        autonomousController.actionComplete(chosenAction);
         break;
       case SArm:
         if (armController.moveArmToTarget("Stable"))
@@ -132,19 +134,24 @@ public class RobotContainer {
           autonomousController.actionComplete(chosenAction);
         break;
       case GCone:
-        intakeController.grabCone(1.0);
+        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        else  intakeController.grabCone(1.0);
         break;
       case RCone:
-        intakeController.releaseCone(1.0);
+        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        else intakeController.releaseCone(1.0);
         break;
       case GCube:
-        intakeController.grabCube(0.9);
+        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        else intakeController.grabCube(0.9);
         break;
       case RCube:
-        intakeController.releaseCube(1.0);
+        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        else intakeController.releaseCube(1.0);
         break;
       default:
         System.out.print("Skipping UNKNOWN action:" + chosenAction.type);
+        autonomousController.actionComplete(chosenAction);
     }
   }
 

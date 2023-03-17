@@ -129,14 +129,16 @@ public class AutonWithEncoder implements AutonomousController {
                 break;
             } else if (chosenAction.type == ActionType.PCone || chosenAction.type== ActionType.PCube || chosenAction.type== ActionType.SArm ) {
                 break;
-            } else if (chosenAction.type == ActionType.RCone || chosenAction.type== ActionType.RCube ) {
+            } else if (chosenAction.type == ActionType.RCone || chosenAction.type== ActionType.RCube || chosenAction.type== ActionType.GCone || chosenAction.type== ActionType.GCube ) {
                 remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
                 System.out.println(chosenAction.type+".. time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
                 if (remaining<=10)
-                    actionComplete(chosenAction);
+                    chosenAction.speed = 0.0;
                 else
-                    break;
+                    chosenAction.speed = 1.0;
+                break;
             } else if (chosenAction.type == ActionType.Stop) {
+                chosenAction.speed = 0.0;
                 break;
             } else {
                 System.out.println("Ignoring "+chosenAction);
