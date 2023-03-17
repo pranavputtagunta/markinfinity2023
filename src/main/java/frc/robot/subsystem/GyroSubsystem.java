@@ -15,24 +15,24 @@ public class GyroSubsystem {
     }
 
     public void init() {
-        ahrsGyro.reset();
+        if (ahrsGyro!=null) ahrsGyro.reset();
         simulatedYaw = 0;
     }
 
     public double getAngle() {
-        return ahrsGyro.getAngle();
+        return ahrsGyro==null ? 0 : ahrsGyro.getAngle();
     }
 
     public double getYaw() {
-        return simulatedYaw!=0 ? simulatedYaw: ahrsGyro.getYaw();
+        return simulatedYaw!=0 ? simulatedYaw: ahrsGyro==null ? 0 : ahrsGyro.getYaw();
     }
 
     public double getRoll() {
-        return ahrsGyro.getRoll();
+        return ahrsGyro==null ? 0 : ahrsGyro.getRoll();
     }
 
     public double getPitch() {
-        return ahrsGyro.getPitch();
+        return ahrsGyro==null ? 0 : ahrsGyro.getPitch();
     }
 
     public void simulationPeriodic(double rotSpeed) {
@@ -44,10 +44,10 @@ public class GyroSubsystem {
     }
 
     public Rotation2d getRotation2d() {
-        return ahrsGyro.getRotation2d();
+        return ahrsGyro==null ? new Rotation2d() : ahrsGyro.getRotation2d();
     }
 
     public void reset() {
-        ahrsGyro.reset();
+        if (ahrsGyro!=null) ahrsGyro.reset();
     }
 }
