@@ -10,7 +10,7 @@ public class XboxTeleController implements TeleController {
   private XboxController xbc;
   
   public XboxTeleController(int port) {
-    xbc = new XboxController(0);
+    xbc = new XboxController(port);
   }
 
   @Override
