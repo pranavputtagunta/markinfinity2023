@@ -45,18 +45,12 @@ public class AutonWithEncoder implements AutonomousController {
         for (int i = 0; i < autoOp.length; i++) {
             String autoOpr = autoOp[i].trim();
             //System.out.println("Processing:" + autoOpr);
-            int spaceIndx = autoOpr.indexOf(' ');
-            ActionType actionType;
+            String[] actionDetail = autoOpr.split(" ");
             try {
-                Integer distangl = 0;
-                if (spaceIndx>=0) {
-                    distangl = Integer.parseInt(autoOpr.substring(spaceIndx+1));
-                    actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
-                    if (distangl>=0)
-                        actionType = ActionType.valueOf(autoOpr.substring(0, spaceIndx));
-                } else
-                    actionType = ActionType.valueOf(autoOpr);
-                Action p = new Action(autonMaxSpeed, distangl, actionType);
+                ActionType actionType = ActionType.valueOf(actionDetail[0]);
+                Integer magnitude = actionDetail.length>1 ? Integer.parseInt(actionDetail[1]) : null;
+                Double speed = actionDetail.length>2 ? Double.parseDouble(actionDetail[2]) : autonMaxSpeed;
+                Action p = new Action(speed, magnitude, actionType);
                 System.out.println("Adding:" + p);
                 actionMap.add(p);
             } catch (Exception e) {
@@ -69,11 +63,13 @@ public class AutonWithEncoder implements AutonomousController {
         return encoderToDistanceConversion * ((encodeLtDelta+encoderRtDelta)/2.0);
     }
 
-    private double distanceRemainingToSpeed(double remaining) {
+    private double distanceRemainingToSpeed(double remaining, double maxSpeed) {
+        maxSpeed = Math.abs(maxSpeed);
         double absRemaining = Math.abs(remaining);
         if (absRemaining<2) return 0;
         boolean reverse = remaining<0? true: false;
-        double speed = absRemaining<5 ? .25+(autonMaxSpeed-0.25)*absRemaining/5.0 : autonMaxSpeed;
+        double brakeThrehshold = 6+(maxSpeed-.25)*8;
+        double speed = absRemaining<brakeThrehshold ? .25+(maxSpeed-0.25)*absRemaining/brakeThrehshold : maxSpeed;
         return (reverse?-speed:speed);
     }
 
@@ -118,7 +114,25 @@ public class AutonWithEncoder implements AutonomousController {
                 double distMoved = convertToDistance(currentLtPos-startLtPos, currentRtPos-startRtPos);
                 remaining = chosenAction.magnitude-distMoved;
                 System.out.println("Distance Moved:"+distMoved+". Remaining:"+remaining);
-                chosenAction.speed = distanceRemainingToSpeed(remaining);
+                chosenAction.speed = distanceRemainingToSpeed(remaining, chosenAction.speed);
+                if (chosenAction.speed==0) chosenAction.speed = null; // Trigger to move to next action
+                break;
+            } else if (chosenAction.type == ActionType.Cruise) {
+                remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
+                if (remaining<=10)
+                    chosenAction.speed = null;
+                break;
+            } else if (chosenAction.type == ActionType.Hold) {
+                remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
+                System.out.println(chosenAction.type+".. time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
+                if (remaining<=10)
+                    chosenAction.speed = null;
+                else {
+                    double distMoved = convertToDistance(currentLtPos-startLtPos, currentRtPos-startRtPos);
+                    remaining = -distMoved;
+                    System.out.println("Distance shifted:"+distMoved);
+                    chosenAction.speed = distanceRemainingToSpeed(remaining, chosenAction.speed);
+                }
                 break;
             } else if (chosenAction.type == ActionType.Turn) {
                 //double angleTurned = convertToAngle(currentLtPos-startLtPos, currentRtPos-startRtPos);
@@ -126,6 +140,7 @@ public class AutonWithEncoder implements AutonomousController {
                 remaining = chosenAction.magnitude-angleTurned;
                 System.out.println("Angle Turned:"+angleTurned+". Remaining:"+remaining);
                 chosenAction.speed = angleRemainingToSpeed(remaining);
+                if (chosenAction.speed==0) chosenAction.speed = null;
                 break;
             } else if (chosenAction.type == ActionType.PCone || chosenAction.type== ActionType.PCube || chosenAction.type== ActionType.SArm ) {
                 break;
@@ -133,15 +148,16 @@ public class AutonWithEncoder implements AutonomousController {
                 remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
                 System.out.println(chosenAction.type+".. time:"+chosenAction.magnitude*1000+". Remaining:"+remaining);
                 if (remaining<=10)
-                    chosenAction.speed = 0.0;
+                    chosenAction.speed = null;
                 else
                     chosenAction.speed = 1.0;
                 break;
             } else if (chosenAction.type == ActionType.Stop) {
-                chosenAction.speed = 0.0;
+                chosenAction.speed = null;
                 break;
             } else {
                 System.out.println("Ignoring "+chosenAction);
+                chosenAction.speed = null;
                 actionComplete(chosenAction);
             }
         }

@@ -1,7 +1,15 @@
 package frc.robot.interfaces;
 
 public class Action {
-   public enum ActionType {Move, Turn, RCone, RCube, PCone, PCube, GCone, GCube, SArm, Stop};
+   public enum ActionType {
+    Move("in"), Turn("deg"), Cruise("sec"), 
+    RCone("sec"), RCube("sec"),  GCone("sec"), GCube("sec"), 
+    PCone("level"), PCube("level"), SArm("level"),  Hold("sec"), Stop("sec");
+    String unit;
+    ActionType(String magnitudeUnit) {
+      this.unit = magnitudeUnit;
+    }
+  };
    public Double speed; // Max Speed with with action should be done
    public Integer magnitude; // Duration or distance or angle associated with action
    public ActionType type; // Type of action to perform
@@ -27,6 +35,6 @@ public class Action {
 
    @Override
    public String toString() {
-       return type+":"+speed+".."+magnitude;
+       return type+":"+magnitude+ type.unit+"@"+speed;
    }
 }

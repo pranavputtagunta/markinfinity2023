@@ -16,7 +16,7 @@ public class ArmControllerImpl implements ArmController {
         SmartDashboard.putNumber(LIFT_LOW_LIMIT, 0);
         SmartDashboard.putNumber(LIFT_CONE_KEY, 60);
         SmartDashboard.putNumber(LIFT_CUBE_KEY, 65);
-        SmartDashboard.putNumber(LIFT_STAB_KEY, 88);
+        SmartDashboard.putNumber(LIFT_STAB_KEY, 50);
 
         SmartDashboard.putNumber(ELEV_POSITION, 0);
         SmartDashboard.putNumber(ELEV_LOW_LIMIT, 0);
@@ -76,7 +76,7 @@ public class ArmControllerImpl implements ArmController {
                 eTarget = SmartDashboard.getNumber(ELEV_CUBE_KEY, 55);
                 break;
             case "Stable": 
-                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 88);
+                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 50);
                 eTarget = SmartDashboard.getNumber(ELEV_STAB_KEY, 5);
                 break;
             default:
@@ -128,9 +128,11 @@ public class ArmControllerImpl implements ArmController {
     public void simulationPeriodic() {
         double elev_change = elevatorSubsystem.getCurrentSpeed();
         double lift_change = liftSubsystem.getCurrentSpeed();
+        double lowLimit = SmartDashboard.getNumber(LIFT_LOW_LIMIT, 0);
         if (lift_change!=0)
-            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change); 
-        liftSubsystem.setPosition(liftSubsystem.getPosition()-0.001); // simulate the pull of gravity
+            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change);
+        if (liftSubsystem.getPosition()>lowLimit)
+            liftSubsystem.setPosition(liftSubsystem.getPosition()-0.001); // simulate the pull of gravity
         if (elev_change!=0)
             elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elev_change);
     }

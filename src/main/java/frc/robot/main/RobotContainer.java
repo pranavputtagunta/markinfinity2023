@@ -43,7 +43,7 @@ public class RobotContainer {
   final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
   final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
   final String[] midOps = {"Move 20", "Move -20"};
-  final String[] defOps = {"Move 10", "Turn 180"};
+  final String[] defOps = {"Move -5", "Move 10", "Cruise 2 .6", "Cruise 2 .2", "Hold 10"};
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -107,19 +107,20 @@ public class RobotContainer {
     intakeController.stop();
   }
 
+  // speed==null means action is complete
   private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
       case Turn:
-        if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+        if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
         else driveController.move(0, chosenAction.speed);
         break;
-      case Move:
-      if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+      case Move: case Cruise: case Hold:
+      if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
       else driveController.move(chosenAction.speed, 0);
         break;
       case Stop:
         driveController.stop(); armController.stop(); intakeController.stop();
-        autonomousController.actionComplete(chosenAction);
+        if (chosenAction.speed==null) autonomousController.actionComplete(chosenAction);
         break;
       case SArm:
         if (armController.moveArmToTarget("Stable"))
@@ -134,19 +135,19 @@ public class RobotContainer {
           autonomousController.actionComplete(chosenAction);
         break;
       case GCone:
-        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        if (chosenAction.speed==null) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
         else  intakeController.grabCone(1.0);
         break;
       case RCone:
-        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        if (chosenAction.speed==null) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
         else intakeController.releaseCone(1.0);
         break;
       case GCube:
-        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        if (chosenAction.speed==null) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
         else intakeController.grabCube(0.9);
         break;
       case RCube:
-        if (chosenAction.speed==0) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
+        if (chosenAction.speed==null) { intakeController.stop(); autonomousController.actionComplete(chosenAction); }
         else intakeController.releaseCube(1.0);
         break;
       default:
