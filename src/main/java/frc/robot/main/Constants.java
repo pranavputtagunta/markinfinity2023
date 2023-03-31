@@ -15,8 +15,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
   public static class DriveConstants {
-    public static final int INTAKE = 1;
-    public static final int PULLEY = 4;
+    public static final int INTAKE = 4;
+    public static final int PULLEY = 1;
     public static final int LIFT_RT = 5; // Will change later
     public static final int LIFT_LT = 6; // Will change later
     public static final int ELEV_RT = 2;
@@ -31,7 +31,7 @@ public final class Constants {
     public static final int SparkDevNumRight1 = 17;
     public static final int SparkDevNumRight2 = 18;
     public static final int SparkDevNumLeft1 = 19;
-    public static final int SparkDevNumLeft2 = 20;
+    public static final int SparkDevNumLeft2 = 20;  
 
 
     public static final double maxSpeed = 1.0;

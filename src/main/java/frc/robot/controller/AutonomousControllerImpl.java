@@ -51,11 +51,13 @@ public class AutonomousControllerImpl implements AutonomousController {
                 case RCone:
                 case PCube:
                 case RCube:
+                case Balance:
                     time += distangl;
                     Action p = new Action(1.0,time * 1000,action);
                     System.out.println("Adding " + p);
                     actionMap.add(p);
                     break;
+
                 default:
                     System.out.println("Unknown operation:"+action);
             }

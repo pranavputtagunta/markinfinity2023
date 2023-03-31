@@ -32,6 +32,8 @@ public class RobotContainer {
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonWithEncoder(driveController);
+  private AutoBalance mAutoBalance;
+
   Action lastAction = null;
   int calibrationCycle = 0;
   int cycle = 0;
@@ -40,10 +42,10 @@ public class RobotContainer {
   // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
  // "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
 
-  final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
-  final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
-  final String[] defOps = {"Move -50"};
-  final String[] midOps = {"Move 89"};
+  final String[] ritOps = {"Move 30"};
+  final String[] lftOps = {"RCube 1", "Stop", "Move -80"};
+  final String[] defOps = {"Balance 0"};
+  final String[] midOps = {"Move 98"};
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -84,6 +86,7 @@ public class RobotContainer {
     driveController.init();
     armController.init();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
+    mAutoBalance = new AutoBalance();
   
     if (autoOpr != null && autoOpr.length() > 0)
       autonomousController.autonomousInit(autoOpr.split(","));
@@ -109,6 +112,10 @@ public class RobotContainer {
 
   private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
+      case Balance:
+        double speed = mAutoBalance.scoreAndBalance();
+        driveController.move(speed, 0);
+        break;
       case Turn:
         if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
         else driveController.move(0, chosenAction.speed);
@@ -218,7 +225,7 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 0.7);
+      double speed = limit(driveteleController.getSpeed(), 0.8);
       double rotation = limit(driveteleController.getRotation(), 0.5);
       if ((speed != 0) || (rotation != 0))
         driveController.move(speed, rotation);
