@@ -91,6 +91,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
+  public void disabledInit() {
+    robotContainer.disabledInit();
+  }
+  
+
+  @Override
   public void autonomousExit() {
     robotContainer.autonomousExit();
     System.out.println("Autonomous ended");

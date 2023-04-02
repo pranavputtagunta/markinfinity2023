@@ -6,7 +6,7 @@ import frc.robot.subsystem.DriveSubsystem;
 import frc.robot.subsystem.GyroSubsystem;
 
 public class DriveControllerImpl implements DriveController {
-    private GyroSubsystem gyro = new GyroSubsystem();
+    private GyroSubsystem gyro = GyroSubsystem.getInstance();
     private DriveSubsystem driveSubsystem = new DriveSubsystem();
     private double rotAccLimit = 0.1;
 
@@ -16,10 +16,15 @@ public class DriveControllerImpl implements DriveController {
     }
 
     public void init() {
-        driveSubsystem.resetEncoders();  
+        driveSubsystem.init();  
         gyro.init();
     }
 
+    @Override
+    public void disabledInit() {
+        driveSubsystem.disable();        
+    }
+    
     @Override
     public void stop() {
         if ((driveSubsystem.getCurrentSpeed()!=0) || (driveSubsystem.getCurrentRotation()!=0)) {
@@ -70,20 +75,17 @@ public class DriveControllerImpl implements DriveController {
     }
 
     @Override
-    public void periodic() {
-        //System.out.println("gyroP:"+gyro.getPitch()+", gyroR:"+gyro.getDegrees());
-        SmartDashboard.putNumber(DriveController.GYRO_PITCH, gyro.getPitch());
-        SmartDashboard.putNumber(DriveController.GYRO_YAW, gyro.getYaw());
-        //SmartDashboard.putNumber(DriveController.GYRO_ANGLE, gyro.getAngle());
-        //SmartDashboard.putNumber(DriveController.GYRO_ROLL, gyro.getRoll());
-        SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
-        SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
+    public void periodic(long tickCount) {
+        if ((tickCount & 0x1111) == 0x1111) {
+            SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
+            SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
+        }
         //driveSubsystem.updateOdometry();
     }
 
     @Override
     public void simulationPeriodic() {
         driveSubsystem.simulationPeriodic();
-        gyro.simulationPeriodic(driveSubsystem.getCurrentRotation());
+        gyro.simulationPeriodic(driveSubsystem.getCurrentRotation(),null);
     }
 }

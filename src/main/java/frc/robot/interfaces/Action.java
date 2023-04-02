@@ -2,7 +2,7 @@ package frc.robot.interfaces;
 
 public class Action {
    public enum ActionType {
-    Move("in"), Turn("deg"), Cruise("sec"), 
+    Move("in"), Turn("deg"), Cruise("sec"),  Station("sec"),
     RCone("sec"), RCube("sec"),  GCone("sec"), GCube("sec"), 
     PCone("level"), PCube("level"), SArm("level"),  Hold("sec"), Stop("sec");
     String unit;
@@ -18,6 +18,17 @@ public class Action {
     this.speed = speed;
     this.magnitude = magnitude;
    }
+
+   public Action(String autoOpr) {
+    String[] actionDetail = autoOpr.split(" ");
+    try {
+      type = ActionType.valueOf(actionDetail[0]);
+      magnitude = actionDetail.length>1 ? Integer.parseInt(actionDetail[1]) : null;
+      speed = actionDetail.length>2 ? Double.parseDouble(actionDetail[2]) : null;
+    } catch (Exception e) {
+    System.out.println("Ignoring"+e.getMessage());
+    }
+  }
 
    public Action(Double speed, Integer magnitude, ActionType type) {
     this.speed = speed;

@@ -72,12 +72,12 @@ public class PSTeleController implements TeleController {
 
   @Override
   public boolean shouldArmMoveToConeTarget() {
-    return ps4c.getL2Button();
+    return ps4c.getL3Button();
   }
 
   @Override
   public boolean shouldArmMoveToCubeTarget() {
-    return ps4c.getR2Button();
+    return ps4c.getR3Button();
   }
 
   @Override

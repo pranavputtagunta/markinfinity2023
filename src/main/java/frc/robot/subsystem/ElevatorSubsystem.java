@@ -17,10 +17,12 @@ public class ElevatorSubsystem {
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_right);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_left);
     private double elevRange = 180; // Difference between high and low encode values
+    private double distanceToEncoderConversion = 2;
     double lowLimit = 0;
     boolean stopped = true;
     double currSpeed = 0;
     double speedLimitPoint = 2.0;
+    double maxExtension = 0;
 
     private final DifferentialDrive elev = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
@@ -33,16 +35,25 @@ public class ElevatorSubsystem {
         m_right.setIdleMode(IdleMode.kBrake);
         m_encoder = m_left.getEncoder();
         SmartDashboard.putNumber(ArmController.ELEV_RANGE, elevRange);
+        SmartDashboard.putNumber(ArmController.ELEV_MAX_EXTN, maxExtension);
+        SmartDashboard.putNumber(ArmController.ELEV_LOW_LIMIT, lowLimit);
+        SmartDashboard.putNumber(ArmController.ELEV_CONV_FACTOR, distanceToEncoderConversion);
     }
 
     public void init() {
-        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, lowLimit);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, speedLimitPoint);
+        distanceToEncoderConversion = SmartDashboard.getNumber(ArmController.ELEV_CONV_FACTOR, distanceToEncoderConversion);
+
+    }
+
+    public double getMaxExtension() {
+        return maxExtension;
     }
 
     public double getPosition() {
-        return m_encoder.getPosition();
+        return m_encoder.getPosition()-lowLimit;
     }
 
     public double getCurrentSpeed() {
@@ -54,32 +65,44 @@ public class ElevatorSubsystem {
     }
 
     public void setPosition(double position) {
-        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
+        lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, lowLimit);
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         if (elevRange>0 && (position<lowLimit || position>elevRange+lowLimit)) {
-            System.out.println("Lift pos outside limit");
+            System.out.println("Elev pos:"+position+" outside limit");
             return;
         }
         m_encoder.setPosition(position); 
     }
 
+    public void setMaxExtension(int maxExtensionInInches) {
+        if (maxExtensionInInches==0) return;
+        double maxExtensionRange = maxExtensionInInches * distanceToEncoderConversion;
+        if (elevRange>0 && maxExtensionRange>elevRange)
+            maxExtensionRange = elevRange;
+
+        if (this.maxExtension != maxExtensionRange) {
+            System.out.println("maxExtensionInInches:"+maxExtensionInInches+"...maxExtensionRange:"+maxExtension);
+            this.maxExtension = maxExtensionRange;
+        }
+        double currentPos = (double) m_encoder.getPosition();
+        if (currentPos-maxExtension>1) {
+            System.out.println("Adjusting arm pos("+currentPos+") to maxExtension:"+ maxExtension);
+            moveToTarget(maxExtension);
+        }
+    }
+
     public void extendArm(double speed) {
-        System.out.println("extendArm:"+speed);
-        double xtnd_limit = lowLimit+elevRange;
-        if (m_encoder.getPosition()>=xtnd_limit) {
-            elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard
-            lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-            speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, 0);
-            xtnd_limit = lowLimit+elevRange;
-            double amtLeft = xtnd_limit-m_encoder.getPosition();
+        double currentPos = m_encoder.getPosition();
+        System.out.println("Extend Arm speed:"+speed+", currentPos:"+currentPos+", maxExtension:"+maxExtension);
+        if (maxExtension>0 && currentPos>=maxExtension) {        
+            double amtLeft = maxExtension-currentPos;
              if (elevRange>0 && amtLeft<=0) {
-                System.out.println("Cant go further than "+xtnd_limit);
-                elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
+                System.out.println("Cant go further than "+maxExtension);
                 stop();
                 return;
             } else if (speed>0.25 && elevRange>0 && speedLimitPoint>0 && amtLeft<speedLimitPoint) {
                 double newSpeed = 0.25+(speed-0.25)*amtLeft/speedLimitPoint;
-                System.out.println("Near limit:"+xtnd_limit+". Restricting speed from "+speed+" to "+newSpeed);
+                System.out.println("Near limit:"+maxExtension+". Restricting speed from "+speed+" to "+newSpeed);
                 speed = newSpeed;
             }
         }
@@ -90,22 +113,20 @@ public class ElevatorSubsystem {
 
     // Returns true if target reached
     public boolean moveToTarget(double target) {
-        target += SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
         double curPos = m_encoder.getPosition();
         int diff = (int) (curPos-target);
-        System.out.println("Moving elev  to target:"+target+".. Diff:"+diff);
+        System.out.println("Moving elev to target:"+target+".. Diff:"+diff);
         double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.5:0.25;
-        if (diff>1) { retractArm(-speed); return false; }
-        else if (diff<1) { extendArm(speed); return false; }
+        if (diff>=1) { retractArm(-speed); return false; }
+        else if (diff<=-1) { extendArm(speed); return false; }
         else { stop(); return true;}
     }
 
     public void retractArm(double speed) {
-        System.out.println("retractArm:"+speed);
-        elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
-        double rtrt_limit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, 0);
-        if (elevRange>0 && m_encoder.getPosition()<=rtrt_limit) {
-            System.out.println("Cant go further than "+rtrt_limit);
+        double currentPos = m_encoder.getPosition();
+        System.out.println("Retract Arm speed:"+speed+", currentPos:"+currentPos);
+        if (elevRange>0 && currentPos<=0) {
+            System.out.println("Cant go lower than "+lowLimit);
             stop();
             return;
         }
@@ -117,6 +138,8 @@ public class ElevatorSubsystem {
     public void stop() {
         if (!stopped) {
             System.out.println("Stopping elevator......");
+            elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // refresh from dashboard just incase it has been updated
+            lowLimit = SmartDashboard.getNumber(ArmController.ELEV_LOW_LIMIT, lowLimit);
             currSpeed = 0;
             stopped = true;
         }

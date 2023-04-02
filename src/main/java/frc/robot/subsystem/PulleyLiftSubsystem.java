@@ -43,20 +43,24 @@ public class PulleyLiftSubsystem {
 */
         stoppedPos = m_encoder.getPosition();
         SmartDashboard.putNumber(ArmController.LIFT_RANGE, liftRange);
+        SmartDashboard.putNumber(ArmController.LIFT_LOW_LIMIT, lowLimit);
     }
 
     public void init() {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, lowLimit);
         liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
+
+        double pitch = GyroSubsystem.getInstance().getPitch();
+        setPositionByPitch(pitch);
+    }
+
+    public void setPositionByPitch(double pitch) {
+        if (pitch>0 && liftRange>0) {
+            setPosition(liftRange*pitch/90);
+        }
     }
 
     public void setPosition(double position) {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-        liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
-        if (liftRange!=0 && (position<lowLimit || position>liftRange+lowLimit)) {
-            //System.out.println("Ignoring lift pos outside limit");
-            return;
-        }
         m_encoder.setPosition(position);
     }
 
@@ -79,14 +83,10 @@ public class PulleyLiftSubsystem {
     public void raiseArm(double speed) {
         lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         double highLimit = lowLimit+liftRange;
-        if (m_encoder.getPosition()>highLimit) {
-            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
-            highLimit = lowLimit+liftRange;
-            if (liftRange>0 && m_encoder.getPosition()>highLimit) {
-                System.out.println("Can't go higher than "+highLimit);
-                stop();
-                return;
-            }
+        if (liftRange>0 && m_encoder.getPosition()>highLimit) {
+            System.out.println("Can't go higher than "+highLimit);
+            stop();
+            return;
         }
         System.out.println("raiseArm:"+speed);
         stopped = false;
@@ -96,14 +96,10 @@ public class PulleyLiftSubsystem {
     }
 
     public void lowerArm(double speed) {
-        if (m_encoder.getPosition()<lowLimit) {
-            lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-            liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange); // re=read from dashboard
-            if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
-                System.out.println("Cant go lower!!!");
-                stop();
-                return;
-            }
+        if (liftRange>0 && m_encoder.getPosition()<lowLimit) {
+            System.out.println("Cant go lower!!!");
+            stop();
+            return;
         }
         System.out.println("lowerArm:"+speed);
         stopped = false;

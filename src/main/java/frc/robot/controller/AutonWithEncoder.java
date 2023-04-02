@@ -16,7 +16,6 @@ public class AutonWithEncoder implements AutonomousController {
     Double startLtPos, startRtPos;
     double autonMaxSpeed = 0.25;
     double encoderToDistanceConversion = 2.355;
-    double encoderToAngleConversion = 10;
     long actionStartTime = 0;
     double startAngle;
     final String DIST_FACTOR = "Inches Per Unit";
@@ -43,19 +42,11 @@ public class AutonWithEncoder implements AutonomousController {
         startLtPos = null;
         startRtPos = null;
         for (int i = 0; i < autoOp.length; i++) {
-            String autoOpr = autoOp[i].trim();
             //System.out.println("Processing:" + autoOpr);
-            String[] actionDetail = autoOpr.split(" ");
-            try {
-                ActionType actionType = ActionType.valueOf(actionDetail[0]);
-                Integer magnitude = actionDetail.length>1 ? Integer.parseInt(actionDetail[1]) : null;
-                Double speed = actionDetail.length>2 ? Double.parseDouble(actionDetail[2]) : autonMaxSpeed;
-                Action p = new Action(speed, magnitude, actionType);
-                System.out.println("Adding:" + p);
-                actionMap.add(p);
-            } catch (Exception e) {
-                System.out.println("Ignoring"+e.getMessage());
-            }
+            Action p = new Action(autoOp[i].trim());
+            if (p.speed==null) p.speed = autonMaxSpeed;
+            System.out.println("Adding:" + p);
+            actionMap.add(p);
         }
     }
 
@@ -117,7 +108,7 @@ public class AutonWithEncoder implements AutonomousController {
                 chosenAction.speed = distanceRemainingToSpeed(remaining, chosenAction.speed);
                 if (chosenAction.speed==0) chosenAction.speed = null; // Trigger to move to next action
                 break;
-            } else if (chosenAction.type == ActionType.Cruise) {
+            } else if ((chosenAction.type == ActionType.Cruise) || (chosenAction.type == ActionType.Station)) {
                 remaining = chosenAction.magnitude*1000-(timeInAutonomous-actionStartTime);
                 if (remaining<=10)
                     chosenAction.speed = null;

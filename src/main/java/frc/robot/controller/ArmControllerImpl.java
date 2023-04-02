@@ -3,23 +3,32 @@ package frc.robot.controller;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.ArmController;
 import frc.robot.subsystem.ElevatorSubsystem;
-import frc.robot.subsystem.LiftSubsystem;
+import frc.robot.subsystem.GyroSubsystem;
 import frc.robot.subsystem.PulleyLiftSubsystem;
 
 public class ArmControllerImpl implements ArmController {
-    PulleyLiftSubsystem liftSubsystem = new PulleyLiftSubsystem();
-    ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    String currentTarget = null;
-    
+    private PulleyLiftSubsystem liftSubsystem = new PulleyLiftSubsystem();
+    private ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    private GyroSubsystem gyro = GyroSubsystem.getInstance();
+
+    private String currentTarget = null;
+
+    private int liftMinAngle = 5; // Cant go lower than 5deg
+    private int liftMaxAngle = 85; // Cant go higher than 85deg
+    private int maxArmHeight = 72; // 6 ft
+    private int maxArmWidth = 42; // 3'6 ft
+    private int maxExtensionInches = 0;
+
     public ArmControllerImpl() {
+        SmartDashboard.putNumber(ArmController.ARM_MAX_HEIGHT,maxArmHeight); 
+        SmartDashboard.putNumber(ArmController.ARM_MAX_WIDTH, maxArmWidth); 
+
         SmartDashboard.putNumber(LIFT_POSITION, 0);
-        SmartDashboard.putNumber(LIFT_LOW_LIMIT, 0);
         SmartDashboard.putNumber(LIFT_CONE_KEY, 60);
         SmartDashboard.putNumber(LIFT_CUBE_KEY, 65);
         SmartDashboard.putNumber(LIFT_STAB_KEY, 50);
 
         SmartDashboard.putNumber(ELEV_POSITION, 0);
-        SmartDashboard.putNumber(ELEV_LOW_LIMIT, 0);
         SmartDashboard.putNumber(ELEV_CONE_KEY, 50);
         SmartDashboard.putNumber(ELEV_CUBE_KEY, 55);
         SmartDashboard.putNumber(ELEV_STAB_KEY, 5);
@@ -29,22 +38,44 @@ public class ArmControllerImpl implements ArmController {
         liftSubsystem.init();
         elevatorSubsystem.init();
         currentTarget = null;
+        maxArmWidth = (int) SmartDashboard.getNumber(ARM_MAX_WIDTH, maxArmWidth);
+        maxArmHeight = (int) SmartDashboard.getNumber(ARM_MAX_HEIGHT, maxArmHeight);
+        liftMinAngle = (int) SmartDashboard.getNumber(LIFT_MIN_ANGLE, liftMinAngle);
+        liftMaxAngle = (int) SmartDashboard.getNumber(LIFT_MAX_ANGLE, liftMaxAngle);
+        maxExtensionInches = computeMaxExtension(getArmAngle());
     }
 
     @Override
-    public void periodic() {
-        SmartDashboard.putNumber(LIFT_POSITION, liftSubsystem.getPosition());
-        SmartDashboard.putNumber(ELEV_POSITION, elevatorSubsystem.getPosition());
+    public void periodic(long tickCount) {
+        if ((tickCount & 0x1111) == 0x1111) {
+            SmartDashboard.putNumber(LIFT_POSITION, liftSubsystem.getPosition());
+            SmartDashboard.putNumber(ELEV_POSITION, elevatorSubsystem.getPosition());
+            SmartDashboard.putNumber(ELEV_MAX_EXTN, elevatorSubsystem.getMaxExtension());
+        }
+    }
+
+    private Integer getArmAngle() {
+        return gyro!=null? (int)gyro.getPitch(): null;
     }
 
     @Override
     public void raiseArm(double speed) {
-        liftSubsystem.raiseArm(speed);
+        Integer currArmAngle = getArmAngle();
+        if (currArmAngle==null || currArmAngle<liftMaxAngle) {
+            liftSubsystem.raiseArm(speed);
+            maxExtensionInches = computeMaxExtension(currArmAngle);
+        } else
+            System.out.println("Cant raise arm beyond "+currArmAngle);
     }
 
     @Override
     public void lowerArm(double speed) {
-        liftSubsystem.lowerArm(speed);
+        Integer currArmAngle = getArmAngle();
+        if (currArmAngle==null || currArmAngle>liftMinAngle) {
+            liftSubsystem.lowerArm(speed);
+            maxExtensionInches = computeMaxExtension(currArmAngle);
+        } else
+            System.out.println("Cant lower arm beyond "+currArmAngle);
     }
 
     @Override
@@ -56,7 +87,6 @@ public class ArmControllerImpl implements ArmController {
     public void setCurrentTarget(String currentTarget) {
         this.currentTarget = currentTarget;
     }
-
 
     /**
      * @return true if moved to target, false if move arm has not yet reached target
@@ -105,6 +135,9 @@ public class ArmControllerImpl implements ArmController {
 
     public void stopElevator() {
         elevatorSubsystem.stop();
+        // Keep calling setMaxExtn so that elevator can adjust..Called only when user is not adjusting evelvator
+        if (maxExtensionInches>0) 
+            elevatorSubsystem.setMaxExtension(maxExtensionInches);
     }
 
     public void stopLift() {
@@ -124,16 +157,42 @@ public class ArmControllerImpl implements ArmController {
         elevatorSubsystem.setPosition(0);        
     }
 
+    private int computeMaxExtension(Integer armAngle) {
+        if (armAngle==null) return 0;
+        int maxExtension;
+        int widthLimit = armAngle<=60?(int)(maxArmWidth/Math.cos(Math.toRadians(90-armAngle))):-1;
+        int heightLimit = armAngle>=30?(int)(maxArmHeight/Math.cos(Math.toRadians(armAngle))):-1;
+        if (heightLimit>0 && widthLimit>0)
+            maxExtension = widthLimit<=heightLimit ? widthLimit : heightLimit;
+        else 
+            maxExtension= widthLimit>0?widthLimit:heightLimit;
+        System.out.println("MaxExtn:"+maxExtension+"(WidthLimit:"+widthLimit+", HeightLimit:"+heightLimit+") for ArmAngle:"+armAngle);
+        return maxExtension;
+    }
+
     @Override
     public void simulationPeriodic() {
-        double elev_change = elevatorSubsystem.getCurrentSpeed();
-        double lift_change = liftSubsystem.getCurrentSpeed();
+        double elevChange = elevatorSubsystem.getCurrentSpeed();
+        double liftChange = liftSubsystem.getCurrentSpeed();
         double lowLimit = SmartDashboard.getNumber(LIFT_LOW_LIMIT, 0);
-        if (lift_change!=0)
-            liftSubsystem.setPosition(liftSubsystem.getPosition()+lift_change);
-        if (liftSubsystem.getPosition()>lowLimit)
+        boolean angleChanged = false;
+        if (liftChange!=0) {
+            gyro.simulationPeriodic(null,liftChange);
+            liftSubsystem.setPosition(liftSubsystem.getPosition()+liftChange);
+            angleChanged = true;
+        }
+        if (liftSubsystem.getPosition()>lowLimit) {
+            gyro.simulationPeriodic(null,-0.001);
             liftSubsystem.setPosition(liftSubsystem.getPosition()-0.001); // simulate the pull of gravity
-        if (elev_change!=0)
-            elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elev_change);
+            angleChanged = true;
+        }
+        if (angleChanged) {
+            double liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, 0);
+            if (liftRange!=0)
+                liftSubsystem.setPositionByPitch(gyro.getPitch());
+        }
+
+        if (elevChange!=0)
+            elevatorSubsystem.setPosition(elevatorSubsystem.getPosition()+elevChange);
     }
 }

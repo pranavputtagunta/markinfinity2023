@@ -55,12 +55,6 @@ public class LiftSubsystem {
     }
 
     public void setPosition(double position) {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
-        liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, liftRange);
-        if (liftRange!=0 && (position<lowLimit || position>liftRange+lowLimit)) {
-            //System.out.println("Ignoring lift pos outside limit");
-            return;
-        }
         m_encoder.setPosition(position);
     }
 

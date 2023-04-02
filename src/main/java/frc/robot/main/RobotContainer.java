@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.controller.ArmControllerImpl;
 import frc.robot.controller.AutonWithEncoder;
+import frc.robot.controller.ClimbController;
 import frc.robot.controller.DriveControllerImpl;
 import frc.robot.controller.IntakeControllerImpl;
 import frc.robot.controller.PSTeleController;
@@ -15,6 +16,8 @@ import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
 import frc.robot.main.Constants.IOConstants;
+import frc.robot.subsystem.AccelerometerSubsystem;
+import frc.robot.subsystem.GyroSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -28,6 +31,7 @@ import frc.robot.main.Constants.IOConstants;
 public class RobotContainer {
   private TeleController driveteleController;
   private TeleController armTeleController;
+  private ClimbController climbController = ClimbController.getInstance();
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
@@ -35,6 +39,7 @@ public class RobotContainer {
   Action lastAction = null;
   int calibrationCycle = 0;
   int cycle = 0;
+  long tickCount = 0;
   // Instructions for auton operation
   // Move 4ft, then take 2sec to move arm in place for cone, 1 sec to release
   // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
@@ -101,6 +106,10 @@ public class RobotContainer {
     }
   }
 
+  void disabledInit() {
+    driveController.disabledInit();
+  }
+
   void autonomousExit() {
     driveController.stop();
     armController.stop();
@@ -117,6 +126,14 @@ public class RobotContainer {
       case Move: case Cruise: case Hold:
       if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
       else driveController.move(chosenAction.speed, 0);
+        break;
+      case Station:
+        if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+        else {
+          Double speed = climbController.getClimbSpeed(chosenAction.speed);
+          if (speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+          else driveController.move(speed, 0);
+        }
         break;
       case Stop:
         driveController.stop(); armController.stop(); intakeController.stop();
@@ -211,8 +228,10 @@ public class RobotContainer {
   }
 
   void periodic() {
-    armController.periodic();
-    driveController.periodic();
+    tickCount++;
+    armController.periodic(tickCount);
+    driveController.periodic(tickCount);
+    GyroSubsystem.getInstance().periodic(tickCount);
   }
 
   private double limit(double orig, double limit) {
@@ -223,6 +242,8 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
+      AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
+      System.out.println("Tilt:"+accelerometer.getTilt());
       double speed = limit(driveteleController.getSpeed(), 0.8);
       double rotation = limit(driveteleController.getRotation(), 0.8);
       if ((speed != 0) || (rotation != 0))

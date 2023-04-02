@@ -48,15 +48,25 @@ public class DriveSubsystem extends SubsystemBase {
         m_leftDrive1.setSmartCurrentLimit(35);
         m_leftDrive2.setSmartCurrentLimit(35);
 
+       init();
+
+        //robotDrive.setExpiration(1.0);
+        robotDrive.setSafetyEnabled(false);
+    }
+
+    public void init() {
         m_rightDrive1.setIdleMode(IdleMode.kBrake);
         m_rightDrive2.setIdleMode(IdleMode.kBrake);
         m_leftDrive1.setIdleMode(IdleMode.kBrake);
         m_leftDrive2.setIdleMode(IdleMode.kBrake);
-
-        //robotDrive.setExpiration(1.0);
-        robotDrive.setSafetyEnabled(false);
-
         resetEncoders();
+    }
+
+    public void disable() {
+        m_rightDrive1.setIdleMode(IdleMode.kCoast);
+        m_rightDrive2.setIdleMode(IdleMode.kCoast);
+        m_leftDrive1.setIdleMode(IdleMode.kCoast);
+        m_leftDrive2.setIdleMode(IdleMode.kCoast);
     }
 
     public double getCurrentSpeed() {
