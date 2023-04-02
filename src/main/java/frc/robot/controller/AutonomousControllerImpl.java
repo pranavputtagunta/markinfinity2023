@@ -154,6 +154,11 @@ public class AutonomousControllerImpl implements AutonomousController {
        }
       }
 
+
+      @Override
+      public void simulationPeriodic(long tickCount) {
+      }
+
     @Override
     public void actionComplete(Action action) {
     }

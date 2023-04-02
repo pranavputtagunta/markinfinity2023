@@ -13,7 +13,7 @@ public interface DriveController {
     public void resetEncoders();
     public double getLeftEncoderPosition();
     public double getRightEncoderPosition();
-    public void simulationPeriodic();
+    public void simulationPeriodic(long tickCount);
     public void periodic(long tickCount);
     public double getYaw();
 }

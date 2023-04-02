@@ -84,7 +84,7 @@ public class DriveControllerImpl implements DriveController {
     }
 
     @Override
-    public void simulationPeriodic() {
+    public void simulationPeriodic(long tickCount) {
         driveSubsystem.simulationPeriodic();
         gyro.simulationPeriodic(driveSubsystem.getCurrentRotation(),null);
     }

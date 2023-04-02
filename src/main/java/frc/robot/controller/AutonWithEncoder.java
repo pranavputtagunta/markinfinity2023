@@ -160,6 +160,11 @@ public class AutonWithEncoder implements AutonomousController {
     }
 
     @Override
+    public void simulationPeriodic(long tickCount) {
+        
+    }
+
+    @Override
     public Action calibrate(int calibrationCount, long timeInTest) {
         return null;
     }

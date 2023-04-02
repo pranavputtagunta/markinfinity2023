@@ -30,7 +30,7 @@ public interface ArmController {
     public String getCurrentTarget();
     public void setCurrentTarget(String targetItemType);
     public void periodic(long tickCount);
-    public void simulationPeriodic();
+    public void simulationPeriodic(long tickCount);
     public void stop();
     public void stopElevator();
     public void stopLift();

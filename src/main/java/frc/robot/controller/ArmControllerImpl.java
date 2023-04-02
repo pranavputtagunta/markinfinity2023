@@ -171,7 +171,7 @@ public class ArmControllerImpl implements ArmController {
     }
 
     @Override
-    public void simulationPeriodic() {
+    public void simulationPeriodic(long tickCount) {
         double elevChange = elevatorSubsystem.getCurrentSpeed();
         double liftChange = liftSubsystem.getCurrentSpeed();
         double lowLimit = SmartDashboard.getNumber(LIFT_LOW_LIMIT, 0);

@@ -45,10 +45,10 @@ public class RobotContainer {
   // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
  // "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
 
-  final String[] ritOps = {"Move 20", "Move -20", "Turn 90"};
+  final String[] ritOps = {"Move 20 .5", "Move -20", "Turn 90"};
   final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
-  final String[] midOps = {"Move 20", "Move -20"};
-  final String[] defOps = {"Move -5", "Move 10", "Cruise 2 .6", "Cruise 2 .2", "Hold 10"};
+  final String[] midOps = {"Move -5", "Move 10", "Cruise 2 .6", "Cruise 2 .2", "Hold 10"};
+  final String[] defOps = {"Station 20 .4"};
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -81,11 +81,14 @@ public class RobotContainer {
   }
 
   public void simulationPeriodic() {
-    driveController.simulationPeriodic();
-    armController.simulationPeriodic();
+    driveController.simulationPeriodic(tickCount);
+    armController.simulationPeriodic(tickCount);
+    climbController.simulationPeriodic(tickCount);
+    autonomousController.simulationPeriodic(tickCount);
   }
 
   public void autonomousInit() {
+    tickCount = 0;
     driveController.init();
     armController.init();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
@@ -124,8 +127,8 @@ public class RobotContainer {
         else driveController.move(0, chosenAction.speed);
         break;
       case Move: case Cruise: case Hold:
-      if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
-      else driveController.move(chosenAction.speed, 0);
+        if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
+        else driveController.move(chosenAction.speed, 0);
         break;
       case Station:
         if (chosenAction.speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
@@ -196,6 +199,7 @@ public class RobotContainer {
   }
 
   public void teleOpInit() {
+    tickCount = 0;
     driveController.init();
     armController.init();
     boolean resetEncoderPos = SmartDashboard.getBoolean("Reset Encoder", false);

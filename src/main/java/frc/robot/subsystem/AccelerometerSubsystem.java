@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 public class AccelerometerSubsystem {
     private BuiltInAccelerometer mRioAccel = new BuiltInAccelerometer();
     static private AccelerometerSubsystem self;
+    double simulatedTilt;
 
     private AccelerometerSubsystem() {
         self = this;
@@ -26,6 +27,7 @@ public class AccelerometerSubsystem {
     // returns the magnititude of the robot's tilt calculated by the root of
     // pitch^2 + roll^2, used to compensate for diagonally mounted rio
     public double getTilt() {
+        if (simulatedTilt!=0) return simulatedTilt;
         double pitch = getPitch();
         double roll = getRoll();
         if ((pitch + roll) >= 0) {
@@ -33,5 +35,9 @@ public class AccelerometerSubsystem {
         } else {
             return -Math.sqrt(pitch * pitch + roll * roll);
         }
+    }
+
+    public void setTilt(double simulatedTilt) {
+        this.simulatedTilt = simulatedTilt;
     }
 }
