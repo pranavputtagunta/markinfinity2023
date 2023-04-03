@@ -98,8 +98,10 @@ public class PulleyLiftSubsystem {
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
 
-        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_UP * speed;
-        counterPulley.set(couterpulleyspeed);
+        if (counterPulley!=null) {
+            double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_UP * speed;
+            counterPulley.set(couterpulleyspeed);
+        }
     }
 
     public void lowerArm(double speed) {
@@ -114,8 +116,10 @@ public class PulleyLiftSubsystem {
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
 
-        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_DOWN * speed;
-        counterPulley.set(couterpulleyspeed);
+        if (counterPulley!=null) {
+            double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_DOWN * speed;
+            counterPulley.set(couterpulleyspeed);
+        }
     }
 
     public boolean isStopped() {

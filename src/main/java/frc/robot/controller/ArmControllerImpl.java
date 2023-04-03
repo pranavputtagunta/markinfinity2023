@@ -159,8 +159,8 @@ public class ArmControllerImpl implements ArmController {
 
     private void updateMaxExtension(Integer armAngle) {
         if (armAngle==null) return;
-        int widthLimit = armAngle>=30?(int)(maxArmWidth/Math.cos(Math.toRadians(90-armAngle))):-1;
-        int heightLimit = armAngle<=60?(int)(maxArmHeight/Math.cos(Math.toRadians(armAngle))):-1;
+        int widthLimit = armAngle>=30 && maxArmWidth>0 ?(int)(maxArmWidth/Math.cos(Math.toRadians(90-armAngle))):-1;
+        int heightLimit = armAngle<=60 && maxArmHeight>0 ?(int)(maxArmHeight/Math.cos(Math.toRadians(armAngle))):-1;
         if (heightLimit>0 && widthLimit>0)
             maxExtensionInches = widthLimit<=heightLimit ? widthLimit : heightLimit;
         else 

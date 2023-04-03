@@ -74,10 +74,14 @@ public class ElevatorSubsystem {
     }
 
     public void setMaxExtension(int maxExtensionInInches) {
-        if (maxExtensionInInches==0) return;
-        double maxExtensionRange = 2.0 + maxExtensionInInches * distanceToEncoderConversion;
-        if (elevRange>0 && maxExtensionRange>elevRange)
+        double maxExtensionRange;
+        if (maxExtensionInInches<=0) {
             maxExtensionRange = elevRange;
+        } else {
+            maxExtensionRange = 2.0 + maxExtensionInInches * distanceToEncoderConversion;
+            if (elevRange>0 && maxExtensionRange>elevRange)
+                maxExtensionRange = elevRange;
+        }
         if (this.maxExtension != maxExtensionRange) {
             System.out.println("maxExtensionInInches:"+maxExtensionInInches+"...maxExtensionRange:"+maxExtension);
             this.maxExtension = maxExtensionRange;
