@@ -44,7 +44,7 @@ public class RobotContainer {
 
   final String[] ritOps = {"Move 30"};
   final String[] lftOps = {"RCube 1", "Stop", "Move -80"};
-  final String[] defOps = {"Balance 0"};
+  final String[] defOps = {"Move 50"}; // Balance 0
   final String[] midOps = {"Move 98"};
 
   private String m_autoSelected;
@@ -114,7 +114,7 @@ public class RobotContainer {
     switch (chosenAction.type) {
       case Balance:
         double speed = mAutoBalance.scoreAndBalance();
-        driveController.move(speed, 0);
+        driveController.move(speed/4, 0);
         break;
       case Turn:
         if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }

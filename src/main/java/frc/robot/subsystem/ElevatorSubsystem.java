@@ -64,7 +64,7 @@ public class ElevatorSubsystem {
     }
 
     public void extendArm(double speed) {
-        System.out.println("extendArm:"+speed);
+        
         double xtnd_limit = lowLimit+elevRange;
         if (m_encoder.getPosition()>=xtnd_limit) {
             elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange); // Reread it from dashboard

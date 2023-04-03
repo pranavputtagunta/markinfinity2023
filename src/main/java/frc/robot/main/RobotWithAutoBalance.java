@@ -33,6 +33,7 @@ public class RobotWithAutoBalance extends TimedRobot {
   private CANSparkMax mLB;
   private CANSparkMax mRF;
   private CANSparkMax mRB;
+  private CANSparkMax pulley;
   private AutoBalance mAutoBalance;
 
   @Override
@@ -41,6 +42,7 @@ public class RobotWithAutoBalance extends TimedRobot {
     mLB = new CANSparkMax(18, MotorType.kBrushless);
     mRF = new CANSparkMax(19, MotorType.kBrushless);
     mRB = new CANSparkMax(20, MotorType.kBrushless);
+    pulley = new CANSparkMax(1, MotorType.kBrushless);
     mAutoBalance = new AutoBalance();
   }
   @Override
@@ -50,11 +52,11 @@ public class RobotWithAutoBalance extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mLB.setIdleMode(IdleMode.kCoast);
-    mLF.setIdleMode(IdleMode.kCoast);
-    mRB.setIdleMode(IdleMode.kCoast);
-    mRF.setIdleMode(IdleMode.kCoast);
-
+    mLB.setIdleMode(IdleMode.kBrake);
+    mLF.setIdleMode(IdleMode.kBrake);
+    mRB.setIdleMode(IdleMode.kBrake);
+    mRF.setIdleMode(IdleMode.kBrake);
+    pulley.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
@@ -66,6 +68,7 @@ public class RobotWithAutoBalance extends TimedRobot {
     mLF.setIdleMode(IdleMode.kBrake);
     mRB.setIdleMode(IdleMode.kBrake);
     mRF.setIdleMode(IdleMode.kBrake);
+    pulley.setIdleMode(IdleMode.kBrake);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }

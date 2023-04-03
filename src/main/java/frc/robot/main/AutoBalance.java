@@ -24,7 +24,7 @@ public class AutoBalance {
          * CONFIG *
          **********/
         // Speed the robot drived while scoring/approaching station, default = 0.4
-        robotSpeedFast = 0.4;
+        robotSpeedFast = 0.7;
 
         // Speed the robot drives while balancing itself on the charge station.
         // Should be roughly half the fast speed, to make the robot more accurate,
@@ -32,12 +32,12 @@ public class AutoBalance {
         robotSpeedSlow = 0.2;
 
         // Angle where the robot knows it is on the charge station, default = 13.0
-        onChargeStationDegree = 13.0;
+        onChargeStationDegree = 15.0;
 
         // Angle where the robot can assume it is level on the charging station
         // Used for exiting the drive forward sequence as well as for auto balancing,
         // default = 6.0
-        levelDegree = 6.0;
+        levelDegree = 10.0;
 
         // Amount of time a sensor condition needs to be met before changing states in
         // seconds
@@ -48,14 +48,14 @@ public class AutoBalance {
         // Amount of time to drive towards to scoring target when trying to bump the
         // game piece off
         // Time it takes to go from starting position to hit the scoring target
-        singleTapTime = 0.4;
+        singleTapTime = .8;
 
         // Amount of time to drive away from knocked over gamepiece before the second
         // tap
-        scoringBackUpTime = 0.2;
+        scoringBackUpTime = .6;
 
         // Amount of time to drive forward to secure the scoring of the gamepiece
-        doubleTapTime = 0.3;
+        doubleTapTime = .6;
 
     }
 
@@ -88,6 +88,7 @@ public class AutoBalance {
     // returns a value from -1.0 to 1.0, which left and right motors should be set
     // to.
     public double autoBalanceRoutine() {
+        System.out.println("angle = " + getTilt());
         switch (state) {
             // drive forwards to approach station, exit when tilt is detected
             case 0:
@@ -110,6 +111,7 @@ public class AutoBalance {
                     debounceCount = 0;
                     return 0;
                 }
+                System.out.println("driving slower");
                 return robotSpeedSlow;
             // on charge station, stop motors and wait for end of auto
             case 2:
@@ -135,6 +137,7 @@ public class AutoBalance {
     // Same as auto balance above, but starts auto period by scoring
     // a game piece on the back bumper of the robot
     public double scoreAndBalance() {
+        System.out.println("angle = " + getTilt());
         switch (state) {
             // drive back, then forwards, then back again to knock off and score game piece
             case 0:

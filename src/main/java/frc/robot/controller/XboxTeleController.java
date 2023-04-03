@@ -2,6 +2,7 @@ package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.interfaces.TeleController;
+import  frc.robot.main.Constants;
 
 /*
  * Uses PS4 controller to get speed and rotation based on button press and joy stick axis
@@ -26,7 +27,7 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public double getSpeed() {
-    double speed = -xbc.getRawAxis(1);
+    double speed = xbc.getRawAxis(1);
     return speed;
   }
 
@@ -38,8 +39,8 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldRoboMove() {
-    //return xbc.getLeftBumper();
-    return true;
+    return xbc.getLeftBumper();
+    //return true;
   }
 
   @Override
@@ -76,16 +77,20 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldArmMoveToConeTarget() {
-    return xbc.getLeftStickButton();
+    //return xbc.getLeftStickButton();
+    return xbc.getLeftBumper() && xbc.getPOV()== Constants.XBoxConstants.kDPadRight;
   }
 
   @Override
   public boolean shouldArmMoveToCubeTarget() {
-    return xbc.getRightStickButton();
+    //return xbc.getRightStickButton();
+    return xbc.getLeftBumper() && xbc.getPOV()== Constants.XBoxConstants.kDPadLeft;
   }
 
   @Override
   public boolean shouldArmMoveToStablePos() {
-    return xbc.getStartButton();
+    //return xbc.getStartButton();
+    //System.out.println("Dpad value: " + xbc.getPOV());
+    return xbc.getLeftBumper() && xbc.getPOV()== Constants.XBoxConstants.kDPadDown;
   }
 }

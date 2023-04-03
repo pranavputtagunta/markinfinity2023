@@ -16,6 +16,8 @@ import frc.robot.main.Constants;
 
 public class PulleyLiftSubsystem {
     private final CANSparkMax pulley = new CANSparkMax(Constants.DriveConstants.PULLEY, MotorType.kBrushless);
+    private final CANSparkMax counterPulley = new CANSparkMax(Constants.DriveConstants.COUNTER_PULLEY, MotorType.kBrushless);
+
     private boolean stopped = true;
     private final int intakeAmps = 35;
     private RelativeEncoder m_encoder;
@@ -29,6 +31,9 @@ public class PulleyLiftSubsystem {
     private double targetPos;
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
     private double lowLimit = -117;
+
+    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN=0.1;
+    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.7;
 
     public PulleyLiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
@@ -93,6 +98,9 @@ public class PulleyLiftSubsystem {
         pulley.set(speed);
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
+
+        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_UP * speed;
+        counterPulley.set(couterpulleyspeed);
     }
 
     public void lowerArm(double speed) {
@@ -105,11 +113,13 @@ public class PulleyLiftSubsystem {
         //         return;
         //     }
         // }
-        System.out.println("lowerArm:"+speed);
         stopped = false;
         pulley.set(speed);
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
+
+        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_DOWN * speed;
+        counterPulley.set(couterpulleyspeed);
     }
 
     public boolean isStopped() {
@@ -143,7 +153,7 @@ public class PulleyLiftSubsystem {
     public void stop() {
         double currentPos = m_encoder.getPosition();
         if (!stopped) {
-            currSpeed *= 0.5;
+           /* currSpeed *= 0.5;
             System.out.println("Slowing lift motor..speed:"+currSpeed);
             pulley.set(currSpeed);
             stoppedPos = currentPos;
@@ -154,7 +164,12 @@ public class PulleyLiftSubsystem {
                 System.out.println("Stopped Lift at pos:"+stoppedPos);
                 //double feedforward = 0;
                 //m_pidController.setReference(stoppedPos, CANSparkMax.ControlType.kPosition, 0, feedforward);
-            }
+            }*/
+                pulley.stopMotor();
+                counterPulley.stopMotor();
+                //pulley.set(0.01);
+                stopped = true;
+                System.out.println("Stopped Lift at pos:"+stoppedPos);
         } /*else {
             double diff = currentPos-stoppedPos;
             double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.05;
