@@ -76,7 +76,8 @@ public class DriveControllerImpl implements DriveController {
 
     @Override
     public void periodic(long tickCount) {
-        if ((tickCount & 0x1111) == 0x1111) {
+        //if ((tickCount & 0x1111) == 0x1111) 
+        {
             SmartDashboard.putNumber(DriveController.ENCODER_RT_POS, getRightEncoderPosition());
             SmartDashboard.putNumber(DriveController.ENCODER_LT_POS, getLeftEncoderPosition());
         }

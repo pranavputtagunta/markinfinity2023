@@ -8,7 +8,7 @@ public class ClimbController {
     enum States {APPROACH_STATION, CLIMB_STATION, CENTER_STATION, HOLD_POSITION};
     static private ClimbController self;
     private States state = States.APPROACH_STATION;
-    private int maxSpeedClimbTime = 2000, centerTime = 2000, stableTime=2000; // In milisec
+    private int maxSpeedClimbTime = 2000, centerTime = 2000; // In milisec
     private double onChargeStationTilt = 13.0;
     private Date startTime;
     private double levelTilt = 6.0;

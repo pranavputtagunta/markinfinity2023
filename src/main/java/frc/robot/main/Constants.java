@@ -15,12 +15,13 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
   public static class DriveConstants {
-    public static final int INTAKE = 1;
-    public static final int PULLEY = 2;
+    public static final int INTAKE = 4;
+    public static final int PULLEY = 1;
     public static final int LIFT_RT = 5; // Will change later
     public static final int LIFT_LT = 6; // Will change later
-    public static final int ELEV_RT = 4;
+    public static final int ELEV_RT = 2;
     public static final int ELEV_LT = 3;
+    public static final int COUNTER_PULLEY=5;
     
     //Old controllers
     /*public static final int TalonDevNumRt = 1;
@@ -28,10 +29,10 @@ public final class Constants {
     public static final int VictorDevNumRt = 3;
     public static final int VictorDevNumLt = 10;*/
 
-    public static final int SparkDevNumRight1 = 17;
-    public static final int SparkDevNumRight2 = 18;
-    public static final int SparkDevNumLeft1 = 19;
-    public static final int SparkDevNumLeft2 = 20;
+    public static final int SparkDevNumRight1 = 19;
+    public static final int SparkDevNumRight2 = 20;
+    public static final int SparkDevNumLeft1 = 17;
+    public static final int SparkDevNumLeft2 = 18;
 
 
     public static final double maxSpeed = 1.0;

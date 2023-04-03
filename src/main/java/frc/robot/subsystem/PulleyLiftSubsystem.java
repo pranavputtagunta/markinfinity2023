@@ -16,6 +16,7 @@ import frc.robot.main.Constants;
 
 public class PulleyLiftSubsystem {
     private final CANSparkMax pulley = new CANSparkMax(Constants.DriveConstants.PULLEY, MotorType.kBrushless);
+    private final CANSparkMax counterPulley = new CANSparkMax(Constants.DriveConstants.COUNTER_PULLEY, MotorType.kBrushless);
     private boolean stopped = true;
     private final int intakeAmps = 35;
     private RelativeEncoder m_encoder;
@@ -29,6 +30,9 @@ public class PulleyLiftSubsystem {
     private double targetPos;
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
     private double lowLimit = 0;
+
+    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN=0.1;
+    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.7;
 
     public PulleyLiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
@@ -93,6 +97,9 @@ public class PulleyLiftSubsystem {
         pulley.set(speed);
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
+
+        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_UP * speed;
+        counterPulley.set(couterpulleyspeed);
     }
 
     public void lowerArm(double speed) {
@@ -106,6 +113,9 @@ public class PulleyLiftSubsystem {
         pulley.set(speed);
         currSpeed = speed;
         //pulley.setSmartCurrentLimit(intakeAmps);
+
+        double couterpulleyspeed = COUNTER_PULLEY_SPEED_RATIO_DOWN * speed;
+        counterPulley.set(couterpulleyspeed);
     }
 
     public boolean isStopped() {
@@ -144,6 +154,7 @@ public class PulleyLiftSubsystem {
             pulley.set(currSpeed);
             stoppedPos = currentPos;
             if (currSpeed<0.05 && currSpeed>-0.05) {
+                currSpeed = 0;
                 pulley.stopMotor();
                 //pulley.set(0.01);
                 stopped = true;

@@ -11,6 +11,7 @@ public class GyroSubsystem {
     final AHRS ahrsGyro = new AHRS(SerialPort.Port.kUSB);
     double simulatedYaw = 0, simulatedPitch=0;
     static GyroSubsystem self; // singleton
+    private AccelerometerSubsystem acc = AccelerometerSubsystem.getInstance();
 
     public static final String GYRO_PITCH="Gyro Pitch";
     public static final String GYRO_ROLL="Gyro Roll";
@@ -44,7 +45,7 @@ public class GyroSubsystem {
     }
 
     public double getPitch() {
-        return simulatedPitch!=0 ? simulatedPitch : ahrsGyro==null ? 0 : ahrsGyro.getPitch();
+        return simulatedPitch!=0 ? simulatedPitch : ahrsGyro==null ? 0 : ahrsGyro.getPitch();// - acc.getTilt();
     }
 
     public void simulationPeriodic(Double yawChange, Double pitchChange) {
@@ -72,7 +73,8 @@ public class GyroSubsystem {
 
     public void periodic(long tickCount) {
         //System.out.println("gyroP:"+gyro.getPitch()+", gyroR:"+gyro.getDegrees());
-        if ((tickCount & 0x1111) == 0x1111) {
+        //if ((tickCount & 0x1111) == 0x1111) 
+        {
             SmartDashboard.putNumber(GYRO_PITCH, getPitch());
             SmartDashboard.putNumber(GYRO_YAW, getYaw());
         }

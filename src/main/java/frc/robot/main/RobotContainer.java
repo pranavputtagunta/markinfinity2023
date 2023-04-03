@@ -36,6 +36,7 @@ public class RobotContainer {
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonWithEncoder(driveController);
+  private AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
   Action lastAction = null;
   int calibrationCycle = 0;
   int cycle = 0;
@@ -236,6 +237,7 @@ public class RobotContainer {
     armController.periodic(tickCount);
     driveController.periodic(tickCount);
     GyroSubsystem.getInstance().periodic(tickCount);
+    SmartDashboard.putNumber("Tilt", accelerometer.getTilt());
   }
 
   private double limit(double orig, double limit) {
@@ -246,7 +248,6 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
       System.out.println("Tilt:"+accelerometer.getTilt());
       double speed = limit(driveteleController.getSpeed(), 0.8);
       double rotation = limit(driveteleController.getRotation(), 0.8);

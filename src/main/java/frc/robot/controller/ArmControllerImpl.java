@@ -14,9 +14,9 @@ public class ArmControllerImpl implements ArmController {
     private String currentTarget = null;
 
     private int liftMinAngle = 5; // Cant go lower than 5deg
-    private int liftMaxAngle = 85; // Cant go higher than 85deg
-    private int maxArmHeight = 72; // 6 ft
-    private int maxArmWidth = 42; // 3'6 ft
+    private int liftMaxAngle = 82; // Cant go higher than 82deg
+    private int maxArmHeight = 78; // 6'6 ft
+    private int maxArmWidth = 48; // 4' ft
     private int maxExtensionInches = 0;
 
     public ArmControllerImpl() {
@@ -42,15 +42,15 @@ public class ArmControllerImpl implements ArmController {
         maxArmHeight = (int) SmartDashboard.getNumber(ARM_MAX_HEIGHT, maxArmHeight);
         liftMinAngle = (int) SmartDashboard.getNumber(LIFT_MIN_ANGLE, liftMinAngle);
         liftMaxAngle = (int) SmartDashboard.getNumber(LIFT_MAX_ANGLE, liftMaxAngle);
-        maxExtensionInches = computeMaxExtension(getArmAngle());
+        updateMaxExtension(getArmAngle());
     }
 
     @Override
     public void periodic(long tickCount) {
-        if ((tickCount & 0x1111) == 0x1111) {
+        //if ((tickCount & 0x1111) == 0x1111) 
+        {
             SmartDashboard.putNumber(LIFT_POSITION, liftSubsystem.getPosition());
             SmartDashboard.putNumber(ELEV_POSITION, elevatorSubsystem.getPosition());
-            SmartDashboard.putNumber(ELEV_MAX_EXTN, elevatorSubsystem.getMaxExtension());
         }
     }
 
@@ -61,9 +61,9 @@ public class ArmControllerImpl implements ArmController {
     @Override
     public void raiseArm(double speed) {
         Integer currArmAngle = getArmAngle();
-        if (currArmAngle==null || currArmAngle<liftMaxAngle) {
+        if (currArmAngle==null || currArmAngle>liftMinAngle) {
             liftSubsystem.raiseArm(speed);
-            maxExtensionInches = computeMaxExtension(currArmAngle);
+            updateMaxExtension(currArmAngle);
         } else
             System.out.println("Cant raise arm beyond "+currArmAngle);
     }
@@ -71,9 +71,9 @@ public class ArmControllerImpl implements ArmController {
     @Override
     public void lowerArm(double speed) {
         Integer currArmAngle = getArmAngle();
-        if (currArmAngle==null || currArmAngle>liftMinAngle) {
+        if (currArmAngle==null || currArmAngle<liftMaxAngle) {
             liftSubsystem.lowerArm(speed);
-            maxExtensionInches = computeMaxExtension(currArmAngle);
+            updateMaxExtension(currArmAngle);
         } else
             System.out.println("Cant lower arm beyond "+currArmAngle);
     }
@@ -135,9 +135,9 @@ public class ArmControllerImpl implements ArmController {
 
     public void stopElevator() {
         elevatorSubsystem.stop();
-        // Keep calling setMaxExtn so that elevator can adjust..Called only when user is not adjusting evelvator
+        // Keep calling so that elevator can adjust..Called only when user is not adjusting evelvator
         if (maxExtensionInches>0) 
-            elevatorSubsystem.setMaxExtension(maxExtensionInches);
+            elevatorSubsystem.adjustArmExtension();
     }
 
     public void stopLift() {
@@ -157,35 +157,34 @@ public class ArmControllerImpl implements ArmController {
         elevatorSubsystem.setPosition(0);        
     }
 
-    private int computeMaxExtension(Integer armAngle) {
-        if (armAngle==null) return 0;
-        int maxExtension;
-        int widthLimit = armAngle<=60?(int)(maxArmWidth/Math.cos(Math.toRadians(90-armAngle))):-1;
-        int heightLimit = armAngle>=30?(int)(maxArmHeight/Math.cos(Math.toRadians(armAngle))):-1;
+    private void updateMaxExtension(Integer armAngle) {
+        if (armAngle==null) return;
+        int widthLimit = armAngle>=30?(int)(maxArmWidth/Math.cos(Math.toRadians(90-armAngle))):-1;
+        int heightLimit = armAngle<=60?(int)(maxArmHeight/Math.cos(Math.toRadians(armAngle))):-1;
         if (heightLimit>0 && widthLimit>0)
-            maxExtension = widthLimit<=heightLimit ? widthLimit : heightLimit;
+            maxExtensionInches = widthLimit<=heightLimit ? widthLimit : heightLimit;
         else 
-            maxExtension= widthLimit>0?widthLimit:heightLimit;
-        System.out.println("MaxExtn:"+maxExtension+"(WidthLimit:"+widthLimit+", HeightLimit:"+heightLimit+") for ArmAngle:"+armAngle);
-        return maxExtension;
+            maxExtensionInches= widthLimit>0?widthLimit:heightLimit;
+        System.out.println("MaxExtn:"+maxExtensionInches+"(WidthLimit:"+widthLimit+", HeightLimit:"+heightLimit+") for ArmAngle:"+armAngle);
+        elevatorSubsystem.setMaxExtension(maxExtensionInches);
     }
 
     @Override
     public void simulationPeriodic(long tickCount) {
         double elevChange = elevatorSubsystem.getCurrentSpeed();
         double liftChange = liftSubsystem.getCurrentSpeed();
-        double lowLimit = SmartDashboard.getNumber(LIFT_LOW_LIMIT, 0);
         boolean angleChanged = false;
         if (liftChange!=0) {
-            gyro.simulationPeriodic(null,liftChange);
+            gyro.simulationPeriodic(null, -liftChange);
             liftSubsystem.setPosition(liftSubsystem.getPosition()+liftChange);
             angleChanged = true;
         }
+        /*double lowLimit = SmartDashboard.getNumber(LIFT_LOW_LIMIT, 0);
         if (liftSubsystem.getPosition()>lowLimit) {
             gyro.simulationPeriodic(null,-0.001);
             liftSubsystem.setPosition(liftSubsystem.getPosition()-0.001); // simulate the pull of gravity
             angleChanged = true;
-        }
+        }*/
         if (angleChanged) {
             double liftRange = SmartDashboard.getNumber(ArmController.LIFT_RANGE, 0);
             if (liftRange!=0)

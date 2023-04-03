@@ -16,8 +16,8 @@ public class ElevatorSubsystem {
     private final RelativeEncoder m_encoder;
     private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_right);
     private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_left);
-    private double elevRange = 180; // Difference between high and low encode values
-    private double distanceToEncoderConversion = 2;
+    private double elevRange = 70; // Difference between high and low encode values
+    private double distanceToEncoderConversion = 0.75;  // 4 in = 3 enc
     double lowLimit = 0;
     boolean stopped = true;
     double currSpeed = 0;
@@ -45,7 +45,6 @@ public class ElevatorSubsystem {
         elevRange = SmartDashboard.getNumber(ArmController.ELEV_RANGE, elevRange);
         speedLimitPoint = SmartDashboard.getNumber(ArmController.SPEED_LIMIT_POINT, speedLimitPoint);
         distanceToEncoderConversion = SmartDashboard.getNumber(ArmController.ELEV_CONV_FACTOR, distanceToEncoderConversion);
-
     }
 
     public double getMaxExtension() {
@@ -76,14 +75,17 @@ public class ElevatorSubsystem {
 
     public void setMaxExtension(int maxExtensionInInches) {
         if (maxExtensionInInches==0) return;
-        double maxExtensionRange = maxExtensionInInches * distanceToEncoderConversion;
+        double maxExtensionRange = 2.0 + maxExtensionInInches * distanceToEncoderConversion;
         if (elevRange>0 && maxExtensionRange>elevRange)
             maxExtensionRange = elevRange;
-
         if (this.maxExtension != maxExtensionRange) {
             System.out.println("maxExtensionInInches:"+maxExtensionInInches+"...maxExtensionRange:"+maxExtension);
             this.maxExtension = maxExtensionRange;
         }
+        SmartDashboard.putNumber(ArmController.ELEV_MAX_EXTN, maxExtension);
+    }
+
+    public void adjustArmExtension() {
         double currentPos = (double) m_encoder.getPosition();
         if (currentPos-maxExtension>1) {
             System.out.println("Adjusting arm pos("+currentPos+") to maxExtension:"+ maxExtension);

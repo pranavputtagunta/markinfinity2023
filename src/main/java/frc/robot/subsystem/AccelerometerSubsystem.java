@@ -31,9 +31,9 @@ public class AccelerometerSubsystem {
         double pitch = getPitch();
         double roll = getRoll();
         if ((pitch + roll) >= 0) {
-            return Math.sqrt(pitch * pitch + roll * roll);
-        } else {
             return -Math.sqrt(pitch * pitch + roll * roll);
+        } else {
+            return Math.sqrt(pitch * pitch + roll * roll);
         }
     }
 
