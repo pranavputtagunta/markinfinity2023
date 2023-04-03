@@ -5,7 +5,7 @@ import java.util.Date;
 import frc.robot.subsystem.AccelerometerSubsystem;
 
 public class ClimbController {
-    enum States {APPROACH_STATION, CLIMB_STATION, CENTER_STATION, HOLD_POSITION};
+    public enum States {APPROACH_STATION, CLIMB_STATION, CENTER_STATION, HOLD_POSITION};
     static private ClimbController self;
     private States state = States.APPROACH_STATION;
     private int maxSpeedClimbTime = 2000, centerTime = 2000; // In milisec
@@ -20,6 +20,10 @@ public class ClimbController {
 
     public static ClimbController getInstance() {
         return self==null?new ClimbController():self;
+    }
+
+    public States getState() {
+        return state;
     }
 
     public Double getClimbSpeed(double maxSpeed) {

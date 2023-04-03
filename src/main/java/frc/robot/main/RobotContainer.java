@@ -9,6 +9,7 @@ import frc.robot.controller.DriveControllerImpl;
 import frc.robot.controller.IntakeControllerImpl;
 import frc.robot.controller.PSTeleController;
 import frc.robot.controller.XboxTeleController;
+import frc.robot.controller.ClimbController.States;
 import frc.robot.interfaces.Action;
 import frc.robot.interfaces.ArmController;
 import frc.robot.interfaces.IntakeController;
@@ -136,7 +137,12 @@ public class RobotContainer {
         else {
           Double speed = climbController.getClimbSpeed(chosenAction.speed);
           if (speed==null) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
-          else driveController.move(speed, 0);
+          else {
+            driveController.move(speed, 0);
+            if (climbController.getState()==States.CENTER_STATION) {
+              armController.moveArmToTarget("Stable");
+            }
+          }
         }
         break;
       case Stop:

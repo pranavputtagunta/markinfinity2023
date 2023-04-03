@@ -78,7 +78,7 @@ public class PulleyLiftSubsystem {
         double curPos = m_encoder.getPosition();
         double diff = curPos-target;
         System.out.println("Moving lift to target:"+target+".. Diff:"+diff);
-        double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.1;
+        double speed = Math.abs(diff)>10?0.5:Math.abs(diff)>2?0.25:0.1;
         if (diff>.5) { lowerArm(-speed); return false; }
         else if (diff<-0.5) { raiseArm(speed); return false; }
         else {stop(); return true;}
