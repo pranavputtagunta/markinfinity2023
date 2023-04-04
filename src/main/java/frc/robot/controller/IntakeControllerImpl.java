@@ -32,7 +32,7 @@ public class IntakeControllerImpl implements IntakeController {
 
     public void grabCube(double speed) {
         stopped = false;
-        currentPiece = ItemType.Cone;
+        currentPiece = ItemType.Cube;
         SmartDashboard.putString(CURRENT_PIECE, currentPiece.name());
         System.out.println("Grab:" + currentPiece);
         intakeSubsytem.grab(currentPiece, speed);
