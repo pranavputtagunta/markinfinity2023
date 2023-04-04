@@ -53,12 +53,12 @@ public class PSTeleController implements TeleController {
 
   @Override
   public boolean shouldGrabCone() {
-    return ps4c.getTriangleButton();
+    return ps4c.getTriangleButton() || ps4c.getR2Button();
   }
 
   @Override
   public boolean shouldGrabCube() {
-    return ps4c.getSquareButton();
+    return ps4c.getSquareButton() || ps4c.getL2Button();
   }
 
   public boolean shouldReleaseCone() {
