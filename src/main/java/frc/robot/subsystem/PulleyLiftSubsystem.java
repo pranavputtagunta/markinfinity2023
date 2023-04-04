@@ -32,8 +32,8 @@ public class PulleyLiftSubsystem {
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
     private double lowLimit = -117;
 
-    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN=0.1;
-    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.7;
+    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN = 0.26;
+    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.775;
 
     public PulleyLiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);

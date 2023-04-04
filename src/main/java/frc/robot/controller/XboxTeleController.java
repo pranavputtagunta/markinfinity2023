@@ -39,14 +39,15 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldRoboMove() {
-    return xbc.getLeftBumper();
-    //return true;
+    //return xbc.getLeftBumper();
+    return true;
   }
 
   @Override
   public boolean shouldArmMove() {
     //return xbc.getRightBumper();
-    return true;
+    //left bumper is reserved for preset values, so do not control arm manually when this is pressed
+    return !xbc.getLeftBumper();
   }
 
   public double getArmLiftSpeed() {
@@ -56,23 +57,23 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldGrabCone() {
-     return xbc.getXButton();
+     return xbc.getLeftTriggerAxis() > 0.5;
     
   }
 
   @Override
   public boolean shouldGrabCube() {
-    return xbc.getYButton();
+    return xbc.getRightTriggerAxis() > 0.5;
   }
 
   @Override
   public boolean shouldReleaseCone() {
-    return xbc.getBButton();
+    return xbc.getAButton();
   }
 
   @Override
   public boolean shouldReleaseCube() {
-    return xbc.getAButton();
+    return xbc.getBButton();
   }
 
   @Override

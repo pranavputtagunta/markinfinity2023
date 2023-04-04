@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.controller.ArmControllerImpl;
 import frc.robot.controller.AutonWithEncoder;
+import frc.robot.controller.ClimbController;
 import frc.robot.controller.DriveControllerImpl;
 import frc.robot.controller.IntakeControllerImpl;
 import frc.robot.controller.PSTeleController;
@@ -15,6 +16,7 @@ import frc.robot.interfaces.AutonomousController;
 import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
 import frc.robot.main.Constants.IOConstants;
+import frc.robot.subsystem.AccelerometerSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -33,6 +35,11 @@ public class RobotContainer {
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonWithEncoder(driveController);
   private AutoBalance mAutoBalance;
+
+  //another auto balance
+  private AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
+  private ClimbController climbController = ClimbController.getInstance();
+
 
   Action lastAction = null;
   int calibrationCycle = 0;
@@ -215,6 +222,7 @@ public class RobotContainer {
   void periodic() {
     armController.periodic();
     driveController.periodic();
+    SmartDashboard.putNumber("Tilt", accelerometer.getTilt());
   }
 
   private double limit(double orig, double limit) {
@@ -266,7 +274,7 @@ public class RobotContainer {
     if (armTeleController.shouldGrabCone()) {
       intakeController.grabCone(1.0);
     } else if (armTeleController.shouldGrabCube()) {
-      intakeController.grabCube(0.9);
+      intakeController.grabCube(1.0);
     } else if (armTeleController.shouldReleaseCone()) {
       intakeController.releaseCone(1.0);
     } else if (armTeleController.shouldReleaseCube()) {

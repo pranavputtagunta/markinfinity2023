@@ -18,7 +18,7 @@ public class IntakeControllerImpl implements IntakeController {
         stopped = false;
         currentPiece = ItemType.Cone;
         SmartDashboard.putString(CURRENT_PIECE, currentPiece.name());
-        System.out.println("Grab:" + currentPiece);
+        System.out.println("Grab Cone");
         intakeSubsytem.grab(currentPiece, speed);
     }
 
@@ -32,9 +32,9 @@ public class IntakeControllerImpl implements IntakeController {
 
     public void grabCube(double speed) {
         stopped = false;
-        currentPiece = ItemType.Cone;
+        currentPiece = ItemType.Cube;
         SmartDashboard.putString(CURRENT_PIECE, currentPiece.name());
-        System.out.println("Grab:" + currentPiece);
+        System.out.println("grabCube");
         intakeSubsytem.grab(currentPiece, speed);
     }
 
