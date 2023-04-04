@@ -106,7 +106,7 @@ public class ArmControllerImpl implements ArmController {
                 eTarget = SmartDashboard.getNumber(ELEV_CUBE_KEY, 55);
                 break;
             case "Stable": 
-                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 50);
+                lTarget= SmartDashboard.getNumber(LIFT_STAB_KEY, 88);
                 eTarget = SmartDashboard.getNumber(ELEV_STAB_KEY, 5);
                 break;
             default:
@@ -145,6 +145,7 @@ public class ArmControllerImpl implements ArmController {
     }
 
     public void stop() {
+        setCurrentTarget(null);
         if (!(liftSubsystem.isStopped() && elevatorSubsystem.isStopped()))
             System.out.println("Stopped arm.....");
         liftSubsystem.stop(); // Call this even if already stopped to maintain position

@@ -23,16 +23,16 @@ public class PulleyLiftSubsystem {
     private SparkMaxPIDController m_pidController;
     private double currSpeed = 0;
     private double stoppedPos;
-    private double liftRange = 0; // Difference between high and low encode values
+    private double liftRange = 117; // Difference between high and low encode values
 
     private TrapezoidProfile m_profile;
     private Timer m_timer;
     private double targetPos;
     TrapezoidProfile.Constraints kArmMotionConstraint = new TrapezoidProfile.Constraints(2.0, 2.0);
-    private double lowLimit = 0;
+    private double lowLimit = -117;
 
-    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN=0.3;
-    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.75;
+    private final double COUNTER_PULLEY_SPEED_RATIO_DOWN=0.1;
+    private final double COUNTER_PULLEY_SPEED_RATIO_UP = 0.7;
 
     public PulleyLiftSubsystem() {
         pulley.setIdleMode(IdleMode.kBrake);
@@ -85,7 +85,7 @@ public class PulleyLiftSubsystem {
     }
 
     public void raiseArm(double speed) {
-        lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
+        //lowLimit = SmartDashboard.getNumber(ArmController.LIFT_LOW_LIMIT, 0);
         double highLimit = lowLimit+liftRange;
         if (liftRange>0 && m_encoder.getPosition()>highLimit) {
             System.out.println("Can't go higher than "+highLimit);
@@ -153,7 +153,7 @@ public class PulleyLiftSubsystem {
     public void stop() {
         double currentPos = m_encoder.getPosition();
         if (!stopped) {
-            currSpeed *= 0.5;
+            /* currSpeed *= 0.5;
             System.out.println("Slowing lift motor..speed:"+currSpeed);
             pulley.set(currSpeed);
             stoppedPos = currentPos;
@@ -165,7 +165,15 @@ public class PulleyLiftSubsystem {
                 System.out.println("Stopped Lift at pos:"+stoppedPos);
                 //double feedforward = 0;
                 //m_pidController.setReference(stoppedPos, CANSparkMax.ControlType.kPosition, 0, feedforward);
+            }*/
+            pulley.stopMotor();
+            if (counterPulley != null) {
+                counterPulley.stopMotor();
             }
+            //pulley.set(0.01);
+            stopped = true;
+            System.out.println("Stopped Lift at pos:"+stoppedPos);
+            currSpeed = 0;
         } /*else {
             double diff = currentPos-stoppedPos;
             double speed = Math.abs(diff)>10?0.75:Math.abs(diff)>2?0.25:0.05;

@@ -8,10 +8,14 @@ public class ClimbController {
     public enum States {APPROACH_STATION, CLIMB_STATION, CENTER_STATION, HOLD_POSITION};
     static private ClimbController self;
     private States state = States.APPROACH_STATION;
-    private int maxSpeedClimbTime = 2000, centerTime = 2000; // In milisec
-    private double onChargeStationTilt = 13.0;
+    //maxSpeedClimbTime (0.2 seconds) - time until which it goes at max speed, after that it reduces to 1/2 speed
+    //centerTime (0.2 seconds) -- Time that robot moves once in centering state
+    private int maxSpeedClimbTime = 200, centerTime = 200; // In milisec
+    private double onChargeStationTilt = 13.0; //Angle at which robot thinks its climbing
     private Date startTime;
-    private double levelTilt = 6.0;
+    //Angle below which robot is leveling on charge station
+    //Robot once it reaches levelTilt/2 angle then it holds position
+    private double levelTilt = 6.0; 
     AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
 
     private ClimbController() {
@@ -56,13 +60,14 @@ public class ClimbController {
                     }
                 }
                 if (tilt >= levelTilt) {
-                    System.out.println("Adjusting..tilt:"+tilt);
+                    System.out.println("Adjusting..tilt forward:"+tilt);
                     return 0.1;
                 } else if (tilt <= -levelTilt) {
-                    System.out.println("Adjusting..tilt:"+tilt);
+                    System.out.println("Adjusting..tilt backward:"+tilt);
                     return -0.1;
-                } else
+                } else {
                     return 0.005;
+                }
             case HOLD_POSITION:
                 if (tilt-levelTilt >= 0.1) {
                     System.out.println("Adjusting..tilt:"+tilt);

@@ -47,10 +47,11 @@ public class RobotContainer {
   // cone, 2 sec to secure arm, then move back 4ft, turn 90 deg,...
  // "Move 48, PCone 2, RCone 1, SArm 2, Move -48, Turn -90, Move -20";
 
-  final String[] ritOps = {"Move 20 .5", "Move -20", "Turn 90"};
-  final String[] lftOps = {"Move 20", "Move -20", "Turn -90"};
-  final String[] midOps = {"Move -5", "Move 10", "Cruise 2 .6", "Cruise 2 .2", "Hold 10"};
-  final String[] defOps = {"Station 20 .4"};
+  final String[] ritOps = {"Move 30 0.4"};
+  final String[] lftOps = {"Move 20 0.2", "Move -20 0.2", "Turn -90 0.2"};
+  final String[] midOps = {"Move -5 0.2", "Move 10 0.2", "Cruise 2 .6", "Cruise 2 .2", "Hold 10"};
+  //dump payload and balance
+  final String[] defOps = {"Move -5 0.4", "Move 5 0.4" , "Move -5 0.4", "Station 20 .4"}; 
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -147,7 +148,7 @@ public class RobotContainer {
         break;
       case Stop:
         driveController.stop(); armController.stop(); intakeController.stop();
-        if (chosenAction.speed==null) autonomousController.actionComplete(chosenAction);
+        autonomousController.actionComplete(chosenAction);
         break;
       case SArm:
         if (armController.moveArmToTarget("Stable"))
@@ -254,7 +255,7 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      System.out.println("Tilt:"+accelerometer.getTilt());
+      //System.out.println("Tilt:"+accelerometer.getTilt());
       double speed = limit(driveteleController.getSpeed(), 0.8);
       double rotation = limit(driveteleController.getRotation(), 0.8);
       if ((speed != 0) || (rotation != 0))
