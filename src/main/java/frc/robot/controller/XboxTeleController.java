@@ -53,13 +53,12 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public boolean shouldGrabCone() {
-     return xbc.getXButton();
-    
+    return xbc.getYButton() || xbc.getLeftTriggerAxis()>0.5 ;    
   }
 
   @Override
   public boolean shouldGrabCube() {
-    return xbc.getYButton();
+    return xbc.getYButton() || xbc.getRightTriggerAxis()>0.5 ;
   }
 
   @Override
