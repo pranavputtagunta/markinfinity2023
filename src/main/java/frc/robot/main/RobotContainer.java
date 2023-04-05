@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.controller.ArmControllerImpl;
 import frc.robot.controller.AutonWithEncoder;
-import frc.robot.controller.ClimbController;
 import frc.robot.controller.DriveControllerImpl;
 import frc.robot.controller.IntakeControllerImpl;
 import frc.robot.controller.PSTeleController;
@@ -17,6 +16,7 @@ import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
 import frc.robot.main.Constants.IOConstants;
 import frc.robot.subsystem.AccelerometerSubsystem;
+import  frc.robot.autonoperations.AutonBalanceSimple;;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -28,17 +28,23 @@ import frc.robot.subsystem.AccelerometerSubsystem;
  * declared here.
  */
 public class RobotContainer {
+
+  //Define behavior of autonomous through this initially, 
+  enum AutoBehaviour {RUN_SIMPLE_BALANCE, RUN_AUTO_OPS, RUN_DROP_CONE};
+  AutoBehaviour currentAutoBehaviour = AutoBehaviour.RUN_SIMPLE_BALANCE;
+
+
   private TeleController driveteleController;
   private TeleController armTeleController;
   private DriveController driveController = new DriveControllerImpl();
   private ArmController armController = new ArmControllerImpl();
   private IntakeController intakeController = new IntakeControllerImpl();
   private AutonomousController autonomousController = new AutonWithEncoder(driveController);
-  private AutoBalance mAutoBalance;
 
   //another auto balance
   private AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
-  private ClimbController climbController = ClimbController.getInstance();
+
+ AutonBalanceSimple autonBalanceSimple = new AutonBalanceSimple(driveController, armController, intakeController, accelerometer);
 
 
   Action lastAction = null;
@@ -93,7 +99,6 @@ public class RobotContainer {
     driveController.init();
     armController.init();
     String autoOpr = SmartDashboard.getString("Auton Commands", "");
-    mAutoBalance = new AutoBalance();
   
     if (autoOpr != null && autoOpr.length() > 0)
       autonomousController.autonomousInit(autoOpr.split(","));
@@ -109,6 +114,7 @@ public class RobotContainer {
       }
       autonomousController.autonomousInit(autoOps);
     }
+
   }
 
   void autonomousExit() {
@@ -119,10 +125,6 @@ public class RobotContainer {
 
   private void performAction(Action chosenAction) {
     switch (chosenAction.type) {
-      case Balance:
-        double speed = mAutoBalance.scoreAndBalance();
-        driveController.move(speed/4, 0);
-        break;
       case Turn:
         if (chosenAction.speed==0) { driveController.stop(); autonomousController.actionComplete(chosenAction); }
         else driveController.move(0, chosenAction.speed);
@@ -165,11 +167,24 @@ public class RobotContainer {
     }
   }
 
+  public boolean autonomousOp(long timeInAutonomous) {
+    switch (currentAutoBehaviour) {
+      case RUN_AUTO_OPS:
+        return autonomousActionOps(timeInAutonomous);
+      case RUN_DROP_CONE:
+        //TODO
+        return false;
+      case RUN_SIMPLE_BALANCE:
+        return autonBalanceSimple.autonBalance(timeInAutonomous);
+    }
+    return false;
+  }
+
   /*
    * Returns true if more autonomous operations are left.. false if all operations
    * have been completed
    */
-  public boolean autonomousOp(long timeInAutonomous) {
+  public boolean autonomousActionOps(long timeInAutonomous) {
     // Get the next operation to perform and magnitude 
     Action chosenAction = autonomousController.getNextAction(timeInAutonomous);
 

@@ -79,15 +79,13 @@ public class Robot extends TimedRobot {
     if (autonomousStartTime==null) {
       System.out.println("Autonomous started");
       autonomousStartTime = currentTime;
-    } else
+    } else {
       difference = currentTime.getTime()-autonomousStartTime.getTime();
-    //System.out.println("Elapsed time: "+difference);
-    // If autonomousOp returns false, then all operations are done and autonomous mode is complete
+    }
     if (!robotContainer.autonomousOp(difference)) {
       System.out.println("Autonomous completed in "+difference+" millisec!");
       autonomousComplete = true;
     }
-    //robotContainer.autonCommand(30);
   }
 
   @Override
