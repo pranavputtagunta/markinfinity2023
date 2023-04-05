@@ -33,7 +33,7 @@ public class AutonBalanceSimple {
         }
         armController.stop();
         
-        if (timeInAuto < 2500 && timeInAuto > 500 ) {
+        if (timeInAuto < 2500 ) {
           driveController.move(0.4, 0);
           return true;
         } else {

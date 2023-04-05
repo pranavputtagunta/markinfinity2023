@@ -16,6 +16,8 @@ import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.TeleController;
 import frc.robot.main.Constants.IOConstants;
 import frc.robot.subsystem.AccelerometerSubsystem;
+import frc.robot.autonoperations.AutoPickCube;
+import frc.robot.autonoperations.AutoScoreCone;
 import  frc.robot.autonoperations.AutonBalanceSimple;;
 
 /**
@@ -30,7 +32,7 @@ import  frc.robot.autonoperations.AutonBalanceSimple;;
 public class RobotContainer {
 
   //Define behavior of autonomous through this initially, 
-  enum AutoBehaviour {RUN_SIMPLE_BALANCE, RUN_AUTO_OPS, RUN_DROP_CONE};
+  enum AutoBehaviour {RUN_SIMPLE_BALANCE, RUN_AUTO_OPS, RUN_DROP_CONE, RUN_PICKUP_CUBE};
   AutoBehaviour currentAutoBehaviour = AutoBehaviour.RUN_SIMPLE_BALANCE;
 
 
@@ -44,8 +46,9 @@ public class RobotContainer {
   //another auto balance
   private AccelerometerSubsystem accelerometer = AccelerometerSubsystem.getInstance();
 
- AutonBalanceSimple autonBalanceSimple = new AutonBalanceSimple(driveController, armController, intakeController, accelerometer);
-
+  AutonBalanceSimple autonBalanceSimple = new AutonBalanceSimple(driveController, armController, intakeController, accelerometer);
+  AutoScoreCone autoScoreCone = new AutoScoreCone(driveController, armController, intakeController, accelerometer);
+  AutoPickCube autoPickCube = new AutoPickCube(driveController, armController, intakeController, accelerometer);
 
   Action lastAction = null;
   int calibrationCycle = 0;
@@ -117,6 +120,21 @@ public class RobotContainer {
 
   }
 
+  public boolean autonomousOp(long timeInAutonomous) {
+    switch (currentAutoBehaviour) {
+      case RUN_AUTO_OPS:
+        return autonomousActionOps(timeInAutonomous);
+      case RUN_DROP_CONE:
+        return autoScoreCone.executeScoreAction(timeInAutonomous);
+      case RUN_SIMPLE_BALANCE:
+        return autonBalanceSimple.autonBalance(timeInAutonomous);
+      case RUN_PICKUP_CUBE:
+        return autoPickCube.executePickUpCubeAction(timeInAutonomous);
+    }
+    return false;
+  }
+
+
   void autonomousExit() {
     driveController.stop();
     armController.stop();
@@ -167,19 +185,7 @@ public class RobotContainer {
     }
   }
 
-  public boolean autonomousOp(long timeInAutonomous) {
-    switch (currentAutoBehaviour) {
-      case RUN_AUTO_OPS:
-        return autonomousActionOps(timeInAutonomous);
-      case RUN_DROP_CONE:
-        //TODO
-        return false;
-      case RUN_SIMPLE_BALANCE:
-        return autonBalanceSimple.autonBalance(timeInAutonomous);
-    }
-    return false;
-  }
-
+  
   /*
    * Returns true if more autonomous operations are left.. false if all operations
    * have been completed
