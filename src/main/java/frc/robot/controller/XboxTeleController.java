@@ -21,13 +21,19 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public double getRotation() {
-    double rotation = xbc.getRawAxis(4);
+    double rotation = xbc.getRawAxis(2); //4
+    // if (xbc.getRawAxis(3) > 0.5){
+    //   rotation *= 0.75;
+    // }
     return rotation;
   }
 
   @Override
   public double getSpeed() {
     double speed = xbc.getRawAxis(1);
+    if (xbc.getRawAxis(3) > 0.5){
+      speed *= 0.75;
+    }
     return speed;
   }
 
@@ -52,18 +58,21 @@ public class XboxTeleController implements TeleController {
 
   public double getArmLiftSpeed() {
     double lift = xbc.getRawAxis(5);
+    if(Math.abs(lift) < 0.1 && Math.abs(lift) > 0){
+      return 0;
+    }
     return lift;
   }
 
   @Override
   public boolean shouldGrabCone() {
-     return xbc.getLeftTriggerAxis() > 0.5;
+     return xbc.getRawAxis(3) > 0.5; //get trigger
     
   }
 
   @Override
   public boolean shouldGrabCube() {
-    return xbc.getRightTriggerAxis() > 0.5;
+    return xbc.getRawAxis(4)> 0.5; //get trigger
   }
 
   @Override

@@ -18,7 +18,8 @@ import frc.robot.main.Constants.IOConstants;
 import frc.robot.subsystem.AccelerometerSubsystem;
 import frc.robot.autonoperations.AutoPickCube;
 import frc.robot.autonoperations.AutoScoreCone;
-import  frc.robot.autonoperations.AutonBalanceSimple;;
+import  frc.robot.autonoperations.AutonBalanceSimple;
+import frc.robot.autonoperations.ConeAndBalance;;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -32,8 +33,9 @@ import  frc.robot.autonoperations.AutonBalanceSimple;;
 public class RobotContainer {
 
   //Define behavior of autonomous through this initially, 
-  enum AutoBehaviour {RUN_SIMPLE_BALANCE, RUN_AUTO_OPS, RUN_DROP_CONE, RUN_PICKUP_CUBE};
-  AutoBehaviour currentAutoBehaviour = AutoBehaviour.RUN_SIMPLE_BALANCE;
+  enum AutoBehaviour {RUN_SIMPLE_BALANCE, RUN_AUTO_OPS, RUN_DROP_CONE, RUN_PICKUP_CUBE, DROP_BALANCE};
+  //AutoBehaviour currentAutoBehaviour = AutoBehaviour.RUN_SIMPLE_BALANCE;
+  AutoBehaviour currentAutoBehaviour = AutoBehaviour.DROP_BALANCE;
 
 
   private TeleController driveteleController;
@@ -49,6 +51,7 @@ public class RobotContainer {
   AutonBalanceSimple autonBalanceSimple = new AutonBalanceSimple(driveController, armController, intakeController, accelerometer);
   AutoScoreCone autoScoreCone = new AutoScoreCone(driveController, armController, intakeController, accelerometer);
   AutoPickCube autoPickCube = new AutoPickCube(driveController, armController, intakeController, accelerometer);
+  ConeAndBalance coneAndBalance = new ConeAndBalance(driveController, armController, intakeController, accelerometer);
 
   Action lastAction = null;
   int calibrationCycle = 0;
@@ -130,6 +133,8 @@ public class RobotContainer {
         return autonBalanceSimple.autonBalance(timeInAutonomous);
       case RUN_PICKUP_CUBE:
         return autoPickCube.executePickUpCubeAction(timeInAutonomous);
+      case DROP_BALANCE:
+        return coneAndBalance.autonBalance(timeInAutonomous);
     }
     return false;
   }
@@ -254,7 +259,7 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 0.8);
+      double speed = limit(driveteleController.getSpeed(), 0.9);
       double rotation = limit(driveteleController.getRotation(), 0.5);
       if ((speed != 0) || (rotation != 0))
         driveController.move(speed, rotation);

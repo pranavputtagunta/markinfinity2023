@@ -2,6 +2,7 @@ package frc.robot.controller;
 
 import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.interfaces.TeleController;
+import frc.robot.main.Constants;
 
 /*
  * Uses PS4 controller to get speed and rotation based on button press and joy stick axis
@@ -10,7 +11,7 @@ public class PSTeleController implements TeleController {
   private PS4Controller ps4c;
   
   public PSTeleController(int port) {
-    ps4c = new PS4Controller(0);
+    ps4c = new PS4Controller(port);
   }
 
   @Override
@@ -32,7 +33,7 @@ public class PSTeleController implements TeleController {
 
   @Override
   public double getArmExtensionSpeed() {
-    double val = ps4c.getRawAxis(5);
+    double val = ps4c.getRawAxis(1);
     return -val;
   }
 
@@ -47,18 +48,18 @@ public class PSTeleController implements TeleController {
   }
 
   public double getArmLiftSpeed() {
-    double lift = ps4c.getRawAxis(1);
+    double lift = ps4c.getRawAxis(5);
     return -lift;
   }
 
   @Override
   public boolean shouldGrabCone() {
-    return ps4c.getTriangleButton();
+    return ps4c.getRawAxis(4) > 0.5;
   }
 
   @Override
   public boolean shouldGrabCube() {
-    return ps4c.getSquareButton();
+    return ps4c.getRawAxis(3) > 0.5;
   }
 
   public boolean shouldReleaseCone() {

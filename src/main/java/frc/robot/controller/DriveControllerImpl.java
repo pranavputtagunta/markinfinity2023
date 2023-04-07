@@ -44,7 +44,7 @@ public class DriveControllerImpl implements DriveController {
                     }
                 }
             }
-            System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
+           // System.out.println("Moving at speed:" + speed + ", rotation:" + rotation);
         }
         driveSubsystem.arcadeDrive(speed, rotation);
     }

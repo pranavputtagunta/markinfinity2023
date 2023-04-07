@@ -6,14 +6,14 @@ import frc.robot.interfaces.DriveController;
 import frc.robot.interfaces.IntakeController;
 import frc.robot.subsystem.AccelerometerSubsystem;
 
-public class AutonBalanceSimple {
+public class ConeAndBalance {
 
     private DriveController driveController;
     private ArmController armController;
     private IntakeController intakeController;
     private AccelerometerSubsystem accelerometer;
     
-    public AutonBalanceSimple(DriveController driveController, ArmController armController, 
+    public ConeAndBalance(DriveController driveController, ArmController armController, 
         IntakeController intakeController,AccelerometerSubsystem accelerometerSubsystem) 
     {
         this.driveController = driveController;
@@ -24,20 +24,46 @@ public class AutonBalanceSimple {
 
     
     public boolean autonBalance(long timeInAuto) {
-        armController.stop();
-        if(timeInAuto < 500){
-          intakeController.releaseCone(.7);
+        
+        if(timeInAuto < 700){
+          armController.lowerArm(0.7);
+          armController.extendArm(1);
+        }else{
+          armController.stop();
         }
-        if(timeInAuto > 500){
-          intakeController.releaseCone(0);
-        }
-        armController.stop();
 
-        if(timeInAuto < 800){
+        if(timeInAuto < 900){
           return true;
         }
+
+        if(timeInAuto < 1200 ){
+          intakeController.releaseCone(.7);
+        }else {
+          intakeController.stop();
+        }
+
+        if(timeInAuto < 1400){
+          return true;
+        }
+
+        if(timeInAuto < 2190){
+          armController.raiseArm(-0.7);
+          armController.retractArm(-1);
+        }else{
+          armController.stop();
+        }
+
+        if(timeInAuto < 2300){
+          return true;
+        }
+
         
-        if (timeInAuto < 4400) {
+        
+
+
+        
+        
+        if (timeInAuto < 6600) {
           driveController.move(0.4, 0);
           return true;
         } else {
@@ -52,5 +78,8 @@ public class AutonBalanceSimple {
             return true; //finish
           }
         }
+        //return true; 
+        
+      
       }
 }
