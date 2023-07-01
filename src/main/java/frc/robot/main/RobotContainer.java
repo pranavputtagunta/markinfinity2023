@@ -80,6 +80,7 @@ public class RobotContainer {
     System.out.println("Using " + driveteleController.getControllerType() + " telecontroller");
 
     if ("PS4".equals(IOConstants.teleControllerType2))
+    
       armTeleController = new PSTeleController(IOConstants.psDriverControllerPort2);
     else if (IOConstants.teleControllerType2 != null)
       armTeleController = new XboxTeleController(IOConstants.xbDriverControllerPort2);
@@ -259,7 +260,7 @@ public class RobotContainer {
 
   public void teleOp() {
     if (driveteleController.shouldRoboMove()) {
-      double speed = limit(driveteleController.getSpeed(), 0.9);
+      double speed = limit(driveteleController.getSpeed(), 0.85);
       double rotation = limit(driveteleController.getRotation(), 0.5);
       if ((speed != 0) || (rotation != 0))
         driveController.move(speed, rotation);
@@ -272,7 +273,7 @@ public class RobotContainer {
     if (armTeleController.shouldArmMove()) {
       armController.setCurrentTarget(null); // Stop automated move to target if user start manually adjusting arm
       double extendSpeed = limit(armTeleController.getArmExtensionSpeed(), 0.8);
-      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.8);
+      double liftSpeed = limit(armTeleController.getArmLiftSpeed(), 0.9);
 
       if (extendSpeed > 0)
         armController.extendArm(extendSpeed);

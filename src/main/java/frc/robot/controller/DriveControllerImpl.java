@@ -29,7 +29,7 @@ public class DriveControllerImpl implements DriveController {
         driveSubsystem.arcadeDrive(0, 0);
     }
 
-    @Override
+    @Override 
     public void move(double speed, double rotation) {
         boolean speedChange = driveSubsystem.getCurrentSpeed() != speed;
         boolean rotChange = rotation != driveSubsystem.getCurrentRotation();

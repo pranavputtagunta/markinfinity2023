@@ -21,7 +21,7 @@ public class XboxTeleController implements TeleController {
 
   @Override
   public double getRotation() {
-    double rotation = xbc.getRawAxis(2); //4
+    double rotation = xbc.getRawAxis(4); //2
     // if (xbc.getRawAxis(3) > 0.5){
     //   rotation *= 0.75;
     // }
@@ -31,8 +31,9 @@ public class XboxTeleController implements TeleController {
   @Override
   public double getSpeed() {
     double speed = xbc.getRawAxis(1);
-    if (xbc.getRawAxis(3) > 0.5){
-      speed *= 0.75;
+    if (xbc.getRawAxis(3) > 0.1){
+      speed *= 1 - (xbc.getRawAxis(3)/2.5);
+      System.out.println(speed);
     }
     return speed;
   }
